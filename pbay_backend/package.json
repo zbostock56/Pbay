@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "author": "",
   "license": "",
   "dependencies": {
     "express": "^4.17.3",
-    "firebase": "^9.6.11"
+    "firebase": "^9.6.11",
+    "helmet": "^5.0.2"
   }
 }
