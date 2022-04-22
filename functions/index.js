@@ -8,9 +8,10 @@ const source = require("./src/app");
 const app = express();
 
 app.set("view engine", "ejs");
+app.use(express.static("public"));
 
 app.use(helmet());
 app.use(bodyParser.json());
-app.use('/home', source);
+app.use("/home", source);
 
 exports.app = functions.https.onRequest(app);
