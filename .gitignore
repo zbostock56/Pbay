@@ -1,5 +1,7 @@
 # backend
 http
+firebase-debug.log
+ui-debug.log
 
 # dependencies
 /functions/node_modules/
