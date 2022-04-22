@@ -1,10 +1,17 @@
 {
   "hosting": {
     "public": "public",
+    "site": "pbay-51219",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "redirects": [
+      {
+        "source": "/",
+        "destination": "/"
+      }
     ],
     "rewrites": [
       {
@@ -12,5 +19,22 @@
         "function": "app"
       }
     ]
+  },
+  "functions": {
+    "source": "functions"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "functions": {
+      "port": 5001
+    },
+    "hosting": {
+      "port": 5000
+    },
+    "ui": {
+      "enabled": true
+    }
   }
 }

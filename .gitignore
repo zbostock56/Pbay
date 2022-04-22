@@ -1,6 +1,7 @@
 # backend
 http
 firebase-debug.log
+firestore-debug.log
 ui-debug.log
 
 # dependencies
