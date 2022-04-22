@@ -1,5 +1,5 @@
 const { initializeApp } = require("firebase/app");
-const { getFirestore, connectFirestoreEmulator } = require("firebase/firestore");
+const { getFirestore, connectFirestoreEmulator, collection, addDoc, getDocs } = require("firebase/firestore");
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, connectAuthEmulator } = require("firebase/auth");
 
 const firebaseConfig = {
@@ -17,7 +17,7 @@ const db = getFirestore(fb);
 const auth = getAuth();
 
 connectAuthEmulator(auth, "http://localhost:9099");
-//connectFirestoreEmulator(db, 'localhost', 4000);
+connectFirestoreEmulator(db, "localhost", 8080);
 
 const express = require("express");
 const app = express();
@@ -146,7 +146,31 @@ const listings = [
     }
 ];
 
+app.post("/item", async (req, res) => {
+    try {
+        const docRef = await addDoc(collection(db, "test"), {
+            name: req.body.name,
+            age: req.body.age
+        });
+        
+        res.status(200).json({ message: `${docRef.id} successfully added`});
+    } catch (err) {
+        res.status(400).json({ message: err });
+    }
+});
+
+app.get("/item", async (req, res) => {
+    try {
+        const snapshot = await getDocs(collection(db, "test"));
+        res.status(200).json({ docs: snapshot, message: "Docs successfully read" });    
+    } catch (err) {
+        res.status(400).json({ message: err });
+    }
+});
+
 app.post("/signup", (req, res) => {
+    const email = req.body.password;
+
     createUserWithEmailAndPassword(auth, req.body.email, req.body.password).then((cred) => {
         res.status(200).json({ user: cred.user });
     }).catch((err) => {
@@ -161,10 +185,6 @@ app.post("/login", (req, res) => {
         res.status(400).json({ code: err.code, msg: err.message });
     });
 });
-
-// app.post("/item", (req, res) => {
-
-// });
 
 app.get("/", (req, res) => {
     res.render("pages/index", { listings: listings });
