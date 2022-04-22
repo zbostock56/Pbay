@@ -1,3 +1,4 @@
+const functions = require("firebase-functions");
 const express = require("express");
 const helmet = require("helmet");
 const ejs = require("ejs");
@@ -5,13 +6,9 @@ const ejs = require("ejs");
 const source = require("./src/app");
 const app = express();
 
-const PORT = 3000;
-
 app.set("view engine", "ejs");
 
 app.use(helmet());
-app.use('/', source);
+app.use('/home', source);
 
-app.listen(PORT, () => {
-    console.log(`Listening on port ${PORT}`);
-});
+exports.app = functions.https.onRequest(app);
