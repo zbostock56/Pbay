@@ -7,12 +7,6 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "redirects": [
-      {
-        "source": "/",
-        "destination": "/"
-      }
-    ],
     "rewrites": [
       {
         "source": "**",
@@ -45,7 +39,10 @@
     }
   },
   "firestore": {
-    "rules": "firestore.rules",
+    "rules": "rules/firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "rules/storage.rules"
   }
 }

@@ -1,8 +1,10 @@
-# backend
+# development
 http
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+*request.json
+test.jpg
 
 # dependencies
 /functions/node_modules/
