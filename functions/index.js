@@ -7,6 +7,7 @@ const source = require("./src/app");
 const app = express();
 
 app.set("view engine", "ejs");
+app.use(express.static("public"));
 
 app.use(helmet());
 app.use('/', source);
