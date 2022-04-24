@@ -32,122 +32,133 @@ const listings = [
         title: "Listing 1",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "this is a tag!"
     },
     {
         title: "Listing 2",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tag: "here is the story of a man who once was large"
     },
     {
         title: "Listing 3",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "This is a tag"
     },
     {
         title: "Listing 4",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "This is the best thing in the world"
     },
     {
         title: "Test",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "Please help me"
     },
     {
         title: "Test",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "Yes!"
     },
     {
         title: "Test",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "crypto currency"
     },
     {
         title: "Test",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "crypto currency"
     },
     {
         title: "Test",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "Hello world"
     },
     {
         title: "No Picture",
         desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "Consumer Goods"
     },
     {
         title: "No Description",
         desc: "",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Fuck me!",
+        tags: "Fuck me!"
     },
     {
         title: "No Location",
         desc: "This",
         img: "supposed to be something here",
-        src: "C:\Users\ZB56\Documents\2 - Programming Projects\Pbay\pbay_backend\views\partials\Purdue ID Picture-2.jpg",
+        src: "",
         time: "4/21/22 7:47 PM",
         location: "",
         phone_number: "(317) 501-5372",
-        price: "100.50"
+        price: "100.50",
+        tags: "Test"
     }
 ];
 

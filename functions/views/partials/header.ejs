@@ -1,12 +1,46 @@
+<!-- 
+  ===========  NavBar ============= 
+  DESC:
+  Creates a responsive navbar that includes
+  links to the home page, creation of a listing,
+  search (future), messages (TBD)
+  Note: 106 px height fixed
+
+  PARAMETERS:
+  None
+
+  RETURNS:
+  A NavBar instance
+  ===========================
+-->
 <nav
-  class="navbar navbar-expand-lg navbar-dark bg-dark"
+  class="navbar fixed-top navbar-expand-sm navbar-dark bg-dark"
   style="font-weight: bolder"
 >
   <div class="container-fluid">
-    <!-- Can Replace Text within "navbar-brand" with an image -->
+    <!-- 
+    ********* Navbar-Brand: logo **********
+    DESC:
+    -> Houses the logo for pBay
+    -> Can be used as a redirect
+    *******************************
+    -->
     <a class="navbar-brand" href="#">
-      <img src="logo.png" width="70" height="70" alt="There should be an image here">
+      <img
+        src="logo.png"
+        width="70"
+        height="80"
+        alt="There should be an image here"
+      />
     </a>
+    <!-- 
+    ********* Offcanvas Transition **********
+    DESC:
+    -> Creates offcanvas "slide over"
+    -> STATUS: Inoperable
+    See note in: index.js
+    *******************************
+    -->
     <button
       class="navbar-toggler"
       type="button"
@@ -60,10 +94,6 @@
           <a class="nav-link" href="#">About Us</a>
         </li>
       </ul>
-      <!-- <form class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form> -->
     </div>
   </div>
 </nav>

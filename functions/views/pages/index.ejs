@@ -1,25 +1,74 @@
+<!-- Doc Template -->
+<!-- 
+  ===========  Title ============= 
+  DESC:
+
+  PARAMETERS:
+
+  RETURNS:
+  ===========================
+-->
+<!-- Notes Template -->
+<!-- 
+  ********* Note Title **********
+  DESC:
+  -> ...
+  *******************************
+ -->
+
+<!-- 
+  ===========  index.ejs (Home) ============= 
+  DESC:
+  Creation of the homepage with the necessary
+  elements inputted as partials
+
+  PARAMETERS:
+  listing data
+
+  RETURNS:
+  Homepage
+  ===========================
+-->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- ===== Link the stylesheet ===== -->
+    <!-- 
+      ***** Link the stylesheet ***** 
+      DESC: 
+      -> Bring in the necessary styling
+      resources for Bootstrap
+      *******************************
+    -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous"
     />
-    <!-- =============================== -->
     <%- include('../partials/head'); %>
   </head>
   <body class="container">
     <header><%- include('../partials/header'); %></header>
-
     <main>
       <div class="Main">
-        <div class="row row-cols-1 row-cols-md-1 g-1">
+        <!-- 
+          ***** Notes on the Navbar and Spacing below the Navbar *****
+          DESC: 
+          -> Hard Coded 120 px padding on the top of all cards div to
+          account for the 106 px navbar on the top
+          -> Note: Navbar does not change height based on the viewport
+          height
+          ************************************************************
+        -->
+        <div
+          class="row row-cols-1 row-cols-md-1 g-1"
+          style="padding-top: 120px"
+        >
           <% listings.forEach((listing) => { %>
+
           <div class="col" style="padding-bottom: 3vh; padding-top: 3vh">
             <%- include('../partials/card', {listing: listing}); %>
           </div>
@@ -28,14 +77,25 @@
       </div>
     </main>
     <footer><%- include('../partials/footer'); %></footer>
+    <!-- 
+      ***** JavaScript Add-Ons *****
+      DESC:
+      -> Add the necessary resources
+      for Bootstrap. Includes scripting
+      for transitions/animations
+      -> TODO: Find a fix for
+
+      CONSOLE OUTPUT:
+      Refused to load the script 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js' 
+      because it violates the following 
+      Content Security Policy directive: "script-src 'self'". 
+      Note that 'script-src-elem' was not explicitly set, 
+      so 'script-src' is used as a fallback.
+      ******************************
+     -->
     <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
-      integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
-      integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
       crossorigin="anonymous"
     ></script>
   </body>
