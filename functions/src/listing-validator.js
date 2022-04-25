@@ -28,7 +28,7 @@ const listingValidator = (req, res, next) => {
         errors.location = "Invalid location";
     }
 
-    const phoneValidator = /^\([0-9]{3}\)-[0-9]{3}-[0-9]{4}$/;
+    const phoneValidator = /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/;
     const phoneNumber = req.body.phoneNumber;
     if (phoneNumber && ((typeof phoneNumber !== "string") || (phoneValidator.test(phoneNumber) == false))) {
         status = false;

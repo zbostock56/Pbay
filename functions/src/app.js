@@ -1,5 +1,5 @@
 const { initializeApp } = require("firebase/app");
-const { getFirestore, connectFirestoreEmulator, collection, addDoc, getDocs } = require("firebase/firestore");
+const { getFirestore, connectFirestoreEmulator, collection, addDoc, doc, onSnapshot } = require("firebase/firestore");
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, connectAuthEmulator, onAuthStateChanged, signOut } = require("firebase/auth");
 const { getStorage, ref, uploadBytes, uploadBytesResumable, getDownloadURL, connectStorageEmulator } = require("firebase/storage");
 
@@ -19,7 +19,7 @@ const auth = getAuth();
 const storage = getStorage(fb);
 
 connectAuthEmulator(auth, "http://127.0.0.1:9099");
-connectFirestoreEmulator(db, "127.0.0.1", 8080);
+connectFirestoreEmulator(db, "127.0.0.1", 8081);
 connectStorageEmulator(storage, "localhost", 9199);
 
 const express = require("express");
@@ -390,17 +390,20 @@ app.get("/create_listing", (req, res) => {
    - 400: failture
   =================================
 */
-// app.post("/edit_listing", formParser, listingValidator, async (req, res) => {
-//     const user = auth.currentUser();
+app.post("/edit_listing", formParser, listingValidator, async (req, res) => {
+    const user = auth.currentUser;
 
-//     if (!user) {
-//         res.status(400).send({ msg: "Invalid user (auth/invalid-user)"});
-//     }
+    if (!user) {
+        res.status(400).send({ msg: "Invalid user (auth/invalid-user)"});
+    }
 
-//     if (req.body.img) {
-
-//     }
-// });
+    onSnapshot(doc(db, "listings", req.body.listing), (doc) => {
+        res.status(200).json({ data: doc._document.data.value.mapValue.fields });
+    },
+    (err) => {
+        res.status(400).json({ msg: err.message });
+    });
+});
 
 // app.delete("/delete_listing", (req, res) => {
 
