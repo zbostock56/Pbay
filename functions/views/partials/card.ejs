@@ -55,9 +55,38 @@
     alt="<%= listing.img %>"
   />
   <div class="card-body">
-    <!-- ===== Dropdown for the description of the listing ===== -->
-    <% if(listing.desc === "") { %> No description was listed <% } else { %> <%=
-    listing.desc %> <% } %>
+    <!-- ===== Offcanvas for the description of the listing ===== -->
+    <button
+      class="btn btn-primary"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#offcanvasBottom"
+      aria-controls="offcanvasBottom"
+    >
+      See more info
+    </button>
+    <div
+      class="offcanvas offcanvas-bottom"
+      tabindex="-1"
+      data-bs-backdrop="true"
+      data-bs-scroll="true"
+      id="offcanvasBottom"
+      aria-labelledby="offcanvasBottomLabel"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasBottomLabel">Description</h5>
+        <button
+          type="button"
+          class="btn-close text-reset"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="offcanvas-body medium">
+        <% if(listing.desc === "") { %> No description was listed <% } else { %>
+        <%= listing.desc %> <% } %>
+      </div>
+    </div>
     <!-- ========================================================= -->
   </div>
   <div class="card-footer">
