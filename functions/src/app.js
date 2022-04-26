@@ -1,5 +1,5 @@
 const { initializeApp } = require("firebase/app");
-const { getFirestore, connectFirestoreEmulator, collection, addDoc, doc, onSnapshot } = require("firebase/firestore");
+const { getFirestore, connectFirestoreEmulator, collection, addDoc, doc, onSnapshot, setDoc, updateDoc, getDoc, deleteDoc } = require("firebase/firestore");
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, connectAuthEmulator, onAuthStateChanged, signOut } = require("firebase/auth");
 const { getStorage, ref, uploadBytes, uploadBytesResumable, getDownloadURL, connectStorageEmulator } = require("firebase/storage");
 
@@ -347,6 +347,7 @@ app.post("/create_listing", formParser, listingValidator, async (req, res) => {
                 });
             });
         } else {
+            // If no image has been uploaded, add a listing without an image
             await addDoc(collection(db, "listings"), {
                 user: user.email,
                 title: req.body.title,
@@ -390,24 +391,59 @@ app.get("/create_listing", (req, res) => {
    - 400: failture
   =================================
 */
-app.post("/edit_listing", formParser, listingValidator, async (req, res) => {
+// app.post("/edit_listing", formParser, listingValidator, async (req, res) => {
+//     const user = auth.currentUser;
+
+//     if (!user) {
+//         res.status(400).send({ msg: "Invalid user (auth/invalid-user)"});
+//     }
+
+//     const listingRef = doc(db, "listings", req.body.listing);
+
+//     await updateDoc(listingRef, {
+
+//     });
+// });
+
+/*
+  ========== DELETE /delete_listing ==========
+  DESC: Delete a current sell listing
+
+  PARAMETERS:
+  listing (String, required): The id of the desired listing to delete
+
+  RETURNS:
+  status:
+   - 200: success
+   - 400: failture
+  =================================
+*/
+app.post("/delete_listing", formParser, async (req, res) => {
     const user = auth.currentUser;
 
-    if (!user) {
-        res.status(400).send({ msg: "Invalid user (auth/invalid-user)"});
+    if(!user) {
+        res.status(400).json({ msg: "Invalid user (auth/invalid-user)"});
     }
 
-    onSnapshot(doc(db, "listings", req.body.listing), (doc) => {
-        res.status(200).json({ data: doc._document.data.value.mapValue.fields });
-    },
-    (err) => {
-        res.status(400).json({ msg: err.message });
-    });
+    const listingRef = doc(db, "listings", req.body.listing);
+    const listingSnapshot = await getDoc(listingRef);
+
+    if (listingSnapshot.data()) {
+        if (user.email === listingSnapshot.data().user) {
+            try {
+                await deleteDoc(listingRef);
+                res.status(200).json({ msg: "Listing deleted" });
+            } catch (err) {
+                res.status(400).json({ msg: err.message });
+            }
+        } else {
+            res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
+        }
+        res.status(200).json({ msg: listingSnapshot.data() });
+    } else {
+        res.status(400).json({ msg: "Invalid listing" });
+    }
 });
-
-// app.delete("/delete_listing", (req, res) => {
-
-// });
 
 // ================== CHAT ==================
 
