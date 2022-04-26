@@ -9,3 +9,6 @@ test.jpg
 # dependencies
 /functions/node_modules/
 /functions/node_modules/.bin/
+
+#templates
+/functions/views/pages/template.ejs
