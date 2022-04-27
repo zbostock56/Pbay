@@ -11,4 +11,4 @@ test.jpg
 /functions/node_modules/.bin/
 
 #templates
-/functions/views/pages/template.ejs
+# /functions/views/pages/template.ejs
