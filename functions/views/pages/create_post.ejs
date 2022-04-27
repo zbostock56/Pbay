@@ -22,24 +22,32 @@
       <div class="main">
         <h1>Create Your Listing</h1>
         <div class="mb-3">
-          <label for="title" class="form-label">Name of Product</label>
-          <input
-            class="form-control"
-            type="text"
-            placeholder="Be Descriptive!"
-            aria-label="title_input"
-            id="title"
-          />
+          <div class="row">
+            <div class="col">
+              <label for="title" class="form-label">Name of Product</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Be Descriptive!"
+                aria-label="title_input"
+                id="title"
+              />
+            </div>
+            <div class="col">
+              <label for="tags" class="form-label">Category Tag</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Give a broad category in one word (e.g. electronics)"
+                aria-label="title_input"
+                id="title"
+              />
+            </div>
+          </div>
         </div>
         <div class="mb-3">
-          <label for="tags" class="form-label">Category Tag</label>
-          <input
-            class="form-control"
-            type="text"
-            placeholder="Give a broad category in one word (e.g. electronics)"
-            aria-label="title_input"
-            id="title"
-          />
+          <label for="file-input" class="form-label">Upload a Picture</label>
+          <input type="file" class="form-control" id="file-input" />
         </div>
         <div class="mb-3">
           <label for="description" class="form-label"
@@ -54,10 +62,6 @@
             aria-label="Description-input"
           ></textarea>
         </div>
-        <div class="mb-s">
-          <label for="file-input" class="form-label">Upload a Picture</label>
-          <input type="file" class="form-control" id="file-input" />
-        </div>
         <div class="input-group mb-3">
           <label for="Price-Input" class="form-label"
             >Enter an Asking Price</label
@@ -70,9 +74,21 @@
             aria-label="Price-Input"
             placeholder="0.00"
           />
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              value=""
+              id="flexCheckDefault"
+            />
+            <label class="form-check-label" for="flexCheckDefault">
+              Post item as free (any price posted will be removed if checked)
+            </label>
+          </div>
         </div>
       </div>
     </main>
+    <footer><%- include('../partials/footer'); %></footer>
     <!-- 
       ***** JavaScript Add-Ons *****
       DESC:
@@ -86,4 +102,5 @@
       crossorigin="anonymous"
     ></script>
   </body>
+  <footer></footer>
 </html>
