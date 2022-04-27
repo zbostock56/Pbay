@@ -17,7 +17,7 @@ const listingValidator = (req, res, next) => {
     }
 
     const desc = req.body.desc;
-    if (desc && ((typeof desc !== "string") || (desc.length > 500))) {
+    if (desc && ((typeof desc !== "string") || (desc.length > 1000))) {
         status = false;
         errors.desc = "Invalid description";
     }
