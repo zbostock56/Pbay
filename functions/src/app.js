@@ -562,7 +562,7 @@ app.post("/delete_request", formParser, async (req, res) => {
 // ========================== ROUTING ===========================
 
 app.get("/home", (req, res) => {
-    res.render("pages/index", { listings: listings });
+    res.render("pages/login", { listings: listings });
 });
 
 // ========================== HELPERS ===========================
