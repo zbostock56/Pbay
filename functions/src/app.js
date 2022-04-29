@@ -556,7 +556,7 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
 // ========================== ROUTING ===========================
 
 app.get("/home", (req, res) => {
-    res.render("pages/index", { listings: listings });
+    res.render("pages/login", { listings: listings });
 });
 
 // TEST ROUTES
