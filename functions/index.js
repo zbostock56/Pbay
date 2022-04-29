@@ -12,7 +12,25 @@ app.use(express.static("public"));
 app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
     directives: {
-        "script-src": ['self', "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"]
+        "script-src": [
+            "self",
+            "http://localhost:3000/login.js",
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js",
+            "https://pbay-51219.firebaseapp.com/",
+            "https://*.gstatic.com",
+            "https://*.googleapis.com",
+            "https://*.google.com",
+        ],
+        "connect-src": [
+            "self",
+            "https://*.googleapis.com",
+            "https://*.google.com",
+            "https://*.gstatic.com"
+        ],
+        "frame-src": [
+            "http://127.0.0.1:9099",
+            "https://pbay-51219.firebaseapp.com/"
+        ]
     }
 }));
 app.use('/', source);

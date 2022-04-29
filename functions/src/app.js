@@ -1,32 +1,29 @@
-const { initializeApp } = require("firebase/app");
-const { getFirestore, connectFirestoreEmulator, collection, addDoc, doc, onSnapshot, setDoc, updateDoc, getDoc, deleteDoc } = require("firebase/firestore");
-const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, connectAuthEmulator, onAuthStateChanged, signOut, updatePassword } = require("firebase/auth");
-const { getStorage, ref, uploadBytes, uploadBytesResumable, getDownloadURL, connectStorageEmulator } = require("firebase/storage");
+const { initializeApp, applicationDefault } = require("firebase-admin/app");
+const { getFirestore, collection, addDoc, doc, updateDoc, getDoc, deleteDoc } = require("firebase-admin/firestore");
+const { getAuth } = require("firebase-admin/auth");
+const { getStorage, ref, uploadBytesResumable, getDownloadURL } = require("firebase-admin/storage");
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBtuKD3x-8ggb5UoZsuX4MF-qQhoIMK0_k",
-    authDomain: "pbay-51219.firebaseapp.com",
-    projectId: "pbay-51219",
-    storageBucket: "pbay-51219.appspot.com",
-    messagingSenderId: "825090402653",
-    appId: "1:825090402653:web:33cf280f3e6c071bbe20b4",
-    measurementId: "G-F5FKK2C9M4"
-};
+const fb = initializeApp({
+    credential: applicationDefault(),
+    databaseURL: "http://127.0.0.1:8081",
+    //databaseURL: "https://pbay-51219.firebaseio.com",
+    //storageBucket: "gs://pbay-51219.appspot.com",
+    storageBucket: "http://127.0.0.1:9199"
+});
+const db = getFirestore();
+const storage = getStorage();
 
-const fb = initializeApp(firebaseConfig);
-const db = getFirestore(fb);
-const auth = getAuth();
-const storage = getStorage(fb);
-
-connectAuthEmulator(auth, "http://127.0.0.1:9099");
-connectFirestoreEmulator(db, "127.0.0.1", 8081);
-connectStorageEmulator(storage, "localhost", 9199);
+//connectAuthEmulator(auth, "http://127.0.0.1:9099");
+//connectFirestoreEmulator(db, "127.0.0.1", 8081);
+//connectStorageEmulator(storage, "localhost", 9199);
 
 const express = require("express");
+
 const formParser = require("./form-parser");
 const listingValidator = require("./listing-validator");
 const requestValidator = require("./request-validator");
-const { async } = require("@firebase/util");
+const imgValidator = require("./img-validator");
+
 const app = express();
 
 const listings = [
@@ -164,8 +161,6 @@ const listings = [
     }
 ];
 
-const test = [ "test" ];
-
 // DOC TEMPLATE
 /*
   ==========  ==========
@@ -177,92 +172,6 @@ const test = [ "test" ];
   =================================
 */
 
-// ====================== AUTHENTICATION ======================
-
-/*
-  ========== POST /signup ==========
-  DESC: 
-  Creates a new user from a given email and password
-
-  PARAMETERS:
-  email (String): Email of new account, must be a purdue.edu email
-  password (String): Password of new account, must be at least 6 characters
-
-  RETURNS:
-  status:
-   - 200: success
-   - 400: failture
-
-  code: Code corresponding to request status
-
-  msg: message relating to the status of the request
-  =================================
-*/
-app.post("/signup", (req, res) => {
-    const email = req.body.email;
-
-    const validEmail = new RegExp("..\*@purdue.edu\$");
-
-    if(validEmail.test(email) == false) {
-        res.status(400).json({ msg: "Email must be a valid purdue.edu email (auth/invalid-email)"});
-    }
-
-    createUserWithEmailAndPassword(auth, req.body.email, req.body.password).then((cred) => {
-        res.status(200).json({ msg: "User successfully created" });
-    }).catch((err) => {
-        res.status(400).json({ msg: err.message });
-    });
-});
-
-/*
-  ========== POST /login ==========
-  DESC: 
-  Signs in an existing user
-
-  PARAMETERS:
-  email (String): Email of desired account
-  password (String): Password of desired account
-
-  RETURNS:
-  status:
-   - 200: success
-   - 400: failture
-
-  code: Code corresponding to request status
-
-  msg: message relating to the status of the request
-  =================================
-*/
-app.post("/login", (req, res) => {
-    signInWithEmailAndPassword(auth, req.body.email, req.body.password).then((cred) => {
-        res.status(200).json({ msg: "Successfully signed in" });
-    }).catch((err) => {
-        res.status(400).json({ msg: err.message });
-    });
-});
-
-/*
-  ========== POST /logout ==========
-  DESC: Logs the current user out
-
-  PARAMETERS: N/A
-
-  RETURNS:
-  status:
-   - 200: success
-   - 400: failure
-
-  msg: Message relating to request status
-  =================================
-*/
-app.post("/logout", (req, res) => {
-    signOut(auth).then(() => {
-        res.status(200).json({ msg: "Successfully signed out" });
-    }).catch((err) => {
-        res.status(400).json({ msg: err.message });
-    });
-});
-
 // ========================= LISTINGS =========================
 
 /*
@@ -270,12 +179,12 @@ app.post("/logout", (req, res) => {
   DESC: Create a new sell listing
 
   PARAMETERS:
-  title (String, required): Title of new listing
-  desc (String, required): Optional description of new listing
-  location (String, required): Location of new listing
-  phoneNumber (String, required): Phone number of seller in form (xxx)-xxx-xxxx
-  price (Number, required): Price of listing
-  img (File, optional): Image of listing item
+   - title (String, required): Title of new listing
+   - desc (String, required): Optional description of new listing
+   - location (String, required): Location of new listing
+   - phoneNumber (String, required): Phone number of seller in form (xxx)-xxx-xxxx
+   - price (Number, required): Price of listing
+   - img (File, optional): Image of listing item
 
   RETURNS:
   status:
@@ -285,90 +194,88 @@ app.post("/logout", (req, res) => {
   msg: Message relating to request status
   =================================
 */
-app.post("/create_listing", formParser, listingValidator, async (req, res) => {
-    // Grab current user
-    const user = auth.currentUser;
+app.post("/create_listing", formParser, listingValidator, imgValidator, async (req, res) => {
+    const auth = getAuth();
 
-    // Ensure user is logged in
-    if (!user) {
-        res.status(400).json({  msg: "Invalid user (auth/invalid-user)" });
-    }
+    auth.verifyIdToken(req.body.idToken)
+    .then(async (decodedToken) => {
+        const uid = decodedToken.uid;
 
-    // Calculate timestamp info
-    const time = new Date();
-    let hour = time.getHours();
-    let minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes();
-    let timeOfDay = "AM";
-    if (time.getHours() > 12) {
-        timeOfDay = "PM";
-        hour -= 12;
-    }
+        // Calculate timestamp info
+        const time = new Date();
+        let hour = time.getHours();
+        let minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes();
+        let timeOfDay = "AM";
+        if (time.getHours() > 12) {
+            timeOfDay = "PM";
+            hour -= 12;
+        }
 
-    // Create image id in the form {EMAIL}+{IMAGE_TITLE}+{TIME}
-    const imgID = `${user.email}+${req.body.title}+${time.getTime()}`
+        // Create image id in the form {EMAIL}+{IMAGE_TITLE}+{TIME}
+        const imgID = `${uid}+${req.body.title}+${time.getTime()}`
 
-    try {
-        if (req.body.img) {
-            // Initialize Firebase storage location of image
-            const storageRef = ref(storage, `images/${imgID}`);
-            let imgUrl = "";
+        try {
+            if (req.body.img) {
+                // Initialize Firebase storage location of image
+                const storageRef = ref(storage, `images/${imgID}`);
+                let imgUrl = "";
 
-            // Define file as an image in firebase
-            const metadata = {
-                contentType: 'image/jpeg'
-            };
+                // Define file as an image in firebase
+                const metadata = {
+                    contentType: 'image/jpeg'
+                };
 
-            // Upload file to firebase
-            const uploadTask = uploadBytesResumable(storageRef, req.body.img, metadata);
+                // Upload file to firebase
+                const uploadTask = uploadBytesResumable(storageRef, req.body.img, metadata);
 
-            uploadTask.on('state_changed', (snapshot) => {}, (err) => {
-                // Return error if upload error
-                res.status(400).json({ msg: err.message });
-            }, async () => {
-                // On successful upload, grab the image url from firebase
-                imgUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                uploadTask.on('state_changed', (snapshot) => {}, (err) => {
+                    // Return error if upload error
+                    res.status(400).json({ msg: err.message });
+                }, async () => {
+                    // On successful upload, grab the image url from firebase
+                    imgUrl = await getDownloadURL(uploadTask.snapshot.ref);
 
-                // Add the listing to firestore, with the image connected to the firestore listing via it's firebase storage
-                // url
+                    // Add the listing to firestore, with the image connected to the firestore listing via it's firebase storage
+                    // url
+                    await addDoc(collection(db, "listings"), {
+                        user: uid,
+                        title: req.body.title,
+                        desc: req.body.desc,
+                        location: req.body.location,
+                        phoneNumber: req.body.phoneNumber,
+                        price: parseInt(req.body.price),
+                        img: imgUrl,
+                        imgID: imgID,
+                        //time: `${time.getMonth()}/${time.getDate()}/${time.getFullYear()} ${hour}:${minutes} ${timeOfDay}`,
+                        timeID: time.getTime()
+                    });
+                });
+            } else {
+                // If no image has been uploaded, add a listing without an image
                 await addDoc(collection(db, "listings"), {
-                    user: user.email,
+                    user: uid,
                     title: req.body.title,
                     desc: req.body.desc,
                     location: req.body.location,
                     phoneNumber: req.body.phoneNumber,
                     price: parseInt(req.body.price),
-                    img: imgUrl,
-                    imgID: imgID,
-                    time: `${time.getMonth()}/${time.getDate()}/${time.getFullYear()} ${hour}:${minutes} ${timeOfDay}`,
+                    img: "",
+                    imgID: "",
+                    //time: `${time.getMonth()}/${time.getDate()}/${time.getFullYear()} ${hour}:${minutes} ${timeOfDay}`,
                     timeID: time.getTime()
                 });
-            });
-        } else {
-            // If no image has been uploaded, add a listing without an image
-            await addDoc(collection(db, "listings"), {
-                user: user.email,
-                title: req.body.title,
-                desc: req.body.desc,
-                location: req.body.location,
-                phoneNumber: req.body.phoneNumber,
-                price: parseInt(req.body.price),
-                img: "",
-                imgID: "",
-                time: `${time.getMonth()}/${time.getDate()}/${time.getFullYear()} ${hour}:${minutes} ${timeOfDay}`,
-                timeID: time.getTime()
-            });
+            }
+
+            // Send success message
+            res.status(200).json({ msg: "Listing created" });
+        } catch (err) {
+            // Send error message on error
+            res.status(400).json({ msg: err.message });   
         }
-
-        // Send success message
-        res.status(200).json({ msg: "Listing created" });
-    } catch (err) {
-        // Send error message on error
-        res.status(400).json({ msg: err.message });   
-    }
-});
-
-app.get("/create_listing", (req, res) => {
-    res.render("pages/test");
+    })
+    .catch((err) => {
+        res.status(400).json({ msg: err.message });
+    });
 });
 
 /*
@@ -376,12 +283,14 @@ app.get("/create_listing", (req, res) => {
   DESC: Edit a current sell listing
 
   PARAMETERS:
-  title (String, optional): Title of new listing
-  desc (String, optional): Optional description of new listing
-  location (String, optional): Location of new listing
-  phoneNumber (String, optional): Phone number of seller in form (xxx)-xxx-xxxx
-  price (Number, optional): Price of listing
-  img (File, optional): Image of listing
+   - title (String, optional): Title of new listing
+   - desc (String, optional): Optional description of new listing
+   - location (String, optional): Location of new listing
+   - phoneNumber (String, optional): Phone number of seller in form (xxx)-xxx-xxxx
+   - price (Number, optional): Price of listing
+   - img (File, optional): Image of listing
+   - imgUpdated (Boolean, required): Regarding whether the listing image is being
+  updated
 
   RETURNS:
   status:
@@ -391,7 +300,7 @@ app.get("/create_listing", (req, res) => {
   msg: Message relating to request status
   =================================
 */
-// app.post("/edit_listing", formParser, listingValidator, async (req, res) => {
+// app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req, res) => {
 //     const user = auth.currentUser;
 
 //     if (!user) {
@@ -404,9 +313,50 @@ app.get("/create_listing", (req, res) => {
 //     if (listingSnapshot.data()) {
 //         if (user.email === listingSnapshot.data().user) {
 //             const update = genListingUpdate(listingSnapshot.data(), req);
-        
+
+//             if (req.body.imgUpdate == "true") {
+//                 const oldImgID = listingSnapshot.data().imgID;
+
+//                 const timeID = new Date().getTime();
+//                 const imgID = `${user.email}+${req.body.title}+${timeID}`;
+//                 const imgRef = ref(storage, `images/${oldImgID}`);
+
+//                 try {
+//                     if (req.body.img) {
+//                         const storageRef = ref(storage, `images/${imgID}`);
+
+//                         const metadata = {
+//                             contentType: "img/jpeg"
+//                         }
+
+//                         const uploadTask = uploadBytesResumable(storageRef, req.body.img, metadata);
+
+//                         uploadTask.on('state_changed', (snapshot) => {}, (err) => {
+//                             res.status(400).json({ msg: err.message });
+//                         }, async () => {
+//                             deleteObject(imgRef);
+
+//                             update.img = await getDownloadURL(uploadTask.snapshot.ref);
+//                             update.imgID = imgID;
+//                             update.timeID = timeID;
+//                         });
+//                     } else {
+//                         deleteObject(imgRef);
+
+//                         if (listingSnapshot.data().img != update.img) {
+//                             update.img = "";
+//                             update.imgID = "";
+//                         }
+//                     }
+//                 } catch (err) {
+//                     res.status(400).json({ msg: err.message });
+//                 }
+//             }
+
 //             try {
-//                 await updateDoc(listingRef, update);
+//                 if (Object.keys(update).length != 0) {
+//                     await updateDoc(listingRef, update);
+//                 }
 //                 res.status(200).json({ msg: "Listing updated" });
 //             } catch (err) {
 //                 res.status(400).json({ msg: err.message });
@@ -424,7 +374,7 @@ app.get("/create_listing", (req, res) => {
   DESC: Delete a current sell listing
 
   PARAMETERS:
-  listing (String, required): The id of the desired listing to delete
+   - listing (String, required): The id of the desired listing to delete
 
   RETURNS:
   status:
@@ -434,31 +384,31 @@ app.get("/create_listing", (req, res) => {
   msg: Message relating to request status
   ============================================
 */
-app.post("/delete_listing", formParser, async (req, res) => {
-    const user = auth.currentUser;
+// app.post("/delete_listing", formParser, async (req, res) => {
+//     const user = auth.currentUser;
 
-    if(!user) {
-        res.status(400).json({ msg: "Invalid user (auth/invalid-user)"});
-    }
+//     if(!user) {
+//         res.status(400).json({ msg: "Invalid user (auth/invalid-user)"});
+//     }
 
-    const listingRef = doc(db, "listings", req.body.listing);
-    const listingSnapshot = await getDoc(listingRef);
+//     const listingRef = doc(db, "listings", req.body.listing);
+//     const listingSnapshot = await getDoc(listingRef);
 
-    if (listingSnapshot.data()) {
-        if (user.email === listingSnapshot.data().user) {
-            try {
-                await deleteDoc(listingRef);
-                res.status(200).json({ msg: "Listing deleted" });
-            } catch (err) {
-                res.status(400).json({ msg: err.message });
-            }
-        } else {
-            res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
-        }
-    } else {
-        res.status(400).json({ msg: "Invalid listing" });
-    }
-});
+//     if (listingSnapshot.data()) {
+//         if (user.email === listingSnapshot.data().user) {
+//             try {
+//                 await deleteDoc(listingRef);
+//                 res.status(200).json({ msg: "Listing deleted" });
+//             } catch (err) {
+//                 res.status(400).json({ msg: err.message });
+//             }
+//         } else {
+//             res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
+//         }
+//     } else {
+//         res.status(400).json({ msg: "Invalid listing" });
+//     }
+// });
 
 // ========================== REQUESTS ==========================
 
@@ -467,8 +417,8 @@ app.post("/delete_listing", formParser, async (req, res) => {
   DESC: Create a new request for an item
 
   PARAMETERS:
-  title (String, required): Title of request
-  desc (String, required): Description of item request
+   - title (String, required): Title of request
+   - desc (String, required): Description of item request
 
   RETURNS:
   status:
@@ -478,36 +428,80 @@ app.post("/delete_listing", formParser, async (req, res) => {
   msg: Message relating to request status
   ==========================================
 */
-app.post("/create_request", formParser, requestValidator, async (req, res) => {
-    const user = auth.currentUser;
+// app.post("/create_request", formParser, requestValidator, async (req, res) => {
+//     const user = auth.currentUser;
 
-    if (!user) {
-        res.status(400).json({ msg: "Invalid user (auth/invalid-user)" });
-    }
+//     if (!user) {
+//         res.status(400).json({ msg: "Invalid user (auth/invalid-user)" });
+//     }
 
-    const time = new Date();
-    let hour = time.getHours();
-    let minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : `${time.getMinutes()}`;
-    let timeOfDay = "AM";
-    if (hour > 12) {
-        timeOfDay = "PM";
-        hour -= 12;
-    }
+//     const time = new Date();
+//     let hour = time.getHours();
+//     let minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : `${time.getMinutes()}`;
+//     let timeOfDay = "AM";
+//     if (hour > 12) {
+//         timeOfDay = "PM";
+//         hour -= 12;
+//     }
 
-    try {
-        await addDoc(collection(db, "requests"), {
-            title: req.body.title,
-            desc: req.body.desc,
-            email: user.email,
-            time: `${time.getMonth()}/${time.getDate()}/${time.getFullYear()} ${hour}:${minutes} ${timeOfDay}`,
-            timeId: time.getDate()
-        });
+//     try {
+//         await addDoc(collection(db, "requests"), {
+//             title: req.body.title,
+//             desc: req.body.desc,
+//             email: user.email,
+//             //time: `${time.getMonth()}/${time.getDate()}/${time.getFullYear()} ${hour}:${minutes} ${timeOfDay}`,
+//             timeId: time.getTime()
+//         });
 
-        res.status(200).json({ msg: "Request created" });
-    } catch(err) {
-        res.status(400).json({ msg: err.message })
-    }
-});
+//         res.status(200).json({ msg: "Request created" });
+//     } catch(err) {
+//         res.status(400).json({ msg: err.message })
+//     }
+// });
+
+/*
+  ========== POST /edit_request ==========
+  DESC: Edit a current buy request
+
+  PARAMETERS:
+   - title (String, optional): New title of request
+   - desc (String, optional): New description of request
+
+  RETURNS:
+  status:
+   - 200: success
+   - 400: failure
+
+  msg: Message relating to request status
+  =================================
+*/
+// app.post("/edit_request", formParser, requestValidator, async (req, res) => {
+//     const user = auth.currentUser;
+
+//     if (!user) {
+//         res.status(400).json({ msg: "Invaild user (auth/invalid-user"});
+//     }
+
+//     const requestRef = doc(db, "requests", req.body.request);
+//     const requestSnapshot = await getDoc(requestRef);
+
+//     if (requestSnapshot.data()) {
+//         if (user.email == requestSnapshot.data().user) {
+//             const update = genRequestUpdate(requestSnapshot.data(), req);
+
+//             try {
+//                 await updateDoc(requestRef, update);
+//                 res.status(200).json({ msg: "Request updated" });
+//             } catch (err) {
+//                 res.status(400).json({ msg: err.message });
+//             }
+//         } else {
+//             res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
+//         }
+//     } else {
+//         res.status(400).json({ msg: "Invalid request" });
+//     }
+// });
 
 /*
   ========== POST /delete_request ==========
@@ -521,31 +515,31 @@ app.post("/create_request", formParser, requestValidator, async (req, res) => {
   msg: Message relating to request status
   ==========================================
 */
-app.post("/delete_request", formParser, async (req, res) => {
-    const user = auth.currentUser;
+// app.post("/delete_request", formParser, async (req, res) => {
+//     const user = auth.currentUser;
 
-    if (!user) {
-        res.status(400).json({ msg: "Invalid user (auth/invalid-user)" });
-    }
+//     if (!user) {
+//         res.status(400).json({ msg: "Invalid user (auth/invalid-user)" });
+//     }
 
-    const requestRef = doc(db, "requests", req.body.request);
-    const requestSnapshot = await getDoc(requestRef);
+//     const requestRef = doc(db, "requests", req.body.request);
+//     const requestSnapshot = await getDoc(requestRef);
 
-    if (requestSnapshot.data()) {
-        if (user.email === requestSnapshot.data().email) {
-            try {
-                await deleteDoc(requestRef);
-                res.status(200).json({ msg: "Request deleted" });
-            } catch(err) {
-                res.status(400).json({ msg: err.message });
-            }
-        } else {
-            res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
-        }
-    } else {
-        res.status(400).json({ msg: "Invalid listing" });
-    }
-});
+//     if (requestSnapshot.data()) {
+//         if (user.email === requestSnapshot.data().email) {
+//             try {
+//                 await deleteDoc(requestRef);
+//                 res.status(200).json({ msg: "Request deleted" });
+//             } catch(err) {
+//                 res.status(400).json({ msg: err.message });
+//             }
+//         } else {
+//             res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
+//         }
+//     } else {
+//         res.status(400).json({ msg: "Invalid listing" });
+//     }
+// });
 
 // ============================ CHAT ============================
 
@@ -565,6 +559,18 @@ app.get("/home", (req, res) => {
     res.render("pages/index", { listings: listings });
 });
 
+// TEST ROUTES
+
+app.get("/login", (req, res) => {
+    res.render("pages/test_login");
+});
+
+app.get("/create_listing", (req, res) => {
+    res.render("pages/test");
+});
+
+
+
 // ========================== HELPERS ===========================
 
 /*
@@ -573,35 +579,65 @@ app.get("/home", (req, res) => {
   to update a given listing
 
   PARAMETERS:
-  data (Object): Object containing the current state of the
+   - data (Object): Object containing the current state of the
   listing
-  req (Object): Request object from the updated fields from
-  the client
+   - req (Object): Request object from the updated fields from
+   the client
 
   RETURNS:
+  The update object for the updated listing
   ======================================
 */
 const genListingUpdate = (data, req) => {
     const update = {};
 
-    if (data.title && (data.title != req.body.title)) {
-        update.title = data.title;
+    if (req.body.title != undefined && (data.title != req.body.title)) {
+        update.title = req.body.title;
     }
 
-    if (data.desc && (data.desc != req.body.desc)) {
-        update.desc = data.desc;
+    if (req.body.desc != undefined && (data.desc != req.body.desc)) {
+        update.desc = req.body.desc;
     }
 
-    if (data.location && (data.location != req.body.location)) {
-        update.location = data.location;
+    if (req.body.location != undefined && (data.location != req.body.location)) {
+        update.location = req.body.location;
     }
 
-    if (data.phoneNumber && (data.phoneNumber != req.body.phoneNumber)) {
-        update.phoneNumber = data.phoneNumber;
+    if (req.body.phoneNumber != undefined && (data.phoneNumber != req.body.phoneNumber)) {
+        update.phoneNumber = req.body.phoneNumber;
     }
 
-    if (data.price && (data.price != req.body.price)) {
-        update.price = data.price;
+    if (req.body.price != undefined && (data.price != req.body.price)) {
+        update.price = req.body.price;
+    }
+
+    return update;
+}
+
+/*
+  ========== genRequestUpdate ==========
+  DESC: Generate the update object that will hold the fields
+  containing the given listings to update
+
+  PARAMETERS:
+   - data (Object): Object containing the current state of the
+  request
+   - req (Object): Request object from the updated fields from
+  the client
+
+  RETURNS:
+  The update object for the updated request
+  ======================================
+*/
+const genRequestUpdate = (data, req) => {
+    const update = {};
+
+    if (req.body.title != undefined && (data.title != req.body.title)) {
+        update.title = req.body.title;
+    }
+
+    if (req.body.desc != undefined && (data.desc != req.body.desc)) {
+        update.desc = req.body.desc;
     }
 
     return update;
