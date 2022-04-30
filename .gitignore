@@ -5,6 +5,9 @@ firestore-debug.log
 ui-debug.log
 *request.json
 test.jpg
+test2.jpg
+creds.sh
+
 
 # dependencies
 /functions/node_modules/

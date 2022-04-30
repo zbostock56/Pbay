@@ -13,10 +13,6 @@ const fb = initializeApp({
 const db = getFirestore();
 const storage = getStorage();
 
-//connectAuthEmulator(auth, "http://127.0.0.1:9099");
-//connectFirestoreEmulator(db, "127.0.0.1", 8081);
-//connectStorageEmulator(storage, "localhost", 9199);
-
 const express = require("express");
 
 const formParser = require("./form-parser");
@@ -192,7 +188,7 @@ const listings = [
    - 400: failure
 
   msg: Message relating to request status
-  =================================
+  ==========================================
 */
 app.post("/create_listing", formParser, listingValidator, imgValidator, async (req, res) => {
     const auth = getAuth();
@@ -556,17 +552,17 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
 // ========================== ROUTING ===========================
 
 app.get("/home", (req, res) => {
-    res.render("pages/login", { listings: listings });
+    res.render("pages/index", { listings: listings });
 });
 
 // TEST ROUTES
 
 app.get("/login", (req, res) => {
-    res.render("pages/test_login");
+    res.render("pages/TEST_PAGES/test_login");
 });
 
 app.get("/create_listing", (req, res) => {
-    res.render("pages/test");
+    res.render("pages/TEST_PAGES/test");
 });
 
 

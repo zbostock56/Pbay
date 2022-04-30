@@ -9,20 +9,22 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-app.use(helmet());
+app.use(helmet({ crossOriginEmbedderPolicy: false }));
 app.use(helmet.contentSecurityPolicy({
     directives: {
         "script-src": [
             "self",
-            "http://localhost:3000/login.js",
+            "http://localhost:3000/client.js",
             "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js",
             "https://pbay-51219.firebaseapp.com/",
+            "https://unpkg.com/axios/dist/axios.min.js",
             "https://*.gstatic.com",
             "https://*.googleapis.com",
             "https://*.google.com",
         ],
         "connect-src": [
             "self",
+            "http://localhost:3000",
             "https://*.googleapis.com",
             "https://*.google.com",
             "https://*.gstatic.com"
