@@ -12,10 +12,7 @@
   A footer instance
   ===========================
 -->
-<footer
-  class="bg-light text-start text-lg-start"
-  style="padding-top: 20px"
->
+<footer class="bg-light text-start text-lg-start" style="padding-top: 20px">
   <!-- Grid container -->
   <div class="container" style="padding-bottom: 20px">
     <!--Grid row-->
@@ -26,16 +23,21 @@
 
         <ul class="list-unstyled mb-0">
           <li>
-            <a href="#!" class="text-dark">Home</a>
+            <a href="/home" class="text-dark">Home</a>
           </li>
           <li>
-            <a href="#!" class="text-dark">Create a Post</a>
+            <a href="/create_listing" class="text-dark">Create a Post</a>
           </li>
           <li>
-            <a href="#!" class="text-dark">Terms and Conditions</a>
+            <a href="/terms" class="text-dark"
+              >Terms and Conditions</a
+            >
           </li>
           <li>
-            <p>Found a Bug? Email us at pbayhelp@gmail.com</p>
+            <p>
+              Found a Bug?
+              <a id="mail2" href="">Email us at pbayhelp@gmail.com</a>
+            </p>
           </li>
         </ul>
       </div>
@@ -49,4 +51,5 @@
     <p class="text-center text-muted">&copy; pBay 2022</p>
   </div>
   <!-- Copyright -->
+  <script src="footer.js"></script>
 </footer>

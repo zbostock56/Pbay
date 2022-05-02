@@ -575,6 +575,10 @@ app.get("/create_listing", (req, res) => {
     res.render("pages/create_post");
 });
 
+app.get("/terms", (req, res) => {
+    res.render("pages/terms_and_conditions");
+});
+
 // TEST ROUTES
 
 app.get("/login_test", (req, res) => {
