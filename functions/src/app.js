@@ -32,7 +32,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "this is a tag!"
+        tags: "this is a tag!",
+        id: "a"
     },
     {
         title: "Listing 2",
@@ -43,7 +44,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tag: "here is the story of a man who once was large"
+        tag: "here is the story of a man who once was large",
+        id: "b"
     },
     {
         title: "Listing 3",
@@ -54,7 +56,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "This is a tag"
+        tags: "This is a tag",
+        id: "c"
     },
     {
         title: "Listing 4",
@@ -65,7 +68,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "This is the best thing in the world"
+        tags: "This is the best thing in the world",
+        id: "d"
     },
     {
         title: "Test",
@@ -76,7 +80,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Please help me"
+        tags: "Please help me",
+        id: "e"
     },
     {
         title: "Test",
@@ -87,7 +92,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Yes!"
+        tags: "Yes!",
+        id: "f"
     },
     {
         title: "Test",
@@ -98,7 +104,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "crypto currency"
+        tags: "crypto currency",
+        id: "g"
     },
     {
         title: "Test",
@@ -109,7 +116,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "crypto currency"
+        tags: "crypto currency",
+        id: "h"
     },
     {
         title: "Test",
@@ -120,7 +128,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Hello world"
+        tags: "Hello world",
+        id: "i"
     },
     {
         title: "No Picture",
@@ -131,7 +140,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Consumer Goods"
+        tags: "Consumer Goods",
+        id: "j"
     },
     {
         title: "No Description",
@@ -142,7 +152,8 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Fuck me!"
+        tags: "Fuck me!",
+        id: "k"
     },
     {
         title: "No Location",
@@ -153,7 +164,8 @@ const listings = [
         location: "",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Test"
+        tags: "Test",
+        id: "l"
     }
 ];
 
