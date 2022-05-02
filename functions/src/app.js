@@ -567,13 +567,21 @@ app.get("/home", (req, res) => {
     res.render("pages/index", { listings: listings });
 });
 
-// TEST ROUTES
-
 app.get("/login", (req, res) => {
-    res.render("pages/TEST_PAGES/test_login");
+    res.render("pages/login");
 });
 
 app.get("/create_listing", (req, res) => {
+    res.render("pages/create_post");
+});
+
+// TEST ROUTES
+
+app.get("/login_test", (req, res) => {
+    res.render("pages/TEST_PAGES/test_login");
+});
+
+app.get("/create_listing_test", (req, res) => {
     res.render("pages/TEST_PAGES/test");
 });
 
