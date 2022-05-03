@@ -129,9 +129,11 @@
         d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z"
       />
     </svg>
-    <% const time = listing.timeID; %> <% const now = new Date(); %> <% const
-    left = now.getTime() - time; %> <% let daysLeft = left / 86400000; %> <% if
-    (daysLeft === 0) { %>
+    <% const time = listing.timeID; %> 
+    <% const now = new Date(); %> 
+    <% const left = now.getTime() - listing.timeID; %> 
+    <% let daysLeft = Math.floor(left / 86400000); %> 
+    <% if (daysLeft === 0) { %>
     <small class="text-muted">Created today</small>
     <% } else { %>
     <small class="text-muted">Created <%= daysLeft %> days ago</small>

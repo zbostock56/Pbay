@@ -33,7 +33,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "this is a tag!",
-        id: "a"
+        id: "a",
+        timeID: `${(new Date()).getTime() - 86400000 * 10 }`
     },
     {
         title: "Listing 2",
@@ -45,7 +46,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tag: "here is the story of a man who once was large",
-        id: "b"
+        id: "b",
+        timeID: `${(new Date()).getTime() }`
     },
     {
         title: "Listing 3",
@@ -57,7 +59,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "This is a tag",
-        id: "c"
+        id: "c",
+        timeID: `${(new Date()).getTime() - 86400000 * 15 }`
     },
     {
         title: "Listing 4",
@@ -69,7 +72,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "This is the best thing in the world",
-        id: "d"
+        id: "d",
+        timeID: `${(new Date()).getTime() - 86400000 * 20 }`
     },
     {
         title: "Test",
@@ -81,7 +85,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "Please help me",
-        id: "e"
+        id: "e",
+        timeID: `${(new Date()).getTime() - 86400000 * 50 }`
     },
     {
         title: "Test",
@@ -93,7 +98,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "Yes!",
-        id: "f"
+        id: "f",
+        timeID: `${(new Date()).getTime() - 86400000 * 2 }`
     },
     {
         title: "Test",
@@ -105,7 +111,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "crypto currency",
-        id: "g"
+        id: "g",
+        timeID: `${(new Date()).getTime() - 86400000 * 3 }`
     },
     {
         title: "Test",
@@ -117,7 +124,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "crypto currency",
-        id: "h"
+        id: "h",
+        timeID: `${(new Date()).getTime() - 86400000 * 5 }`
     },
     {
         title: "Test",
@@ -129,7 +137,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "Hello world",
-        id: "i"
+        id: "i",
+        timeID: `${(new Date()).getTime() - 86400000 * 4 }`
     },
     {
         title: "No Picture",
@@ -141,7 +150,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "Consumer Goods",
-        id: "j"
+        id: "j",
+        timeID: `${(new Date()).getTime() - 86400000 * 5 }`
     },
     {
         title: "No Description",
@@ -153,7 +163,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "Fuck me!",
-        id: "k"
+        id: "k",
+        timeID: `${(new Date()).getTime() - 86400000 * 100 }`
     },
     {
         title: "No Location",
@@ -165,7 +176,8 @@ const listings = [
         phone_number: "(317) 501-5372",
         price: "100.50",
         tags: "Test",
-        id: "l"
+        id: "l",
+        timeID: `${(new Date()).getTime() - 86400000 * 80 }`
     }
 ];
 
@@ -574,7 +586,6 @@ app.get("/login", (req, res) => {
 app.get("/create_listing", (req, res) => {
     res.render("pages/create_post");
 });
-
 app.get("/terms", (req, res) => {
     res.render("pages/terms_and_conditions");
 });
