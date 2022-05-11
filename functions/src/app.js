@@ -589,6 +589,12 @@ app.get("/create_listing", (req, res) => {
 app.get("/terms", (req, res) => {
     res.render("pages/terms_and_conditions");
 });
+app.get("/maintence", (req, res) => {
+    res.render("pages/maintence");
+});
+app.get("/404", (req, res) => {
+    res.render("pages/404");
+});
 
 // TEST ROUTES
 

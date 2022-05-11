@@ -1,3 +1,14 @@
+//   ===========  footer.js =============
+//   DESC:
+//   Gets the id of the mailto element
+//   and makes it link to a premade email
+//   template
+//   PARAMETERS:
+//   None
+//   RETURNS:
+//   mailto link
+//   ===========================
+
 document.getElementById(
   "mail2"
 ).href = `mailto:pbayhelp@gmail.com?subject=Bug%20Report&body=What%20bug%20did%20you%20find

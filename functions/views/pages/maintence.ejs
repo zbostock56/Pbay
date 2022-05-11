@@ -1,0 +1,52 @@
+<!-- 
+  ===========  maintence.ejs ============= 
+  DESC:
+  Tells the user that they have come to the page
+  when the website is under maintence
+
+  PARAMETERS:
+  None
+
+  RETURNS:
+  Maintence page
+  ===========================
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head'); %>
+  </head>
+  <body>
+    <main>
+      <div class="main" style="background-image: url(images/login_bg.png)">
+        <div class="container vh-100">
+          <div class="row align-items-center justify-content-center vh-100">
+            <div
+              class="card shadow-2-strong"
+              style="
+                border-radius: 1rem;
+                opacity: 0.85;
+                padding-top: 5vh;
+                padding-bottom: 5vh;
+              "
+            >
+              <div class="card-body p-5 text-center">
+                <h3 class="mb-5" style="font-size: calc(2vw + 2vh + 1.5vmin)">
+                  <b>We are currently under maintence, please check back soon!</b>
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- 
+      ***** JavaScript Add-Ons *****
+      DESC:
+      -> Add the necessary resources
+      for Bootstrap. Includes scripting
+      for transitions/animations
+     -->
+    <%- include('../partials/scripts'); %>
+  </body>
+</html>

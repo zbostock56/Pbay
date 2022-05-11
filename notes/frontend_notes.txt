@@ -17,10 +17,6 @@ create_post.ejs
 footer.ejs
 -> try to arrange footer to bottom when page content does not push it to the bottom
 
-Bug / Suggestion reporting:
--> nagivator
--> window.nagivator.platform
-
 Maintence and Downtime
 -> 404 page
 -> Maintence Page
