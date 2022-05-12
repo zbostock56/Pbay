@@ -21,7 +21,8 @@
     "firebase": "^9.6.11",
     "firebase-admin": "^10.0.2",
     "firebase-functions": "^3.21.0",
-    "helmet": "^5.0.2"
+    "helmet": "^5.0.2",
+    "mongodb": "^4.6.0"
   },
   "devDependencies": {
     "firebase-functions-test": "^0.2.0"

@@ -1,19 +1,24 @@
 const { initializeApp, applicationDefault } = require("firebase-admin/app");
-const { getFirestore, collection, addDoc, doc, updateDoc, getDoc, deleteDoc } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
-const { getStorage, ref, uploadBytesResumable, getDownloadURL } = require("firebase-admin/storage");
+const fs = require("fs");
 
 const fb = initializeApp({
     credential: applicationDefault(),
-    databaseURL: "http://127.0.0.1:8081",
-    //databaseURL: "https://pbay-51219.firebaseio.com",
-    //storageBucket: "gs://pbay-51219.appspot.com",
-    storageBucket: "http://127.0.0.1:9199"
 });
-const db = getFirestore();
-const storage = getStorage();
 
 const express = require("express");
+const MongoClient = require("mongodb").MongoClient;
+
+const url = "mongodb://localhost:27017";
+const client = new MongoClient(url);
+let db;
+
+client.connect().then(() => {
+    db = client.db("Pbay");
+    console.log(`Connected to database at: ${url}`);
+}).catch((err) => {
+    console.log(err);
+});
 
 const formParser = require("./form-parser");
 const listingValidator = require("./listing-validator");
@@ -235,44 +240,37 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
         const imgID = `${uid}+${req.body.title}+${time.getTime()}`
 
         try {
+            const listings = db.collection("listings");
             if (req.body.img) {
-                // Initialize Firebase storage location of image
-                const storageRef = ref(storage, `images/${imgID}`);
-                let imgUrl = "";
+                fs.open(`../public/images/${imgID}.jpg`, "w", (err, fd) => {
+                    if (err) {
+                        res.status(400).json({ msg: err.message });
+                    }
 
-                // Define file as an image in firebase
-                const metadata = {
-                    contentType: 'image/jpeg'
-                };
-
-                // Upload file to firebase
-                const uploadTask = uploadBytesResumable(storageRef, req.body.img, metadata);
-
-                uploadTask.on('state_changed', (snapshot) => {}, (err) => {
-                    // Return error if upload error
-                    res.status(400).json({ msg: err.message });
-                }, async () => {
-                    // On successful upload, grab the image url from firebase
-                    imgUrl = await getDownloadURL(uploadTask.snapshot.ref);
-
-                    // Add the listing to firestore, with the image connected to the firestore listing via it's firebase storage
-                    // url
-                    await addDoc(collection(db, "listings"), {
-                        user: uid,
-                        title: req.body.title,
-                        desc: req.body.desc,
-                        location: req.body.location,
-                        phoneNumber: req.body.phoneNumber,
-                        price: parseInt(req.body.price),
-                        img: imgUrl,
-                        imgID: imgID,
-                        //time: `${time.getMonth()}/${time.getDate()}/${time.getFullYear()} ${hour}:${minutes} ${timeOfDay}`,
-                        timeID: time.getTime()
+                    fs.write(fd, req.body.img, 0, (err, written, buffer) => {
+                        if (err) {
+                            res.status(400).json({ msg: err.message });
+                        }
                     });
                 });
+                
+                await listings.insertOne({
+                    user: uid,
+                    title: req.body.title,
+                    desc: req.body.desc,
+                    location: req.body.location,
+                    phoneNumber: req.body.phoneNumber,
+                    price: parseInt(req.body.price),
+                    img: `http://localhost:3000/images/${imgID}.jpg`,
+                    imgID: imgID,
+                    timeID: time.getTime()
+                }).then(() => {
+                    res.status(200).json({ msg: "Success" });
+                }).catch((err) => {
+                    res.status(400).json({ msg: err.message });
+                });
             } else {
-                // If no image has been uploaded, add a listing without an image
-                await addDoc(collection(db, "listings"), {
+                await listings.insertOne({
                     user: uid,
                     title: req.body.title,
                     desc: req.body.desc,
@@ -281,8 +279,11 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     price: parseInt(req.body.price),
                     img: "",
                     imgID: "",
-                    //time: `${time.getMonth()}/${time.getDate()}/${time.getFullYear()} ${hour}:${minutes} ${timeOfDay}`,
                     timeID: time.getTime()
+                }).then(() => {
+                    res.status(200).json({ msg: "Success (non pic)" });
+                }).catch((err) => {
+                    res.status(400).json({ msg: err.message });
                 });
             }
 
