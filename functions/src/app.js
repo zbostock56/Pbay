@@ -596,6 +596,68 @@ app.get("/404", (req, res) => {
     res.render("pages/404");
 });
 
+// Categories
+app.get("home/appliances", (req, res) => {
+    res.render("pages/categories/appliances");
+});
+app.get("home/beauty", (req, res) => {
+    res.render("pages/categories/beauty");
+});
+app.get("home/books", (req, res) => {
+    res.render("pages/categories/books");
+});
+app.get("home/car", (req, res) => {
+    res.render("pages/categories/car");
+});
+app.get("home/clothing", (req, res) => {
+    res.render("pages/categories/clothing");
+});
+app.get("home/computer", (req, res) => {
+    res.render("pages/categories/computer_hardware");
+});
+app.get("home/food", (req, res) => {
+    res.render("pages/categories/food");
+});
+app.get("home/furniture", (req, res) => {
+    res.render("pages/categories/furniture");
+});
+app.get("home/health", (req, res) => {
+    res.render("pages/categories/health");
+});
+app.get("home/decor", (req, res) => {
+    res.render("pages/categories/home_decor");
+});
+app.get("home/jewelry", (req, res) => {
+    res.render("pages/categories/jewelry");
+});
+app.get("home/kitchenware", (req, res) => {
+    res.render("pages/categories/kitchenware");
+});
+app.get("home/media", (req, res) => {
+    res.render("pages/categories/media");
+});
+app.get("home/office", (req, res) => {
+    res.render("pages/categories/office_supplies");
+});
+app.get("home/other", (req, res) => {
+    res.render("pages/categories/other");
+});
+app.get("home/outdoors", (req, res) => {
+    res.render("pages/categories/outdoors_travel");
+});
+app.get("home/pet", (req, res) => {
+    res.render("pages/categories/pet");
+});
+app.get("home/shoes", (req, res) => {
+    res.render("pages/categories/shoes");
+});
+app.get("home/sporting", (req, res) => {
+    res.render("pages/categories/sporting");
+});
+app.get("home/toys", (req, res) => {
+    res.render("pages/categories/toys");
+});
+
 // TEST ROUTES
 
 app.get("/login_test", (req, res) => {
