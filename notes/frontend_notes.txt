@@ -5,7 +5,6 @@ index.ejs
 -> Fix Offcanvas
 -> Selecteable large buttons for different categories rather than search feature
 -> Need to implement functionality when there are not any cards
--> Add time functionailty
 
 chat_room.ejs
 -> side bar with different active messages
@@ -16,7 +15,3 @@ create_post.ejs
 
 footer.ejs
 -> try to arrange footer to bottom when page content does not push it to the bottom
-
-Maintence and Downtime
--> 404 page
--> Maintence Page
