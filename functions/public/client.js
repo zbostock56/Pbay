@@ -77,6 +77,37 @@ const createListing = () => {
     });
 }
 
+const editListing = () => {
+    const auth = getAuth(fb);
+
+    auth.currentUser.getIdToken()
+    .then((idToken) => {
+        const data = {
+            idToken: idToken,
+            listing: document.getElementById("listing").value,
+            title: document.getElementById("title").value,
+            desc: document.getElementById("desc").value,
+            location: document.getElementById("location").value,
+            phoneNumber: document.getElementById("phoneNumber").value,
+            price: document.getElementById("price").value,
+            img: document.getElementById("img").files[0]
+        };
+
+        axios.post("http://localhost:3000/edit_listing", data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }).then((res) => {
+            console.log(res);
+        }).catch((err) => {
+            console.log(err);
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+}
+
 checkRedirect();
 
 if (document.getElementById("tester")) {
@@ -85,4 +116,8 @@ if (document.getElementById("tester")) {
 
 if (document.getElementById("submit")) {
     document.getElementById("submit").addEventListener("click", createListing);
+}
+
+if (document.getElementById("submit_edit")) {
+    document.getElementById("submit_edit").addEventListener("click", editListing);
 }

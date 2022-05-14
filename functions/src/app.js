@@ -7,7 +7,8 @@ const fb = initializeApp({
 });
 
 const express = require("express");
-const MongoClient = require("mongodb").MongoClient;
+const mongo = require("mongodb");
+const MongoClient = mongo.MongoClient;
 
 const url = "mongodb://localhost:27017";
 const client = new MongoClient(url);
@@ -252,6 +253,7 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                             res.status(400).json({ msg: err.message });
                         }
                     });
+                    fs.close(fd);
                 });
                 
                 await listings.insertOne({
@@ -304,14 +306,13 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
   DESC: Edit a current sell listing
 
   PARAMETERS:
+   - listing (String, required): id of listing to be edited
    - title (String, optional): Title of new listing
    - desc (String, optional): Optional description of new listing
    - location (String, optional): Location of new listing
    - phoneNumber (String, optional): Phone number of seller in form (xxx)-xxx-xxxx
    - price (Number, optional): Price of listing
    - img (File, optional): Image of listing
-   - imgUpdated (Boolean, required): Regarding whether the listing image is being
-  updated
 
   RETURNS:
   status:
@@ -321,74 +322,90 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
   msg: Message relating to request status
   =================================
 */
-// app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req, res) => {
-//     const user = auth.currentUser;
+app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req, res) => {
+    const auth = getAuth();
+    auth.verifyIdToken(req.body.idToken)
+    .then(async (decodedToken) => {
+        const uid = decodedToken.uid;
 
-//     if (!user) {
-//         res.status(400).send({ msg: "Invalid user (auth/invalid-user)" });
-//     }
+        const listings = db.collection("listings");
+        const _id = new mongo.ObjectId(req.body.listing);
+        const listing = await listings.findOne({ _id: _id });
 
-//     const listingRef = doc(db, "listings", req.body.listing);
-//     const listingSnapshot = await getDoc(listingRef);
+        if (listing) {
+            if (uid === listing.user) {
+                const update = genListingUpdate(listing, req);
+                console.log(update);
 
-//     if (listingSnapshot.data()) {
-//         if (user.email === listingSnapshot.data().user) {
-//             const update = genListingUpdate(listingSnapshot.data(), req);
+                const oldImgID = listing.imgID;
 
-//             if (req.body.imgUpdate == "true") {
-//                 const oldImgID = listingSnapshot.data().imgID;
+                const timeID = new Date().getTime();
+                const imgID = `${uid}+${req.body.title}+${timeID}`;
 
-//                 const timeID = new Date().getTime();
-//                 const imgID = `${user.email}+${req.body.title}+${timeID}`;
-//                 const imgRef = ref(storage, `images/${oldImgID}`);
+                try {
+                    if (req.body.img) {
+                        fs.open(`../public/images/${imgID}.jpg`, "w", (err, fd) => {
+                            if (err) {
+                                res.status(400).json({ msg: err.message });
+                            }
 
-//                 try {
-//                     if (req.body.img) {
-//                         const storageRef = ref(storage, `images/${imgID}`);
+                            fs.write(fd, req.body.img, (err, written, buffer) => {
+                                if (err) {
+                                    res.status(400).json({ msg: err.message });
+                                }
+                            });
 
-//                         const metadata = {
-//                             contentType: "img/jpeg"
-//                         }
+                            fs.close(fd);
+                        });
 
-//                         const uploadTask = uploadBytesResumable(storageRef, req.body.img, metadata);
+                        update.img = `http://localhost:3000/images/${imgID}.jpg`;
+                        update.imgID = imgID;
+                    } else {
+                        update.img = "";
+                        update.imgID = "";
+                    }
 
-//                         uploadTask.on('state_changed', (snapshot) => {}, (err) => {
-//                             res.status(400).json({ msg: err.message });
-//                         }, async () => {
-//                             deleteObject(imgRef);
+                    fs.access(`../public/images/${oldImgID}.jpg`, async (doesntExist) => {
+                        if (doesntExist) {
+                            console.log(update);
+                            await listings.update({ _id: _id }, { $set: update })
+                            .then(() => {
+                                res.status(200).json({ msg: "Listing updated" });
+                            })
+                            .catch((err) => {
+                                res.status(400).json({ msg: err.message });
+                            });
+                        } else {
+                            fs.unlink(`../public/images/${oldImgID}.jpg`, async (err) => {
+                                if (err) {
+                                    res.status(400).json({ msg: err.message });
+                                }
+                                console.log(update);
 
-//                             update.img = await getDownloadURL(uploadTask.snapshot.ref);
-//                             update.imgID = imgID;
-//                             update.timeID = timeID;
-//                         });
-//                     } else {
-//                         deleteObject(imgRef);
-
-//                         if (listingSnapshot.data().img != update.img) {
-//                             update.img = "";
-//                             update.imgID = "";
-//                         }
-//                     }
-//                 } catch (err) {
-//                     res.status(400).json({ msg: err.message });
-//                 }
-//             }
-
-//             try {
-//                 if (Object.keys(update).length != 0) {
-//                     await updateDoc(listingRef, update);
-//                 }
-//                 res.status(200).json({ msg: "Listing updated" });
-//             } catch (err) {
-//                 res.status(400).json({ msg: err.message });
-//             }
-//         } else {
-//             res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
-//         }
-//     } else {
-//         res.status(400).json({ msg: "Invalid listing" });
-//     }
-// });
+                                await listings.update({ _id: _id }, { $set: update })
+                                .then(() => {
+                                    res.status(200).json({ msg: "Listing updated" });
+                                })
+                                .catch((err) => {
+                                    res.status(400).json({ msg: err.message });
+                                });
+                            });
+                        }
+                    });
+                } catch (err) {
+                    res.status(400).json({ msg: err.message });
+                }
+            } else {
+                res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
+            }
+        } else {
+            res.status(400).json({ msg: "Invalid listing" });
+        }
+    })
+    .catch((err) => {
+        res.status(400).json({ msg: err.message });
+    });
+});
 
 /*
   ========== DELETE /delete_listing ==========
@@ -669,6 +686,9 @@ app.get("/create_listing_test", (req, res) => {
     res.render("pages/TEST_PAGES/test");
 });
 
+app.get("/edit_listing_test", (req, res) => {
+    res.render("pages/TEST_PAGES/test_edit_listing")
+});
 
 
 // ========================== HELPERS ===========================
@@ -691,23 +711,22 @@ app.get("/create_listing_test", (req, res) => {
 const genListingUpdate = (data, req) => {
     const update = {};
 
-    if (req.body.title != undefined && (data.title != req.body.title)) {
+    if (req.body.title != "" && (data.title != req.body.title)) {
         update.title = req.body.title;
     }
 
-    if (req.body.desc != undefined && (data.desc != req.body.desc)) {
+    if (req.body.desc != "" && (data.desc != req.body.desc)) {
         update.desc = req.body.desc;
     }
 
-    if (req.body.location != undefined && (data.location != req.body.location)) {
+    if (req.body.location != "" && (data.location != req.body.location)) {
         update.location = req.body.location;
     }
 
-    if (req.body.phoneNumber != undefined && (data.phoneNumber != req.body.phoneNumber)) {
+    if (req.body.phoneNumber != "" && (data.phoneNumber != req.body.phoneNumber)) {
         update.phoneNumber = req.body.phoneNumber;
     }
-
-    if (req.body.price != undefined && (data.price != req.body.price)) {
+    if (req.body.price != "" && (data.price != req.body.price)) {
         update.price = req.body.price;
     }
 

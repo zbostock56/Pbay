@@ -16,11 +16,6 @@ const imgValidator = (req, res, next) => {
         }
     }
 
-    if (req.body.imgUpdated && (typeof req.body.imgUpdated !== "boolean")) {
-        status = false;
-        errors.imgUpdated = "Invalid image update status";
-    }
-
     if (status == false) {
         res.status(400).json({ msg: errors });
     } else {
