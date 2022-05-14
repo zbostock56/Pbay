@@ -105,8 +105,114 @@ const editListing = () => {
     })
     .catch((err) => {
         console.log(err);
-    })
+    });
 }
+
+const deleteListing = () => {
+    const auth = getAuth(fb);
+
+    auth.currentUser.getIdToken()
+    .then((idToken) => {
+        const data = {
+            idToken: idToken,
+            listing: document.getElementById("listing").value
+        };
+
+        axios.post("http://localhost:3000/delete_listing", data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }).then((res) => {
+            console.log(res);
+        }).catch((err) => {
+            console.log(err);
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+}
+
+const createRequest = () => {
+    const auth = getAuth(fb);
+
+    auth.currentUser.getIdToken()
+    .then((idToken) => {
+        const data = {
+            idToken: idToken,
+            title: document.getElementById("title").value,
+            desc: document.getElementById("desc").value
+        }
+
+        axios.post("http://localhost:3000/create_request", data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
+        .then((res) => {
+            console.log(res);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+}
+
+const editRequest = () => {
+    const auth = getAuth(fb);
+
+    auth.currentUser.getIdToken()
+    .then((idToken) => {
+        const data = {
+            idToken: idToken,
+            request: document.getElementById("request").value,
+            title: document.getElementById("title").value,
+            desc: document.getElementById("desc").value
+        }
+
+        axios.post("http://localhost:3000/edit_request", data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }).then((res) => {
+            console.log(res);
+        }).catch((err) => {
+            console.log(err);
+        })
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+}
+
+const deleteRequest = () => {
+    const auth = getAuth(fb);
+
+    auth.currentUser.getIdToken()
+        .then((idToken) => {
+            const data = {
+                idToken: idToken,
+                request: document.getElementById("request").value
+            };
+
+            axios.post("http://localhost:3000/delete_request", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            }).then((res) => {
+                console.log(res);
+            }).catch((err) => {
+                console.log(err);
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
 
 checkRedirect();
 
@@ -120,4 +226,20 @@ if (document.getElementById("submit")) {
 
 if (document.getElementById("submit_edit")) {
     document.getElementById("submit_edit").addEventListener("click", editListing);
+}
+
+if (document.getElementById("delete_listing")) {
+    document.getElementById("delete_listing").addEventListener("click", deleteListing);
+}
+
+if (document.getElementById("submit_request")) {
+    document.getElementById("submit_request").addEventListener("click", createRequest);
+}
+
+if (document.getElementById("edit_request")) {
+    document.getElementById("edit_request").addEventListener("click", editRequest);
+}
+
+if (document.getElementById("delete_request")) {
+    document.getElementById("delete_request").addEventListener("click", deleteRequest);
 }

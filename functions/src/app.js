@@ -205,6 +205,7 @@ const listings = [
   DESC: Create a new sell listing
 
   PARAMETERS:
+   - idToken (Stirng, required): authenetication token of current user
    - title (String, required): Title of new listing
    - desc (String, required): Optional description of new listing
    - location (String, required): Location of new listing
@@ -306,6 +307,7 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
   DESC: Edit a current sell listing
 
   PARAMETERS:
+   - idToken (Stirng, required): authenetication token of current user
    - listing (String, required): id of listing to be edited
    - title (String, optional): Title of new listing
    - desc (String, optional): Optional description of new listing
@@ -335,7 +337,6 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
         if (listing) {
             if (uid === listing.user) {
                 const update = genListingUpdate(listing, req);
-                console.log(update);
 
                 const oldImgID = listing.imgID;
 
@@ -367,7 +368,6 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
 
                     fs.access(`../public/images/${oldImgID}.jpg`, async (doesntExist) => {
                         if (doesntExist) {
-                            console.log(update);
                             await listings.update({ _id: _id }, { $set: update })
                             .then(() => {
                                 res.status(200).json({ msg: "Listing updated" });
@@ -380,7 +380,6 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                                 if (err) {
                                     res.status(400).json({ msg: err.message });
                                 }
-                                console.log(update);
 
                                 await listings.update({ _id: _id }, { $set: update })
                                 .then(() => {
@@ -412,6 +411,7 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
   DESC: Delete a current sell listing
 
   PARAMETERS:
+   - idToken (Stirng, required): authenetication token of current user
    - listing (String, required): The id of the desired listing to delete
 
   RETURNS:
@@ -422,31 +422,41 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
   msg: Message relating to request status
   ============================================
 */
-// app.post("/delete_listing", formParser, async (req, res) => {
-//     const user = auth.currentUser;
+app.post("/delete_listing", formParser, async (req, res) => {
+    const auth = getAuth();
 
-//     if(!user) {
-//         res.status(400).json({ msg: "Invalid user (auth/invalid-user)"});
-//     }
+    auth.verifyIdToken(req.body.idToken)
+    .then(async (decodedToken) => {
+        const uid = decodedToken.uid;
 
-//     const listingRef = doc(db, "listings", req.body.listing);
-//     const listingSnapshot = await getDoc(listingRef);
+        const listings = db.collection("listings");
+        const _id = new mongo.ObjectId(req.body.listing);
+        const listing = await listings.findOne({ _id: _id });
 
-//     if (listingSnapshot.data()) {
-//         if (user.email === listingSnapshot.data().user) {
-//             try {
-//                 await deleteDoc(listingRef);
-//                 res.status(200).json({ msg: "Listing deleted" });
-//             } catch (err) {
-//                 res.status(400).json({ msg: err.message });
-//             }
-//         } else {
-//             res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
-//         }
-//     } else {
-//         res.status(400).json({ msg: "Invalid listing" });
-//     }
-// });
+        if(listing) {
+            if (listing.user == uid) {
+                if (listing.imgID != "") {
+                    fs.unlink(`../public/images/${listing.imgID}.jpg`, (err) => {
+                        if (err) {
+                            res.status(400).json({ msg: err.message });
+                        }
+                    });
+                }
+
+                await listings.deleteOne({ _id: _id });
+
+                res.status(200).json({ msg: "Listing deleted" });
+            } else {
+                res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
+            }
+        } else {
+            res.status(400).json({ msg: "Invalid listing" });
+        }
+    })
+    .catch((err) => {
+        res.status(400).json({ msg: err.message });
+    });
+});
 
 // ========================== REQUESTS ==========================
 
@@ -455,6 +465,7 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
   DESC: Create a new request for an item
 
   PARAMETERS:
+   - idToken (Stirng, required): authenetication token of current user
    - title (String, required): Title of request
    - desc (String, required): Description of item request
 
@@ -466,42 +477,48 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
   msg: Message relating to request status
   ==========================================
 */
-// app.post("/create_request", formParser, requestValidator, async (req, res) => {
-//     const user = auth.currentUser;
+app.post("/create_request", formParser, requestValidator, async (req, res) => {
+    const auth = getAuth();
 
-//     if (!user) {
-//         res.status(400).json({ msg: "Invalid user (auth/invalid-user)" });
-//     }
+    auth.verifyIdToken(req.body.idToken)
+    .then(async (decodedToken) => {
+        const uid = decodedToken.uid;
 
-//     const time = new Date();
-//     let hour = time.getHours();
-//     let minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : `${time.getMinutes()}`;
-//     let timeOfDay = "AM";
-//     if (hour > 12) {
-//         timeOfDay = "PM";
-//         hour -= 12;
-//     }
+        const time = new Date();
+        let hour = time.getHours();
+        let minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : `${time.getMinutes()}`;
+        let timeOfDay = "AM";
+        if (hour > 12) {
+            timeOfDay = "PM";
+            hour -= 12;
+        }
 
-//     try {
-//         await addDoc(collection(db, "requests"), {
-//             title: req.body.title,
-//             desc: req.body.desc,
-//             email: user.email,
-//             //time: `${time.getMonth()}/${time.getDate()}/${time.getFullYear()} ${hour}:${minutes} ${timeOfDay}`,
-//             timeId: time.getTime()
-//         });
-
-//         res.status(200).json({ msg: "Request created" });
-//     } catch(err) {
-//         res.status(400).json({ msg: err.message })
-//     }
-// });
+        const requests = db.collection("requests");
+        await requests.insertOne({
+            user: uid,
+            title: req.body.title,
+            desc: req.body.desc,
+            timeId: time.getTime()
+        })
+        .then(() => {
+            res.status(200).json({ msg: "Request created" });
+        })
+        .catch((err) => {
+            res.status(400).json({ msg: err.message });
+        });
+    })
+    .catch((err) => {
+        res.status(400).json({ msg: err.message });
+    });
+});
 
 /*
   ========== POST /edit_request ==========
   DESC: Edit a current buy request
 
   PARAMETERS:
+   - idToken (Stirng, required): authenetication token of current user
+   - request (String, required): id of request to edit
    - title (String, optional): New title of request
    - desc (String, optional): New description of request
 
@@ -513,37 +530,47 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
   msg: Message relating to request status
   =================================
 */
-// app.post("/edit_request", formParser, requestValidator, async (req, res) => {
-//     const user = auth.currentUser;
+app.post("/edit_request", formParser, requestValidator, async (req, res) => {
+    const auth = getAuth();
 
-//     if (!user) {
-//         res.status(400).json({ msg: "Invaild user (auth/invalid-user"});
-//     }
+    auth.verifyIdToken(req.body.idToken)
+    .then(async (decodedToken) => {
+        const uid = decodedToken.uid;
 
-//     const requestRef = doc(db, "requests", req.body.request);
-//     const requestSnapshot = await getDoc(requestRef);
+        const requests = db.collection("requests");
+        const _id = new mongo.ObjectId(req.body.request)
+        const request = await requests.findOne({ _id: _id });
 
-//     if (requestSnapshot.data()) {
-//         if (user.email == requestSnapshot.data().user) {
-//             const update = genRequestUpdate(requestSnapshot.data(), req);
+        if (request) {
+            if (uid === request.user) {
+                const update = genRequestUpdate(request, req);
 
-//             try {
-//                 await updateDoc(requestRef, update);
-//                 res.status(200).json({ msg: "Request updated" });
-//             } catch (err) {
-//                 res.status(400).json({ msg: err.message });
-//             }
-//         } else {
-//             res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
-//         }
-//     } else {
-//         res.status(400).json({ msg: "Invalid request" });
-//     }
-// });
+                await requests.updateOne({ _id: _id }, { $set: update })
+                .then(() => {
+                    res.status(200).json({ msg: "Request updated" });
+                })
+                .catch((err) => {
+                    res.status(400).json({ msg: err.message });
+                });
+            } else {
+                res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
+            }
+        } else {
+            res.status(400).json({ msg: "Invalid request" });
+        }
+    })
+    .catch((err) => {
+        res.status(400).json({ msg: err.message });
+    })
+});
 
 /*
   ========== POST /delete_request ==========
   DESC: Delete a current item request
+
+  PARAMETERS:
+   - idToken (Stirng, required): authenetication token of current user
+   - request (String, required): id of request to delete
 
   RETURNS:
   status:
@@ -553,31 +580,56 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
   msg: Message relating to request status
   ==========================================
 */
-// app.post("/delete_request", formParser, async (req, res) => {
-//     const user = auth.currentUser;
+app.post("/delete_request", formParser, async (req, res) => {
+    const auth = getAuth();
 
-//     if (!user) {
-//         res.status(400).json({ msg: "Invalid user (auth/invalid-user)" });
-//     }
+    auth.verifyIdToken(req.body.idToken)
+    .then(async (decodedToken) => {
+        const uid = decodedToken.uid;
 
-//     const requestRef = doc(db, "requests", req.body.request);
-//     const requestSnapshot = await getDoc(requestRef);
+        const requests = db.collection("requests");
+        const _id = new mongo.ObjectId(req.body.request);
+        const request = await requests.findOne({ _id: _id });
 
-//     if (requestSnapshot.data()) {
-//         if (user.email === requestSnapshot.data().email) {
-//             try {
-//                 await deleteDoc(requestRef);
-//                 res.status(200).json({ msg: "Request deleted" });
-//             } catch(err) {
-//                 res.status(400).json({ msg: err.message });
-//             }
-//         } else {
-//             res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
-//         }
-//     } else {
-//         res.status(400).json({ msg: "Invalid listing" });
-//     }
-// });
+        if (request) {
+            if (uid === request.user) {
+                await requests.deleteOne({ _id: _id });
+
+                res.status(200).json({ msg: "Request deleted" });
+            } else {
+                res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
+            }
+        } else {
+            res.status(400).json({ msg: "Invalid request" });
+        }
+    })
+    .catch((err) => {
+        res.status(400).json({ msg: err.message });
+    });
+    // const user = auth.currentUser;
+
+    // if (!user) {
+    //     res.status(400).json({ msg: "Invalid user (auth/invalid-user)" });
+    // }
+
+    // const requestRef = doc(db, "requests", req.body.request);
+    // const requestSnapshot = await getDoc(requestRef);
+
+    // if (requestSnapshot.data()) {
+    //     if (user.email === requestSnapshot.data().email) {
+    //         try {
+    //             await deleteDoc(requestRef);
+    //             res.status(200).json({ msg: "Request deleted" });
+    //         } catch(err) {
+    //             res.status(400).json({ msg: err.message });
+    //         }
+    //     } else {
+    //         res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
+    //     }
+    // } else {
+    //     res.status(400).json({ msg: "Invalid listing" });
+    // }
+});
 
 // ============================ CHAT ============================
 
@@ -687,9 +739,24 @@ app.get("/create_listing_test", (req, res) => {
 });
 
 app.get("/edit_listing_test", (req, res) => {
-    res.render("pages/TEST_PAGES/test_edit_listing")
+    res.render("pages/TEST_PAGES/test_edit_listing");
 });
 
+app.get("/delete_listing_test", (req, res) => {
+    res.render("pages/TEST_PAGES/test_delete_listing");
+});
+
+app.get("/create_request_test", (req, res) => {
+    res.render("pages/TEST_PAGES/test_create_request");
+});
+
+app.get("/edit_request_test", (req, res) => {
+    res.render("pages/TEST_PAGES/test_edit_request");
+});
+
+app.get("/delete_request_test", (req, res) => {
+    res.render("pages/TEST_PAGES/test_delete_request");
+})
 
 // ========================== HELPERS ===========================
 
@@ -751,11 +818,11 @@ const genListingUpdate = (data, req) => {
 const genRequestUpdate = (data, req) => {
     const update = {};
 
-    if (req.body.title != undefined && (data.title != req.body.title)) {
+    if (req.body.title != "" && (data.title != req.body.title)) {
         update.title = req.body.title;
     }
 
-    if (req.body.desc != undefined && (data.desc != req.body.desc)) {
+    if (req.body.desc != "" && (data.desc != req.body.desc)) {
         update.desc = req.body.desc;
     }
 
