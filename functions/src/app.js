@@ -653,7 +653,7 @@ app.get("/login", (req, res) => {
     res.render("pages/login");
 });
 
-app.get("/create_listing", (req, res) => {
+app.get("home/create_listing", (req, res) => {
     res.render("pages/create_post");
 });
 app.get("/terms", (req, res) => {
