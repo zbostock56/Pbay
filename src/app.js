@@ -41,9 +41,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "this is a tag!",
         id: "a",
-        timeID: `${(new Date()).getTime() - 86400000 * 10 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 10 }`,
+        category: "Appliances"
     },
     {
         title: "Listing 2",
@@ -54,9 +54,10 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tag: "here is the story of a man who once was large",
         id: "b",
-        timeID: `${(new Date()).getTime() }`
+        timeID: `${(new Date()).getTime() }`,
+        category: "Beauty"
+        
     },
     {
         title: "Listing 3",
@@ -67,9 +68,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "This is a tag",
         id: "c",
-        timeID: `${(new Date()).getTime() - 86400000 * 15 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 15 }`,
+        category: "Books or Textbooks"
     },
     {
         title: "Listing 4",
@@ -80,9 +81,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "This is the best thing in the world",
         id: "d",
-        timeID: `${(new Date()).getTime() - 86400000 * 20 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 20 }`,
+        category: "Car Supplies"
     },
     {
         title: "Test",
@@ -93,9 +94,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Please help me",
         id: "e",
-        timeID: `${(new Date()).getTime() - 86400000 * 50 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 50 }`,
+        category: "Clothing"
     },
     {
         title: "Test",
@@ -106,9 +107,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Yes!",
         id: "f",
-        timeID: `${(new Date()).getTime() - 86400000 * 2 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 2 }`,
+        category: "Electronics"
     },
     {
         title: "Test",
@@ -119,9 +120,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "crypto currency",
         id: "g",
-        timeID: `${(new Date()).getTime() - 86400000 * 3 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 3 }`,
+        category: "Food"
     },
     {
         title: "Test",
@@ -132,9 +133,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "crypto currency",
         id: "h",
-        timeID: `${(new Date()).getTime() - 86400000 * 5 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 5 }`,
+        category: "Furniture"
     },
     {
         title: "Test",
@@ -145,9 +146,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Hello world",
         id: "i",
-        timeID: `${(new Date()).getTime() - 86400000 * 4 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 4 }`,
+        category: "Health"
     },
     {
         title: "No Picture",
@@ -158,9 +159,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Consumer Goods",
         id: "j",
-        timeID: `${(new Date()).getTime() - 86400000 * 5 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 5 }`,
+        category: "Home Decor"
     },
     {
         title: "No Description",
@@ -171,9 +172,9 @@ const listings = [
         location: "Owen Hall",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Fuck me!",
         id: "k",
-        timeID: `${(new Date()).getTime() - 86400000 * 100 }`
+        timeID: `${(new Date()).getTime() - 86400000 * 100 }`,
+        category: "Jewelry"
     },
     {
         title: "No Location",
@@ -184,10 +185,102 @@ const listings = [
         location: "",
         phone_number: "(317) 501-5372",
         price: "100.50",
-        tags: "Test",
         id: "l",
-        timeID: `${(new Date()).getTime() - 86400000 * 80 }`
-    }
+        timeID: `${(new Date()).getTime() - 86400000 * 80 }`,
+        category: "Kitchenware"
+    },
+    {
+        title: "Listing 1",
+        desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        img: "supposed to be something here",
+        src: "",
+        time: "4/21/22 7:47 PM",
+        location: "Owen Hall",
+        phone_number: "(317) 501-5372",
+        price: "100.50",
+        id: "m",
+        timeID: `${(new Date()).getTime() - 86400000 * 10 }`,
+        category: "Media"
+    },
+    {
+        title: "Listing 1",
+        desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        img: "supposed to be something here",
+        src: "",
+        time: "4/21/22 7:47 PM",
+        location: "Owen Hall",
+        phone_number: "(317) 501-5372",
+        price: "100.50",
+        id: "n",
+        timeID: `${(new Date()).getTime() - 86400000 * 10 }`,
+        category: "Outdoors and Travel"
+    },
+    {
+        title: "Listing 1",
+        desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        img: "supposed to be something here",
+        src: "",
+        time: "4/21/22 7:47 PM",
+        location: "Owen Hall",
+        phone_number: "(317) 501-5372",
+        price: "100.50",
+        id: "o",
+        timeID: `${(new Date()).getTime() - 86400000 * 10 }`,
+        category: "Pet Supplies"
+    },
+    {
+        title: "Listing 1",
+        desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        img: "supposed to be something here",
+        src: "",
+        time: "4/21/22 7:47 PM",
+        location: "Owen Hall",
+        phone_number: "(317) 501-5372",
+        price: "100.50",
+        id: "p",
+        timeID: `${(new Date()).getTime() - 86400000 * 10 }`,
+        category: "School and Office Supplies"
+    },
+    {
+        title: "Listing 1",
+        desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        img: "supposed to be something here",
+        src: "",
+        time: "4/21/22 7:47 PM",
+        location: "Owen Hall",
+        phone_number: "(317) 501-5372",
+        price: "100.50",
+        id: "q",
+        timeID: `${(new Date()).getTime() - 86400000 * 10 }`,
+        category: "Sporting Goods"
+    },
+    {
+        title: "Listing 1",
+        desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        img: "supposed to be something here",
+        src: "",
+        time: "4/21/22 7:47 PM",
+        location: "Owen Hall",
+        phone_number: "(317) 501-5372",
+        price: "100.50",
+        id: "r",
+        timeID: `${(new Date()).getTime() - 86400000 * 10 }`,
+        category: "Toys"
+    },
+    {
+        title: "Listing 1",
+        desc: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        img: "supposed to be something here",
+        src: "",
+        time: "4/21/22 7:47 PM",
+        location: "Owen Hall",
+        phone_number: "(317) 501-5372",
+        price: "100.50",
+        id: "s",
+        timeID: `${(new Date()).getTime() - 86400000 * 10 }`,
+        category: "Other"
+    },
+
 ];
 
 // DOC TEMPLATE
@@ -520,7 +613,7 @@ app.post("/create_request", formParser, requestValidator, async (req, res) => {
   DESC: Edit a current buy request
 
   PARAMETERS:
-   - idToken (Stirng, required): authenetication token of current user
+   - idToken (String, required): authenetication token of current user
    - request (String, required): id of request to edit
    - title (String, optional): New title of request
    - desc (String, optional): New description of request
@@ -572,7 +665,7 @@ app.post("/edit_request", formParser, requestValidator, async (req, res) => {
   DESC: Delete a current item request
 
   PARAMETERS:
-   - idToken (Stirng, required): authenetication token of current user
+   - idToken (String, required): authenetication token of current user
    - request (String, required): id of request to delete
 
   RETURNS:
@@ -648,16 +741,12 @@ app.post("/delete_request", formParser, async (req, res) => {
 
 // ========================== ROUTING ===========================
 
+// Base Routes
 app.get("/home", (req, res) => {
     res.render("pages/index", { listings: listings });
 });
-
 app.get("/login", (req, res) => {
     res.render("pages/login");
-});
-
-app.get("home/create_listing", (req, res) => {
-    res.render("pages/create_post");
 });
 app.get("/terms", (req, res) => {
     res.render("pages/terms_and_conditions");
@@ -669,66 +758,74 @@ app.get("/404", (req, res) => {
     res.render("pages/404");
 });
 
+// Listing Routes
+app.get("/create_listing", (req, res) => {
+    res.render("pages/create_post");
+});
+app.get("/edit_listing", (req, res) => {
+    res.render("pages/edit_post");
+});
+
 // Categories
-app.get("home/appliances", (req, res) => {
-    res.render("pages/categories/appliances");
+app.get("/appliances", (req, res) => {
+    res.render("pages/categories/appliances", { listings: listings });
 });
-app.get("home/beauty", (req, res) => {
-    res.render("pages/categories/beauty");
+app.get("/beauty", (req, res) => {
+    res.render("pages/categories/beauty", { listings: listings });
 });
-app.get("home/books", (req, res) => {
-    res.render("pages/categories/books");
+app.get("/books", (req, res) => {
+    res.render("pages/categories/books", { listings: listings });
 });
-app.get("home/car", (req, res) => {
-    res.render("pages/categories/car");
+app.get("/car", (req, res) => {
+    res.render("pages/categories/car", { listings: listings });
 });
-app.get("home/clothing", (req, res) => {
-    res.render("pages/categories/clothing");
+app.get("/clothing", (req, res) => {
+    res.render("pages/categories/clothing", { listings: listings });
 });
-app.get("home/computer", (req, res) => {
-    res.render("pages/categories/computer_hardware");
+app.get("/computer", (req, res) => {
+    res.render("pages/categories/computer_hardware", { listings: listings });
 });
-app.get("home/food", (req, res) => {
-    res.render("pages/categories/food");
+app.get("/food", (req, res) => {
+    res.render("pages/categories/food", { listings: listings });
 });
-app.get("home/furniture", (req, res) => {
-    res.render("pages/categories/furniture");
+app.get("/furniture", (req, res) => {
+    res.render("pages/categories/furniture", { listings: listings });
 });
-app.get("home/health", (req, res) => {
-    res.render("pages/categories/health");
+app.get("/health", (req, res) => {
+    res.render("pages/categories/health", { listings: listings });
 });
-app.get("home/decor", (req, res) => {
-    res.render("pages/categories/home_decor");
+app.get("/decor", (req, res) => {
+    res.render("pages/categories/home_decor", { listings: listings });
 });
-app.get("home/jewelry", (req, res) => {
-    res.render("pages/categories/jewelry");
+app.get("/jewelry", (req, res) => {
+    res.render("pages/categories/jewelry", { listings: listings });
 });
 app.get("home/kitchenware", (req, res) => {
-    res.render("pages/categories/kitchenware");
+    res.render("pages/categories/kitchenware", { listings: listings });
 });
-app.get("home/media", (req, res) => {
-    res.render("pages/categories/media");
+app.get("/media", (req, res) => {
+    res.render("pages/categories/media", { listings: listings });
 });
-app.get("home/office", (req, res) => {
-    res.render("pages/categories/office_supplies");
+app.get("/office", (req, res) => {
+    res.render("pages/categories/office_supplies", { listings: listings });
 });
-app.get("home/other", (req, res) => {
-    res.render("pages/categories/other");
+app.get("/other", (req, res) => {
+    res.render("pages/categories/other", { listings: listings });
 });
-app.get("home/outdoors", (req, res) => {
-    res.render("pages/categories/outdoors_travel");
+app.get("/outdoors", (req, res) => {
+    res.render("pages/categories/outdoors_travel", { listings: listings });
 });
-app.get("home/pet", (req, res) => {
-    res.render("pages/categories/pet");
+app.get("/pet", (req, res) => {
+    res.render("pages/categories/pet", { listings: listings });
 });
-app.get("home/shoes", (req, res) => {
-    res.render("pages/categories/shoes");
+app.get("/shoes", (req, res) => {
+    res.render("pages/categories/shoes", { listings: listings });
 });
-app.get("home/sporting", (req, res) => {
-    res.render("pages/categories/sporting");
+app.get("/sporting", (req, res) => {
+    res.render("pages/categories/sporting", { listings: listings });
 });
-app.get("home/toys", (req, res) => {
-    res.render("pages/categories/toys");
+app.get("/toys", (req, res) => {
+    res.render("pages/categories/toys", { listings: listings });
 });
 
 // TEST ROUTES

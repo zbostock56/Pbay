@@ -15,8 +15,31 @@
   <body>
     <header><%- include('../../partials/header'); %></header>
     <main>
-      <div class="main">Here Goes the stuff</div>
+      <div class="main">
+        <div
+          class="container"
+          style="padding-top: 120px; position: relative; min-height: 100vh"
+        >
+        <h1 class="mb-3">
+          All Toys Listings and Requests
+        </h1>
+          <div
+            class="row row-cols-1 row-cols-md-1 g-1">
+            <% let counter = 0; %>
+            <% listings.forEach((listing) => { %>
+            <%   if (listing.category === "Toys") { %>
+            <%     counter++; %>
+            <div class="col" style="padding-bottom: 3vh;">
+              <%- include('../../partials/card', {listing: listing}); %>
+              </div>
+            <%  } %>
+            <% }); %>          
+        </div>
+        <%- include('../../partials/no_listings', {counter}); %>
+      </div>
+    </div>
     </main>
+    <footer><%- include('../../partials/footer'); %></footer>
     <!-- 
       ***** JavaScript Add-Ons *****
       DESC:
@@ -24,6 +47,6 @@
       for Bootstrap. Includes scripting
       for transitions/animations
      -->
-     <%- include('../../partials/scripts'); %>
+    <%- include('../../partials/scripts'); %>
   </body>
 </html>

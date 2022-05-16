@@ -1,0 +1,164 @@
+<!-- 
+  ===========  edit_post.ejs ============= 
+  DESC:
+  View for creating a post to be posted
+
+  PARAMETERS:
+  None
+
+  RETURNS:
+  Creates Edit Post Page
+  ===========================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head'); %>
+  </head>
+  <body>
+    <header><%- include('../partials/header'); %></header>
+    <main>
+      <div class="main">
+        <div class="container" 
+        style="
+        padding-top: 120px; 
+        position: relative; 
+        min-height: 100vh;">
+        <div style="padding-bottom: calc(256px - 120px);">
+          <h1>Change Your Listing Information</h1>
+          <div class="mb-3">
+            <div class="row">
+              <div class="col">
+                <label for="title" class="form-label">Change Name of Product</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  placeholder="Be Descriptive!"
+                  aria-label="title_input"
+                  id="title"
+                />
+              </div>
+              <div class="col">
+                <label for="category" class="form-label">Change Category</label>
+                <select class="form-select" id="category">
+                  <option selected>Select a Category</option>
+                  <option value="1">Applicances</option>
+                  <option value="2">Beauty Products</option>
+                  <option value="3">Books or Textbooks</option>
+                  <option value="4">Car Supplies</option>
+                  <option value="5">Clothing</option>
+                  <option value="6">Electronics</option>
+                  <option value="7">Food</option>
+                  <option value="8">Furniture</option>
+                  <option value="9">Health Products</option>
+                  <option value="10">Home Decor</option>
+                  <option value="11">Jewelry</option>
+                  <option value="12">Kitchenware</option>
+                  <option value="13">Media</option>
+                  <option value="14">Outdoors and Travel</option>
+                  <option value="15">Pet Supplies</option>
+                  <option value="16">School and Office Supplies</option>
+                  <option value="17">Sporting Goods</option>
+                  <option value="18">Toys</option>
+                  <option value="19">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="file-input" class="form-label">Upload a Different Picture</label>
+            <input type="file" class="form-control" id="file-input" />
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label"
+              >Change the Description</label
+            >
+            <textarea
+              class="form-control"
+              id="description"
+              rows="4"
+              placeholder="Talk about why you're selling it or what you're looking for, what condition it's in, ect."
+              aria-label="Description-input"
+            ></textarea>
+          </div>
+          <label for="Price-Input" class="form-label"
+            >Change Asking Price
+          </label>
+          <div class="input-group mb-3">
+            <span class="input-group-text">$</span>
+            <input
+              type="text"
+              id="Price-Input"
+              class="form-control"
+              aria-label="Price-Input"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="mb-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="postAsFree"
+              />
+              <label class="form-check-label" for="postAsFree">
+                Change to free (any price posted will be removed if checked)
+              </label>
+            </div>
+            <div class="mb-3">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value=""
+                  id="agreeToTermsAndConditions"
+                />
+                <label class="form-check-label" for="agreeToTermsAndConditions">
+                  I agree to the <a href="/terms" target="_blank">Terms and Conditions</a>
+                </label>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="mb-3">
+              <input
+              class="btn btn-primary"
+              type="submit"
+              value="Change Post"
+            />
+            </div>
+          <div class="mb-3">
+            <p>
+              <b>
+                <i>
+                  If "Request Product" is selected, picture and free asking
+                  price fields will be ignored!
+                </i>
+              </b>
+            </p>
+          </div>
+          <div class="mb-3">
+            <p>
+              <b>
+                <i>
+                  Note: Any fields that are not populated when the form is submitted will
+                  stay the same as when the posting was created!
+                </i>
+              </b>
+            </p>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+    <footer style="position: absolute; min-width: 100vw;"><%- include('../partials/footer'); %></footer>
+    <!-- 
+      ***** JavaScript Add-Ons *****
+      DESC:
+      -> Add the necessary resources
+      for Bootstrap. Includes scripting
+      for transitions/animations
+     -->
+     <%- include('../partials/scripts'); %>
+</html>
