@@ -757,6 +757,9 @@ app.get("/maintence", (req, res) => {
 app.get("/404", (req, res) => {
     res.render("pages/404");
 });
+app.get("/about", (req, res) => {
+    res.render("pages/about_us");
+});
 
 // Listing Routes
 app.get("/create_listing", (req, res) => {

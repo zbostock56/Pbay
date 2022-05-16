@@ -1,0 +1,52 @@
+<!-- 
+  ===========  About Us ============= 
+  DESC:
+  For the users to understand more about
+  pBay
+
+  PARAMETERS:
+  None
+
+  RETURNS:
+  About Us Page
+  ===========================
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head'); %>
+  </head>
+  <body>
+    <header><%- include('../partials/header'); %></header>
+    <main>
+      <div class="main">
+        <div 
+        class="container"
+        style="padding-top: 120px; position: relative; min-height: 100vh">
+          <h1 class="mb-3">About Us</h1>
+          <div class="mb-3">
+            <h3 class="mb-2">Our Mission:</h3>
+            <p>
+                pBay is an e-commerce site created by boilermaker, designed to help boilermakers find and sell.
+            </p>
+          </div>
+          <div class="mb-3">
+               <h3 class="mb-2">Our Services and How We Make Money:</h3>
+               <p>
+                   We create a connection from buyer to seller together to make deals happen. We do not make money from a sale, rather, we make money from visits to the website with advertising.
+               </p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer><%- include('../partials/footer'); %></footer>
+    <!-- 
+      ***** JavaScript Add-Ons *****
+      DESC:
+      -> Add the necessary resources
+      for Bootstrap. Includes scripting
+      for transitions/animations
+     -->
+     <%- include('../partials/scripts'); %>
+  </body>
+</html>
