@@ -104,8 +104,17 @@
     </p>
     <div class="collapse" id="<%= listing.id %>">
       <div class="card card-body">
-        <% if(listing.desc === "") { %> No description was listed <% } else { %>
-        <%= listing.desc %> <% } %>
+        <div class="mb-2">
+          <small class="text-muted">Category: </small>
+          <% if (listing.category === "") { %> No Category 
+          <% } else { %>
+          <%= listing.category %> 
+          <% } %>
+        </div>
+        <% if(listing.desc === "") { %> No description was listed 
+        <% } else { %>
+        <%= listing.desc %> 
+        <% } %>
       </div>
     </div>
     <!-- ================================================= -->
