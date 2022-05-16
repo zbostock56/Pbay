@@ -1,13 +1,17 @@
-const functions = require("firebase-functions");
 const express = require("express");
 const helmet = require("helmet");
+const busboy = require("connect-busboy");
 const ejs = require("ejs");
 
 const source = require("./src/app");
 const app = express();
 
+const PORT = 3000;
+
 app.set("view engine", "ejs");
 app.use(express.static("public"));
+
+app.use(busboy({ immediate: true }));
 
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
 app.use(helmet.contentSecurityPolicy({
@@ -36,6 +40,9 @@ app.use(helmet.contentSecurityPolicy({
         ]
     }
 }));
+
 app.use('/', source);
 
-exports.app = functions.https.onRequest(app);
+app.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}...`);
+});

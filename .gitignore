@@ -10,8 +10,8 @@ creds.sh
 
 
 # dependencies
-/functions/node_modules/
-/functions/node_modules/.bin/
+node_modules/
+node_modules/.bin/
 
 # templates
 # /functions/views/pages/template.ejs

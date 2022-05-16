@@ -1,4 +1,3 @@
-const busboy = require("busboy");
 const os = require("os");
 const path = require("path");
 const fs = require("fs");
@@ -17,16 +16,9 @@ const fs = require("fs");
 */
 
 const formParser = (req, res, next) => {
-    if (req.method !== 'POST') {
+    if ((req.method !== 'POST') || (!req.busboy)) {
         next();
     }
-
-    const bb = busboy({
-        headers: req.headers,
-        /*limits: {
-            fileSize: 1024 * 1024
-        }*/
-    });
 
     const tempDir = os.tmpdir();
 
@@ -34,11 +26,11 @@ const formParser = (req, res, next) => {
     const writes = [];
     const uploads = {};
 
-    bb.on("field", (name, value) => {
+    req.busboy.on("field", (name, value) => {
         fields[name] = value;
     });
 
-    bb.on("file", (field, file, info) => {
+    req.busboy.on("file", (field, file, info) => {
         if (info.filename) {
             const filepath = path.join(tempDir, info.filename);
             const writeStream = fs.createWriteStream(filepath);
@@ -61,7 +53,7 @@ const formParser = (req, res, next) => {
         }
     });
 
-    bb.on("finish", async () => {
+    req.busboy.on("finish", async () => {
         await Promise.all(writes);
 
         req.body = fields;
@@ -76,11 +68,9 @@ const formParser = (req, res, next) => {
         next();
     });
 
-    bb.on("error", (err) => {
+    req.busboy.on("error", (err) => {
         res.status(400).json({ msg: err.message });
     });
-
-    bb.end(req.rawBody);
 };
 
 module.exports = formParser;

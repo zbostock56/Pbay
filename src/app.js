@@ -1,8 +1,9 @@
-const { initializeApp, applicationDefault } = require("firebase-admin/app");
+const admin = require("firebase-admin");
+const { applicationDefault } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const fs = require("fs");
 
-const fb = initializeApp({
+const fb = admin.initializeApp({
     credential: applicationDefault(),
 });
 
@@ -27,6 +28,8 @@ const requestValidator = require("./request-validator");
 const imgValidator = require("./img-validator");
 
 const app = express();
+
+const IMG_DIR = "./public/images/listing_imgs"
 
 const listings = [
     {
@@ -244,7 +247,7 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
         try {
             const listings = db.collection("listings");
             if (req.body.img) {
-                fs.open(`../public/images/${imgID}.jpg`, "w", (err, fd) => {
+                fs.open(`${IMG_DIR}/${imgID}.jpg`, "w", (err, fd) => {
                     if (err) {
                         res.status(400).json({ msg: err.message });
                     }
@@ -264,7 +267,7 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     location: req.body.location,
                     phoneNumber: req.body.phoneNumber,
                     price: parseInt(req.body.price),
-                    img: `http://localhost:3000/images/${imgID}.jpg`,
+                    img: `http://localhost:3000/images/listing_imgs/${imgID}.jpg`,
                     imgID: imgID,
                     timeID: time.getTime()
                 }).then(() => {
@@ -345,7 +348,7 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
 
                 try {
                     if (req.body.img) {
-                        fs.open(`../public/images/${imgID}.jpg`, "w", (err, fd) => {
+                        fs.open(`${IMG_DIR}/${imgID}.jpg`, "w", (err, fd) => {
                             if (err) {
                                 res.status(400).json({ msg: err.message });
                             }
@@ -359,14 +362,14 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                             fs.close(fd);
                         });
 
-                        update.img = `http://localhost:3000/images/${imgID}.jpg`;
+                        update.img = `http://localhost:3000/images/listing_imgs/${imgID}.jpg`;
                         update.imgID = imgID;
                     } else {
                         update.img = "";
                         update.imgID = "";
                     }
 
-                    fs.access(`../public/images/${oldImgID}.jpg`, async (doesntExist) => {
+                    fs.access(`${IMG_DIR}/${oldImgID}.jpg`, async (doesntExist) => {
                         if (doesntExist) {
                             await listings.update({ _id: _id }, { $set: update })
                             .then(() => {
@@ -376,7 +379,7 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                                 res.status(400).json({ msg: err.message });
                             });
                         } else {
-                            fs.unlink(`../public/images/${oldImgID}.jpg`, async (err) => {
+                            fs.unlink(`${IMG_DIR}/${oldImgID}.jpg`, async (err) => {
                                 if (err) {
                                     res.status(400).json({ msg: err.message });
                                 }
@@ -436,7 +439,7 @@ app.post("/delete_listing", formParser, async (req, res) => {
         if(listing) {
             if (listing.user == uid) {
                 if (listing.imgID != "") {
-                    fs.unlink(`../public/images/${listing.imgID}.jpg`, (err) => {
+                    fs.unlink(`${IMG_DIR}/${listing.imgID}.jpg`, (err) => {
                         if (err) {
                             res.status(400).json({ msg: err.message });
                         }

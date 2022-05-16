@@ -2,12 +2,7 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
-    "serve": "firebase emulators:start --only functions",
-    "shell": "firebase functions:shell",
-    "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log",
-    "devStart": "firebase emulators:start"
+    "devStart": "node index.js"
   },
   "engines": {
     "node": "16"
@@ -15,12 +10,10 @@
   "main": "index.js",
   "dependencies": {
     "bootstrap": "^5.1.3",
-    "busboy": "^1.6.0",
+    "connect-busboy": "^1.0.0",
     "ejs": "^3.1.7",
     "express": "^4.17.3",
-    "firebase": "^9.6.11",
     "firebase-admin": "^10.0.2",
-    "firebase-functions": "^3.21.1",
     "helmet": "^5.0.2",
     "mongodb": "^4.6.0"
   },
