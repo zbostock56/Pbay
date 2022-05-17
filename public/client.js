@@ -11,9 +11,10 @@ const firebaseConfig = {
     measurementId: "G-F5FKK2C9M4"
 };
 
-//connectAuthEmulator(auth, "http://127.0.0.1:9099");
-
 const fb = initializeApp(firebaseConfig);
+let socket = undefined;
+let target = undefined;
+const messages = [];
 
 const signIn = async () => {
     const auth = getAuth(fb);
@@ -213,6 +214,58 @@ const deleteRequest = () => {
         });
 }
 
+const connectSocket = () => {
+    if (document.getElementById("target").value != "") {
+        socket = io();
+        target = document.getElementById("target").value;
+    
+        const auth = getAuth(fb);
+        auth.currentUser.getIdToken()
+        .then((idToken) => {
+            socket.emit("validate", idToken);
+    
+            axios({
+                method: "get",
+                url: `http://localhost:3000/unread_messages/${idToken}/${target}`
+            })
+            .then((res) => {
+                messages = res.unread;
+                populateMessages();
+            });
+    
+            socket.on("message", (message) => {
+                if (message.target == auth.currentUser.uid) {
+                    messages.push(message);
+                    populateMessages();
+                }
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
+}
+
+const sendMessage = () => {
+    if (target) {
+        socket.emit("message", target, document.getElementById("message").value);
+    } else {
+        console.log("no target");
+    }
+}
+
+const populateMessages = () => {
+    const list = document.getElementById("messages");
+    while (list.hasChildNodes()) {
+        list.removeChild("li");
+    }
+
+    messages.forEach((message) => { 
+        const item = document.createElement("li");
+        item.appendChild(document.createTextNode(`[${message.time}] ${msg.msg}`));
+        list.appendChild(item);
+    });
+}
 
 checkRedirect();
 
@@ -242,4 +295,9 @@ if (document.getElementById("edit_request")) {
 
 if (document.getElementById("delete_request")) {
     document.getElementById("delete_request").addEventListener("click", deleteRequest);
+}
+
+if (document.getElementById("socket-connect")) {
+    document.getElementById("socket-connect").addEventListener("click", connectSocket);
+    document.getElementById("send_msg").addEventListener("click", sendMessage);
 }

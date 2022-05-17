@@ -1,17 +1,14 @@
 const admin = require("firebase-admin");
-const { applicationDefault } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const fs = require("fs");
 
-const fb = admin.initializeApp({
-    credential: applicationDefault(),
-});
-
 const express = require("express");
+const app = express();
+
 const mongo = require("mongodb");
 const MongoClient = mongo.MongoClient;
 
-const url = "mongodb://localhost:27017";
+const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 let db;
 
@@ -26,8 +23,6 @@ const formParser = require("./form-parser");
 const listingValidator = require("./listing-validator");
 const requestValidator = require("./request-validator");
 const imgValidator = require("./img-validator");
-
-const app = express();
 
 const IMG_DIR = "./public/images/listing_imgs"
 
@@ -729,6 +724,29 @@ app.post("/delete_request", formParser, async (req, res) => {
 
 // ============================ CHAT ============================
 
+app.get("/unread_messages/:idToken/:target", (req, res) => {
+    const auth = getAuth();
+
+    auth.verifyIdToken(req.params.idToken)
+    .then((decodedToken) => {
+        const uid = decodedToken.uid;
+
+        admin.auth().getUser(req.params.target)
+        .then(() => {
+            const messages = db.collection("messages");
+            const unread = messages.find({ target: uid, from: req.params.target }).toArray();
+
+            res.status(200).send({ unread: unread });
+        })
+        .catch((err) => {
+            res.status(400).json({ msg: err });
+        })
+    })
+    .catch((err) => {
+        res.status(200).json({ msg: err });
+    })
+});
+
 // ========================== REPORTING =========================
 
 // app.post("/report", formParser, async (req, res) => {
@@ -861,6 +879,10 @@ app.get("/delete_request_test", (req, res) => {
     res.render("pages/TEST_PAGES/test_delete_request");
 })
 
+app.get("/chat_test", (req, res) => {
+    res.render("pages/TEST_PAGES/test_chat");
+});
+
 // ========================== HELPERS ===========================
 
 /*
@@ -932,4 +954,6 @@ const genRequestUpdate = (data, req) => {
     return update;
 }
 
-module.exports = app;
+exports.source = app;
+exports.db = db;
+exports.getAuth = getAuth;
