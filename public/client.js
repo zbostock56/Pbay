@@ -229,7 +229,9 @@ const connectSocket = () => {
                 url: `http://localhost:3000/unread_messages/${idToken}/${target}`
             })
             .then((res) => {
-                messages = res.unread;
+                res.data.unread.forEach((msg) => {
+                    messages.push(msg);
+                });
                 populateMessages();
             });
     
@@ -256,14 +258,14 @@ const sendMessage = () => {
 
 const populateMessages = () => {
     const list = document.getElementById("messages");
-    while (list.hasChildNodes()) {
-        list.removeChild("li");
-    }
 
-    messages.forEach((message) => { 
-        const item = document.createElement("li");
-        item.appendChild(document.createTextNode(`[${message.time}] ${msg.msg}`));
-        list.appendChild(item);
+    messages.forEach((message) => {
+        if (!document.getElementById(message.time)) {
+            const item = document.createElement("li");
+            item.setAttribute("id", message.time);
+            item.appendChild(document.createTextNode(`[${message.time}] ${message.msg}`));
+            list.appendChild(item);
+        }
     });
 }
 

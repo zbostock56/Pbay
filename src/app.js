@@ -732,9 +732,9 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
         const uid = decodedToken.uid;
 
         admin.auth().getUser(req.params.target)
-        .then(() => {
+        .then(async () => {
             const messages = db.collection("messages");
-            const unread = messages.find({ target: uid, from: req.params.target }).toArray();
+            const unread = await messages.find({ target: uid, from: req.params.target }).toArray();
 
             res.status(200).send({ unread: unread });
         })
