@@ -321,13 +321,6 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
 
         // Calculate timestamp info
         const time = new Date();
-        let hour = time.getHours();
-        let minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes();
-        let timeOfDay = "AM";
-        if (time.getHours() > 12) {
-            timeOfDay = "PM";
-            hour -= 12;
-        }
 
         // Create image id in the form {EMAIL}+{IMAGE_TITLE}+{TIME}
         const imgID = `${uid}+${req.body.title}+${time.getTime()}`
@@ -352,8 +345,9 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     user: uid,
                     title: req.body.title,
                     desc: req.body.desc,
-                    location: req.body.location,
-                    phoneNumber: req.body.phoneNumber,
+                    category: parseInt(req.body.category),
+                    //location: req.body.location,
+                    //phoneNumber: req.body.phoneNumber,
                     price: parseInt(req.body.price),
                     img: `http://localhost:3000/images/listing_imgs/${imgID}.jpg`,
                     imgID: imgID,
@@ -368,8 +362,9 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     user: uid,
                     title: req.body.title,
                     desc: req.body.desc,
-                    location: req.body.location,
-                    phoneNumber: req.body.phoneNumber,
+                    category: req.body.category,
+                    //location: req.body.location,
+                    //phoneNumber: req.body.phoneNumber,
                     price: parseInt(req.body.price),
                     img: "",
                     imgID: "",
@@ -576,13 +571,6 @@ app.post("/create_request", formParser, requestValidator, async (req, res) => {
         const uid = decodedToken.uid;
 
         const time = new Date();
-        let hour = time.getHours();
-        let minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : `${time.getMinutes()}`;
-        let timeOfDay = "AM";
-        if (hour > 12) {
-            timeOfDay = "PM";
-            hour -= 12;
-        }
 
         const requests = db.collection("requests");
         await requests.insertOne({
@@ -763,18 +751,23 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
 app.get("/home", (req, res) => {
     res.render("pages/index", { listings: listings });
 });
+
 app.get("/login", (req, res) => {
     res.render("pages/login");
 });
+
 app.get("/terms", (req, res) => {
     res.render("pages/terms_and_conditions");
 });
+
 app.get("/maintence", (req, res) => {
     res.render("pages/maintence");
 });
+
 app.get("/404", (req, res) => {
     res.render("pages/404");
 });
+
 app.get("/about", (req, res) => {
     res.render("pages/about_us");
 });
@@ -909,6 +902,10 @@ const genListingUpdate = (data, req) => {
 
     if (req.body.desc != "" && (data.desc != req.body.desc)) {
         update.desc = req.body.desc;
+    }
+
+    if (req.body.category != "" && (data.category != req.body.category)) {
+        update.category = req.body.category;
     }
 
     if (req.body.location != "" && (data.location != req.body.location)) {

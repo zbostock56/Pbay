@@ -39,6 +39,7 @@ const checkRedirect = async () => {
             console.log(credential);
 
             console.log(auth.currentUser.getIdToken());
+            window.location = "/home";
         }
     })
     .catch((err) => {
@@ -54,12 +55,15 @@ const createListing = () => {
         const data = {
             idToken: idToken, 
             title: document.getElementById("title").value,
-            desc: document.getElementById("desc").value,
-            location: document.getElementById("location").value,
-            phoneNumber: document.getElementById("phoneNumber").value,
-            price: document.getElementById("price").value,
+            desc: document.getElementById("description").value,
+            category: document.getElementById("category").value,
+            // location: document.getElementById("location").value,
+            // phoneNumber: document.getElementById("phoneNumber").value,
+            price: document.getElementById("Price-Input").value,
             img: document.getElementById("img").files[0]
         };
+
+        console.log(data);
         
         axios.post("http://localhost:3000/create_listing", data, {
             headers: {
@@ -271,12 +275,12 @@ const populateMessages = () => {
 
 checkRedirect();
 
-if (document.getElementById("tester")) {
-    document.getElementById("tester").addEventListener("click", signIn);
+if (document.getElementById("login")) {
+    document.getElementById("login-button").addEventListener("click", signIn);
 }
 
-if (document.getElementById("submit")) {
-    document.getElementById("submit").addEventListener("click", createListing);
+if (document.getElementById("create-listing")) {
+    document.getElementById("submit_listing").addEventListener("click", createListing);
 }
 
 if (document.getElementById("submit_edit")) {

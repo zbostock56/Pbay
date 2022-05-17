@@ -21,6 +21,12 @@ const requestValidator = (req, res, next) => {
         errors.title = "Invalid description";
     }
 
+    const category = req.body.category;
+    if (category && ((parseInt(category) == NaN) || (category < 1) || (category > 19))) {
+        status = false;
+        errors.title = "Invalid category";
+    }
+
     if (status == false) {
         res.status(400).json({ msg: errors });
     } else {

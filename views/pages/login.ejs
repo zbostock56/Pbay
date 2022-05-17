@@ -18,7 +18,7 @@
     <%- include('../partials/head'); %>
   </head>
   <body>
-    <main>
+    <main id="login">
       <div class="main" style="background-image: url(images/login_bg.png)">
         <!-- vh-100: sets the card in the middle of the screen with the background taking up everything -->
         <div class="container vh-100">
@@ -36,6 +36,7 @@
                 </h3>
                 <button
                   class="btn btn-primary"
+                  id="login-button"
                   type="submit"
                   href="#"
                   style="
@@ -68,5 +69,6 @@
       for transitions/animations
      -->
     <%- include('../partials/scripts'); %>
+    <script type="module" src="client.js" \></script>
   </body>
 </html>

@@ -22,21 +22,27 @@ const listingValidator = (req, res, next) => {
         errors.desc = "Invalid description";
     }
 
-    const location = req.body.location;
-    if (location && ((typeof location !== "string") || (location.length > 50) || (title.length === 0))) {
+    const category = req.body.category;
+    if (category && ((parseInt(category) == NaN) || (category < 1) || (category > 19))) {
         status = false;
-        errors.location = "Invalid location";
+        errors.category = "Invalid category";
     }
 
-    const phoneValidator = /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/;
-    const phoneNumber = req.body.phoneNumber;
-    if (phoneNumber && ((typeof phoneNumber !== "string") || (phoneValidator.test(phoneNumber) == false))) {
-        status = false;
-        errors.phoneNumber = "Invalid phone number";
-    }
+    // const location = req.body.location;
+    // if (location && ((typeof location !== "string") || (location.length > 50) || (title.length === 0))) {
+    //     status = false;
+    //     errors.location = "Invalid location";
+    // }
+
+    // const phoneValidator = /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/;
+    // const phoneNumber = req.body.phoneNumber;
+    // if (phoneNumber && ((typeof phoneNumber !== "string") || (phoneValidator.test(phoneNumber) == false))) {
+    //     status = false;
+    //     errors.phoneNumber = "Invalid phone number";
+    // }
 
     const price = req.body.price;
-    if (price && (parseInt(price) == NaN)) {
+    if (price && ((parseInt(price) == NaN) || (price < 0))) {
         status = false;
         errors.price = "Invalid price";
     }

@@ -18,7 +18,7 @@
   </head>
   <body>
     <header><%- include('../partials/header'); %></header>
-    <main>
+    <main id="create-listing">
       <div class="main">
         <div class="container" 
         style="
@@ -32,16 +32,17 @@
               <div class="col">
                 <label for="title" class="form-label">Name of Product</label>
                 <input
+                  id="title"
                   class="form-control"
                   type="text"
                   placeholder="Be Descriptive!"
                   aria-label="title_input"
-                  id="title"
+                  required
                 />
               </div>
               <div class="col">
                 <label for="category" class="form-label">Category</label>
-                <select class="form-select" id="category">
+                <select id="category" class="form-select">
                   <option selected>Select a Category</option>
                   <option value="1">Applicances</option>
                   <option value="2">Beauty Products</option>
@@ -68,7 +69,7 @@
           </div>
           <div class="mb-3">
             <label for="file-input" class="form-label">Upload a Picture</label>
-            <input type="file" class="form-control" id="file-input" />
+            <input type="file" id="img" class="form-control" id="file-input" />
           </div>
           <div class="mb-3">
             <label for="description" class="form-label"
@@ -122,11 +123,13 @@
           </div>
           <div class="mb-3">
             <input
+              id="submit_listing"
               class="btn btn-primary"
               type="submit"
               value="Create Posting"
             />
             <input
+              id="submit_request"
               class="btn btn-primary"
               type="submit"
               value="Request Product"
@@ -156,4 +159,6 @@
       for transitions/animations
      -->
      <%- include('../partials/scripts'); %>
+     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+     <script type="module" src="client.js"></script>
 </html>
