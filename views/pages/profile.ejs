@@ -1,11 +1,14 @@
-<!-- ***************THIS IS ONLY TO BE USED AS A TEMPLATE************* -->
 <!-- 
-  ===========  Title ============= 
+  ===========  profile.ejs ============= 
   DESC:
+  Allows the user to find out how many posts have been made,
+  what their email address is, and links to their messages
 
   PARAMETERS:
+  None
 
   RETURNS:
+  Profile Page
   ===========================
 -->
 <!DOCTYPE html>
@@ -20,7 +23,22 @@
         <div 
         class="container"
         style="padding-top: 120px; position: relative; min-height: 100vh">
-          Here Goes the stuff
+          <h1 class="mb-10">
+              Profile Details
+          </h1>
+        <div class="card" style="width: 50%;">
+            <img class="card-img-top"  src="images/default_profile.png" alt="Hello">
+            <h5 class="card-title">
+                User-Name
+            </h5>
+            <small class="text-muted">purdue email address</small>
+            <h6>
+                Stats
+            </h6>
+            <p>
+                
+            </p>
+        </div>
         </div>
       </div>
     </main>
@@ -35,4 +53,3 @@
      <%- include('../partials/scripts'); %>
   </body>
 </html>
-<!-- ***************************************************************** -->

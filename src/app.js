@@ -772,6 +772,10 @@ app.get("/about", (req, res) => {
     res.render("pages/about_us");
 });
 
+app.get("/profile", (req, res) => {
+    res.render("pages/profile");
+});
+
 // Listing Routes
 app.get("/create_listing", (req, res) => {
     res.render("pages/create_post");
