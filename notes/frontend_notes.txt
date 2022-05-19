@@ -1,17 +1,20 @@
-General
--> Link buttons and functionality between pages
-
-index.ejs
--> Fix Offcanvas
--> Selecteable large buttons for different categories rather than search feature
--> Need to implement functionality when there are not any cards
-
-chat_room.ejs
--> side bar with different active messages
 
 create_post.ejs
 -> Make sure that inputs are filled before allowing to list
 -> Make sure that terms and conditions are agreeded to before listing
 
-footer.ejs
--> try to arrange footer to bottom when page content does not push it to the bottom
+messages.ejs and chat.ejs
+-> Two separated places for looking at messages
+-> messages will be used for finding the active chats that someone has (helps with the Spacing
+on mobile sense the screen size is not that large, active containers all around make it hard to navigate)
+-> messages will have cards pointing to different chat rooms (maybe make refs or something to each room with sockets?)
+-> chat room will be simple and just dedicated to sending and receiving messages from one person, rather than
+looking at open messages as well
+-> Need to make sure that the messages that are being displayed to the user are the ones that they have made to a user,
+and not something that someone else has made
+-> new chat sessions can only be made with the button on a listing rather than in the chat room to hopefully
+stop users from making random ones
+
+Ideas for messages and chat:
+-> Add placeholders for rest of cards when the number of known chat rooms is not a multple of 2
+-> When a message is opened up, its new status needs to be set back to false again

@@ -24,7 +24,40 @@ const listingValidator = require("./listing-validator");
 const requestValidator = require("./request-validator");
 const imgValidator = require("./img-validator");
 
-const IMG_DIR = "./public/images/listing_imgs"
+const IMG_DIR = "./public/images/listing_imgs";
+
+const messages= [
+    {
+        to: "Alexander the Great",
+        hasNewMessage: false,
+        url: "",
+    },
+    {
+        to: "Ceasar",
+        hasNewMessage: true,
+        url: "",
+    },
+    {
+        to: "Ghangis Khan",
+        hasNewMessage: false,
+        url: "",
+    },
+    {
+        to: "King Henry VIII",
+        hasNewMessage: true,
+        url: "",
+    },
+    {
+        to: "Shiwhandi",
+        hasNewMessage: false,
+        url: "",
+    },
+    {
+        to: "Napolean",
+        hasNewMessage: true,
+        url: "",
+    }
+];
 
 const listings = [
     {
@@ -768,13 +801,21 @@ app.get("/404", (req, res) => {
     res.render("pages/404");
 });
 
-app.get("/about", (req, res) => {
-    res.render("pages/about_us");
+app.get("/messages", (req, res) => {
+    res.render("pages/messages", { messages: messages });
 });
 
-app.get("/profile", (req, res) => {
-    res.render("pages/profile");
-});
+// ********** Not Included in intial Build *********************
+
+// app.get("/about", (req, res) => {
+//     res.render("pages/about_us");
+// });
+
+// app.get("/profile", (req, res) => {
+//     res.render("pages/profile");
+// });
+
+// ****************************************************************
 
 // Listing Routes
 app.get("/create_listing", (req, res) => {
