@@ -1,3 +1,5 @@
+edit_posting.ejs and create_post.ejs
+-> Make it so that the input for a price is disabled when the product is set to free
 
 create_post.ejs
 -> Make sure that inputs are filled before allowing to list
@@ -18,3 +20,6 @@ stop users from making random ones
 Ideas for messages and chat:
 -> Add placeholders for rest of cards when the number of known chat rooms is not a multple of 2
 -> When a message is opened up, its new status needs to be set back to false again
+-> How do we get around not reloading the page when a message has been sent from one of the users?
+-> How do we differentiate between the sent messages and the received messages between two of the same users
+accessing the same chat room?

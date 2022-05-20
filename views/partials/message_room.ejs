@@ -22,10 +22,10 @@
       "
     >
     <div class="card-title text-wrap">
-      <% if(message.to === "") { %>
+      <% if(message_room.to === "") { %>
       No "to" data 
       <% } else { %>
-      <%= message.to %> 
+      <%= message_room.to %> 
       <% } %>
     </div>
     </div>
@@ -49,7 +49,7 @@
           </svg>
           Open Chat Room
         </a>
-        <% if (message.hasNewMessage === true) { %> 
+        <% if (message_room.hasNewMessage === true) { %> 
         <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
         </span>
         <% } %> 

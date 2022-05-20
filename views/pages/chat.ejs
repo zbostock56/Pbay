@@ -1,0 +1,53 @@
+<!-- 
+  ===========  chat.ejs ============= 
+  DESC:
+  Allows the user to chat between another user
+  by sending text messages
+
+  PARAMETERS:
+  messages
+
+  RETURNS:
+  chat room page
+  ===========================
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head'); %>
+  </head>
+  <body>
+    <header><%- include('../partials/header'); %></header>
+    <main>
+      <div class="main">
+        <div 
+        class="container"
+        style="padding-top: 120px; position: relative; min-height: 100vh">
+          <div class="row row-cols-1 row-cols-md-1 g-2">
+            <% messages.forEach((message) => { %>
+                <div class="col pb-3vh">
+                    <% if (message.fromCurrentUser === true) { %>
+                        <div class="justify-content-start">
+                            <%- include('../partials/chat_message', {message: message}); %>
+                        </div>
+                    <% } else { %>
+                        <div class="justify-content-end">
+                            <%- include('../partials/chat_message', {message: message}); %>
+                        </div>
+                    <% } %>    
+                </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- 
+      ***** JavaScript Add-Ons *****
+      DESC:
+      -> Add the necessary resources
+      for Bootstrap. Includes scripting
+      for transitions/animations
+     -->
+     <%- include('../partials/scripts'); %>
+  </body>
+</html>

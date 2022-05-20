@@ -1,10 +1,15 @@
 <!-- 
-  ===========  Title ============= 
+  ===========  messages.ejs ============= 
   DESC:
+  Shows the users what active chat rooms they have
+  and gives them the ability to open them up
+  to send more content
 
   PARAMETERS:
+  message_rooms
 
   RETURNS:
+  messages page
   ===========================
 -->
 <!DOCTYPE html>
@@ -24,10 +29,10 @@
         </h1>
             <div class="row row-cols-2 row-cols-md-2 g-1">
                 <% let counter = 0; %> 
-                <% messages.forEach((message) => { %>
+                <% message_rooms.forEach((message_room) => { %>
                     <div class="col pb-3vh">
                         <% counter++; %> 
-                        <%- include('../partials/message_room', {message: message}); %>
+                        <%- include('../partials/message_room', {message_room: message_room}); %>
                     </div>
                 <% }) %>
             </div>

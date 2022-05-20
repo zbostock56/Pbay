@@ -26,7 +26,7 @@ const imgValidator = require("./img-validator");
 
 const IMG_DIR = "./public/images/listing_imgs";
 
-const messages= [
+const message_rooms = [
     {
         to: "Alexander the Great",
         hasNewMessage: false,
@@ -56,6 +56,40 @@ const messages= [
         to: "Napolean",
         hasNewMessage: true,
         url: "",
+    }
+];
+
+const messages = [
+    {
+        // Denotes whether the message was sent from the current user or from the opposing person
+        fromCurrentUser: true,
+        contents: "Hello, welcome to the multiverse of madness. I am your host, MatPat.",
+        // This is something we are probably going to want
+        timeStamp: "",
+    },
+    {
+        fromCurrentUser: false,
+        contents: "Fuck you MatPat, I hate your videos and I know that you're a conspiracy theorist."
+    },
+    {
+        fromCurrentUser: true,
+        contents: "Hey man, that really hurt. You should go out and rethink your life. I mean, would you say that to your mom?"
+    },
+    {
+        fromCurrentUser: false,
+        contents: "Well, I'm not sure, but I just thought it was funny."
+    },
+    {
+        fromCurrentUser: false,
+        contents: "Can you at least give it to me that it was a bit funny?"
+    },
+    {
+        fromCurrentUser: true,
+        contents: "Yeah, I guess so."
+    },
+    {
+        fromCurrentUser: true,
+        contents: "You kind of have a point..."
     }
 ];
 
@@ -802,7 +836,11 @@ app.get("/404", (req, res) => {
 });
 
 app.get("/messages", (req, res) => {
-    res.render("pages/messages", { messages: messages });
+    res.render("pages/messages", { message_rooms: message_rooms });
+});
+
+app.get("/chat", (req, res) => {
+    res.render("pages/chat", { messages: messages });
 });
 
 // ********** Not Included in intial Build *********************
