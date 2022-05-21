@@ -1,0 +1,32 @@
+<!-- 
+  ===========  Chat Message Partial ============= 
+  DESC: 
+  Creates a card that makes displays as the message
+  in a chat room
+
+  PARAMETERS: 
+  received chat message
+
+  RETURNS:
+  A chat card
+  ===========================
+-->
+<div class="card rounded-3 shadow border-dark mb-3" style="width: 20%;">
+    <div
+      class="card-header"
+      style="
+        font-weight: bold;
+        font-size: large;
+        white-space: nowrap;
+        font-size: larger;">
+    <div class="card-title text-wrap">
+        
+    </div>
+    </div>
+    <div class="card-body text-wrap">
+      <%= message.contents %>
+    </div>
+    <div class="card-footer">
+    </div>
+</div>
+  

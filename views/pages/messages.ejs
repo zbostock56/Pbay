@@ -1,0 +1,56 @@
+<!-- 
+  ===========  messages.ejs ============= 
+  DESC:
+  Shows the users what active chat rooms they have
+  and gives them the ability to open them up
+  to send more content
+
+  PARAMETERS:
+  message_rooms
+
+  RETURNS:
+  messages page
+  ===========================
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head'); %>
+  </head>
+  <body>
+    <header><%- include('../partials/header'); %></header>
+    <main>
+      <div class="main">
+        <div 
+        class="container"
+        style="padding-top: 120px; position: relative; min-height: 100vh">
+        <h1 class="mb-3">
+            Active Chat Rooms
+        </h1>
+            <div class="row row-cols-2 row-cols-md-2 g-1">
+                <% let counter = 0; %> 
+                <% message_rooms.forEach((message_room) => { %>
+                    <div class="col pb-3vh">
+                        <% counter++; %> 
+                        <%- include('../partials/message_room', {message_room: message_room}); %>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+        <% if (counter === 0) { %>
+            <div class="mb-3">
+              <small class="text-muted">You have no active chat rooms.</small>
+            </div>
+        <% } %>  
+      </div>
+    </main>
+    <!-- 
+      ***** JavaScript Add-Ons *****
+      DESC:
+      -> Add the necessary resources
+      for Bootstrap. Includes scripting
+      for transitions/animations
+     -->
+     <%- include('../partials/scripts'); %>
+  </body>
+</html>
