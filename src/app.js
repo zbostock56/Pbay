@@ -355,7 +355,9 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                 }).then(() => {
                     res.status(200).json({ msg: "Success" });
                 }).catch((err) => {
-                    res.status(400).json({ msg: err.message });
+                    if (err) {
+                        res.status(400).json({ msg: err.message });
+                    }
                 });
             } else {
                 await listings.insertOne({
@@ -372,7 +374,9 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                 }).then(() => {
                     res.status(200).json({ msg: "Success (non pic)" });
                 }).catch((err) => {
-                    res.status(400).json({ msg: err.message });
+                    if (err) {
+                        res.status(400).json({ msg: err.message });
+                    }
                 });
             }
 
@@ -384,7 +388,9 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
         }
     })
     .catch((err) => {
-        res.status(400).json({ msg: err.message });
+        if (err) {
+            res.status(400).json({ msg: err.message });
+        }
     });
 });
 
@@ -459,7 +465,9 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                                 res.status(200).json({ msg: "Listing updated" });
                             })
                             .catch((err) => {
-                                res.status(400).json({ msg: err.message });
+                                if (err) {
+                                    res.status(400).json({ msg: err.message });
+                                }
                             });
                         } else {
                             fs.unlink(`${IMG_DIR}/${oldImgID}.jpg`, async (err) => {
@@ -472,13 +480,17 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                                     res.status(200).json({ msg: "Listing updated" });
                                 })
                                 .catch((err) => {
-                                    res.status(400).json({ msg: err.message });
+                                    if (err) {
+                                        res.status(400).json({ msg: err.message });
+                                    }
                                 });
                             });
                         }
                     });
                 } catch (err) {
-                    res.status(400).json({ msg: err.message });
+                    if (err) {
+                        res.status(400).json({ msg: err.message });
+                    }
                 }
             } else {
                 res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
@@ -488,7 +500,9 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
         }
     })
     .catch((err) => {
-        res.status(400).json({ msg: err.message });
+        if (err) {
+            res.status(400).json({ msg: err.message });
+        }
     });
 });
 
@@ -540,7 +554,9 @@ app.post("/delete_listing", formParser, async (req, res) => {
         }
     })
     .catch((err) => {
-        res.status(400).json({ msg: err.message });
+        if (err) {
+            res.status(400).json({ msg: err.message });
+        }
     });
 });
 
@@ -583,11 +599,15 @@ app.post("/create_request", formParser, requestValidator, async (req, res) => {
             res.status(200).json({ msg: "Request created" });
         })
         .catch((err) => {
-            res.status(400).json({ msg: err.message });
+            if (err) {
+                res.status(400).json({ msg: err.message });
+            }
         });
     })
     .catch((err) => {
-        res.status(400).json({ msg: err.message });
+        if (err) {
+            res.status(400).json({ msg: err.message });
+        }
     });
 });
 
@@ -629,7 +649,9 @@ app.post("/edit_request", formParser, requestValidator, async (req, res) => {
                     res.status(200).json({ msg: "Request updated" });
                 })
                 .catch((err) => {
-                    res.status(400).json({ msg: err.message });
+                    if (err) {
+                        res.status(400).json({ msg: err.message });
+                    }
                 });
             } else {
                 res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
@@ -639,7 +661,9 @@ app.post("/edit_request", formParser, requestValidator, async (req, res) => {
         }
     })
     .catch((err) => {
-        res.status(400).json({ msg: err.message });
+        if (err) {
+            res.status(400).json({ msg: err.message });
+        }
     })
 });
 
@@ -683,31 +707,10 @@ app.post("/delete_request", formParser, async (req, res) => {
         }
     })
     .catch((err) => {
-        res.status(400).json({ msg: err.message });
+        if (err) {
+            res.status(400).json({ msg: err.message });
+        }
     });
-    // const user = auth.currentUser;
-
-    // if (!user) {
-    //     res.status(400).json({ msg: "Invalid user (auth/invalid-user)" });
-    // }
-
-    // const requestRef = doc(db, "requests", req.body.request);
-    // const requestSnapshot = await getDoc(requestRef);
-
-    // if (requestSnapshot.data()) {
-    //     if (user.email === requestSnapshot.data().email) {
-    //         try {
-    //             await deleteDoc(requestRef);
-    //             res.status(200).json({ msg: "Request deleted" });
-    //         } catch(err) {
-    //             res.status(400).json({ msg: err.message });
-    //         }
-    //     } else {
-    //         res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
-    //     }
-    // } else {
-    //     res.status(400).json({ msg: "Invalid listing" });
-    // }
 });
 
 // ============================ CHAT ============================
@@ -727,11 +730,15 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
             res.status(200).send({ unread: unread });
         })
         .catch((err) => {
-            res.status(400).json({ msg: err });
+            if (err) {
+                res.status(400).json({ msg: err });
+            }
         })
     })
     .catch((err) => {
-        res.status(200).json({ msg: err });
+        if (err) {
+            res.status(200).json({ msg: err });
+        }
     })
 });
 
