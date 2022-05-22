@@ -62,7 +62,8 @@ const message_rooms = [
 const messages = [
     {
         // Denotes whether the message was sent from the current user or from the opposing person
-        fromCurrentUser: true,
+        from: "Ghengis Khan",
+        to: "Alexander the Great",
         contents: "Hello, welcome to the multiverse of madness. I am your host, MatPat.",
         // This is something we are probably going to want
         timeStamp: "",
