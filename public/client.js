@@ -30,20 +30,14 @@ const signIn = async () => {
 const checkRedirect = async () => {
     const auth = getAuth(fb);
 
-    console.log(auth);
-
     await getRedirectResult(auth)
     .then((result) => {
         if (result) {
-            const credential = OAuthProvider.credentialFromResult(result);
-            console.log(credential);
-
-            console.log(auth.currentUser.getIdToken());
-            window.location = "/home";
+            return true;
         }
     })
     .catch((err) => {
-        console.log(err);
+        return false;
     });
 }
 
@@ -273,34 +267,60 @@ const populateMessages = () => {
     });
 }
 
-checkRedirect();
-
 if (document.getElementById("login")) {
     document.getElementById("login-button").addEventListener("click", signIn);
+
+    if (checkRedirect()) {
+        window.location = "/home";
+    }
 }
 
 if (document.getElementById("create-listing")) {
-    document.getElementById("submit_listing").addEventListener("click", createListing);
+    if (checkRedirect()) {
+        document.getElementById("submit_listing").addEventListener("click", createListing);
+    } else {
+        window.location = "/login";
+    }
 }
 
 if (document.getElementById("submit_edit")) {
-    document.getElementById("submit_edit").addEventListener("click", editListing);
+    if (checkRedirect()) {
+        document.getElementById("submit_edit").addEventListener("click", editListing);
+    } else {
+        window.location = "/login";
+    }
 }
 
 if (document.getElementById("delete_listing")) {
-    document.getElementById("delete_listing").addEventListener("click", deleteListing);
+    if (checkRedirect()) {
+        document.getElementById("delete_listing").addEventListener("click", deleteListing);
+    } else {
+        window.location = "/login";
+    }
 }
 
 if (document.getElementById("submit_request")) {
-    document.getElementById("submit_request").addEventListener("click", createRequest);
+    if (checkRedirect()) {
+        document.getElementById("submit_request").addEventListener("click", createRequest);
+    } else {
+        window.location = "/login";
+    }
 }
 
 if (document.getElementById("edit_request")) {
-    document.getElementById("edit_request").addEventListener("click", editRequest);
+    if (checkRedirect()) {
+        document.getElementById("edit_request").addEventListener("click", editRequest);
+    } else {
+        window.location = "/login";
+    }
 }
 
 if (document.getElementById("delete_request")) {
-    document.getElementById("delete_request").addEventListener("click", deleteRequest);
+    if (checkRedirect()) {
+        document.getElementById("delete_request").addEventListener("click", deleteRequest);
+    } else {
+        window.location = "/login";
+    }
 }
 
 if (document.getElementById("socket-connect")) {

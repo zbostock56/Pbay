@@ -42,7 +42,7 @@ const listingValidator = (req, res, next) => {
     // }
 
     const price = req.body.price;
-    if (price && ((parseInt(price) == NaN) || (price < 0))) {
+    if (price && ((parseFloat(price) == NaN) || (price < 0))) {
         status = false;
         errors.price = "Invalid price";
     }
