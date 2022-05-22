@@ -9,9 +9,7 @@
 //   mailto link
 //   ===========================
 
-document.getElementById(
-  "mail2"
-).href = `mailto:pbayhelp@gmail.com?subject=Bug%20Report&body=What%20bug%20did%20you%20find
+document.getElementById("mail2").href = `mailto:pbayhelp@gmail.com?subject=Bug%20Report&body=What%20bug%20did%20you%20find
 %3F%0D%0ALet%20us%20know%20here%3A
 %0D%0A
 %0D%0A
