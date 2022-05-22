@@ -46,30 +46,38 @@ const createListing = () => {
 
     auth.currentUser.getIdToken()
     .then((idToken) => {
-        const data = {
-            idToken: idToken, 
-            title: document.getElementById("title").value,
-            desc: document.getElementById("description").value,
-            category: document.getElementById("category").value,
-            // location: document.getElementById("location").value,
-            // phoneNumber: document.getElementById("phoneNumber").value,
-            price: document.getElementById("Price-Input").value,
-            img: document.getElementById("img").files[0]
-        };
-
-        console.log(data);
-        
-        axios.post("http://localhost:3000/create_listing", data, {
-            headers: {
-                "Content-Type" : "multipart/form-data"
-            }
-        })
-        .then((res) => {
-            console.log(res);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+        if (document.getElementById("agreeToTermsAndConditions").checked) {
+            const data = {
+                idToken: idToken, 
+                title: document.getElementById("title").value,
+                desc: document.getElementById("description").value,
+                category: document.getElementById("category").value,
+                // location: document.getElementById("location").value,
+                // phoneNumber: document.getElementById("phoneNumber").value,
+                price: document.getElementById("Price-Input").value,
+                img: document.getElementById("img").files[0]
+            };
+            
+            axios.post("http://localhost:3000/create_listing", data, {
+                headers: {
+                    "Content-Type" : "multipart/form-data"
+                }
+            })
+            .then((res) => {
+                window.location = "/home";
+            })
+            .catch(async (err) => {
+                const res = await JSON.parse(err.response.request.response);
+                let error = "";
+                for (const msg in res.msg) {
+                    error = `${error} ${res.msg[msg]},`;
+                }
+                error = error.substring(0, error.length - 1);
+                document.getElementById("err-txt").innerHTML = error;
+            });
+        } else {
+            document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+        }
     })
     .catch((err) => {
         console.log(err);

@@ -164,7 +164,7 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     category: parseInt(req.body.category),
                     //location: req.body.location,
                     //phoneNumber: req.body.phoneNumber,
-                    price: parseFloat(req.body.price),
+                    price: parseFloat(req.body.price).toFixed(2),
                     img: `http://localhost:3000/images/listing_imgs/${imgID}.jpg`,
                     imgID: imgID,
                     timeID: time.getTime()
@@ -183,21 +183,18 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     category: parseInt(req.body.category),
                     //location: req.body.location,
                     //phoneNumber: req.body.phoneNumber,
-                    price: parseFloat(req.body.price),
+                    price: parseFloat(req.body.price).toFixed(2),
                     img: "",
                     imgID: "",
                     timeID: time.getTime()
                 }).then(() => {
-                    res.status(200).json({ msg: "Success (non pic)" });
+                    res.status(200).json({ msg: "Success" });
                 }).catch((err) => {
                     if (err) {
                         res.status(400).json({ msg: err.message });
                     }
                 });
             }
-
-            // Send success message
-            res.status(200).json({ msg: "Listing created" });
         } catch (err) {
             // Send error message on error
             res.status(400).json({ msg: err.message });   
@@ -757,7 +754,7 @@ const genListingUpdate = (data, req) => {
         update.phoneNumber = req.body.phoneNumber;
     }
     if (req.body.price != "" && (data.price != parseFloat(req.body.price))) {
-        update.price = parseFloat(req.body.price);
+        update.price = parseFloat(req.body.price).toFixed(2);
     }
 
     return update;

@@ -27,6 +27,7 @@
         min-height: 100vh;">
         <div style="padding-bottom: calc(256px - 120px);">
           <h1>Create Your Listing</h1>
+          <p id="err-txt" class="text-danger"></p>
           <div class="mb-3">
             <div class="row">
               <div class="col">
@@ -97,17 +98,6 @@
             />
           </div>
           <div class="mb-3">
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                value=""
-                id="postAsFree"
-              />
-              <label class="form-check-label" for="postAsFree">
-                Post item as free (any price posted will be removed if checked)
-              </label>
-            </div>
             <div class="mb-3">
               <div class="form-check">
                 <input
@@ -139,8 +129,7 @@
             <p>
               <b>
                 <i>
-                  If "Request Product" is selected, picture and free asking
-                  price fields will be ignored!
+                  If "Request Product" is selected, the picture and price fields will be ignored!
                 </i>
               </b>
             </p>
