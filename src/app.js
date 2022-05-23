@@ -26,6 +26,10 @@ const imgValidator = require("./img-validator");
 
 const IMG_DIR = "./public/images/listing_imgs";
 
+const CATEGORIES = [ "appliances", "beauty", "books", "car_supplies", "clothing", "computer_hardware", "food",
+                     "furniture", "health", "home_decor", "jewelry", "kitchenware", "media", "outdoor_travel", "pet", 
+                     "office_supplies", "sporting", "toys", "other" ];
+
 const message_rooms = [
     {
         to: "Alexander the Great",
@@ -619,65 +623,14 @@ app.get("/home/edit_listing", (req, res) => {
 });
 
 // Categories
-app.get("/appliances", (req, res) => {
-    res.render("pages/categories/appliances", { listings: listings });
-});
-app.get("/beauty", (req, res) => {
-    res.render("pages/categories/beauty", { listings: listings });
-});
-app.get("/books", (req, res) => {
-    res.render("pages/categories/books", { listings: listings });
-});
-app.get("/car", (req, res) => {
-    res.render("pages/categories/car", { listings: listings });
-});
-app.get("/clothing", (req, res) => {
-    res.render("pages/categories/clothing", { listings: listings });
-});
-app.get("/computer", (req, res) => {
-    res.render("pages/categories/computer_hardware", { listings: listings });
-});
-app.get("/food", (req, res) => {
-    res.render("pages/categories/food", { listings: listings });
-});
-app.get("/furniture", (req, res) => {
-    res.render("pages/categories/furniture", { listings: listings });
-});
-app.get("/health", (req, res) => {
-    res.render("pages/categories/health", { listings: listings });
-});
-app.get("/decor", (req, res) => {
-    res.render("pages/categories/home_decor", { listings: listings });
-});
-app.get("/jewelry", (req, res) => {
-    res.render("pages/categories/jewelry", { listings: listings });
-});
-app.get("home/kitchenware", (req, res) => {
-    res.render("pages/categories/kitchenware", { listings: listings });
-});
-app.get("/media", (req, res) => {
-    res.render("pages/categories/media", { listings: listings });
-});
-app.get("/office", (req, res) => {
-    res.render("pages/categories/office_supplies", { listings: listings });
-});
-app.get("/other", (req, res) => {
-    res.render("pages/categories/other", { listings: listings });
-});
-app.get("/outdoors", (req, res) => {
-    res.render("pages/categories/outdoors_travel", { listings: listings });
-});
-app.get("/pet", (req, res) => {
-    res.render("pages/categories/pet", { listings: listings });
-});
-app.get("/shoes", (req, res) => {
-    res.render("pages/categories/shoes", { listings: listings });
-});
-app.get("/sporting", (req, res) => {
-    res.render("pages/categories/sporting", { listings: listings });
-});
-app.get("/toys", (req, res) => {
-    res.render("pages/categories/toys", { listings: listings });
+app.get("/home/category/:category", async (req, res) => {
+    const category = req.params.category;
+    if (CATEGORIES.includes(category)) {
+        const listings = await db.collection("listings").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
+        res.render("pages/category", { category: category.replaceAll('_', ' '), listings: listings });
+    } else {
+        res.redirect("http://localhost:3000/404");
+    }
 });
 
 // TEST ROUTES
