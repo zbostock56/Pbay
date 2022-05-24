@@ -19,20 +19,15 @@
   <body>
     <header><%- include('../partials/header'); %></header>
     <main>
-      <div class="main">
+      <div id="chat" class="main">
         <div 
         class="container"
         style="padding-top: 120px; padding-bottom: 60px; position: relative; min-height: 100vh;">
-          <div class="row row-cols-1 row-cols-md-1 g-2">
-            <% messages.forEach((message) => { %>
-                <div class="col pb-3vh">
-                  <%- include('../partials/chat_message', {message: message}); %>
-                </div>
-            <% }); %>
+          <div id = "messages" class="row row-cols-1 row-cols-md-1 g-2">
           </div>
           <div class="input-group fixed-bottom">
-            <textarea class="form-control" placeholder="Enter your message..."></textarea>
-            <button class="btn btn-primary btn-sm" type="submit">
+            <textarea id="msg-body" class="form-control" placeholder="Enter your message..."></textarea>
+            <button id="send-msg" class="btn btn-primary btn-sm" type="submit">
               Send
             </button>
           </div>

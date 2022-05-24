@@ -30,38 +30,7 @@ const CATEGORIES = [ "appliances", "beauty", "books", "car_supplies", "clothing"
                      "furniture", "health", "home_decor", "jewelry", "kitchenware", "media", "outdoor_travel", "pet", 
                      "office_supplies", "sporting", "toys", "other" ];
 
-const message_rooms = [
-    {
-        to: "Alexander the Great",
-        hasNewMessage: false,
-        url: "",
-    },
-    {
-        to: "Ceasar",
-        hasNewMessage: true,
-        url: "",
-    },
-    {
-        to: "Ghangis Khan",
-        hasNewMessage: false,
-        url: "",
-    },
-    {
-        to: "King Henry VIII",
-        hasNewMessage: true,
-        url: "",
-    },
-    {
-        to: "Shiwhandi",
-        hasNewMessage: false,
-        url: "",
-    },
-    {
-        to: "Napolean",
-        hasNewMessage: true,
-        url: "",
-    }
-];
+const DOMAIN = "http://localhost:3000";
 
 const messages = [
     {
@@ -169,7 +138,7 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     //location: req.body.location,
                     //phoneNumber: req.body.phoneNumber,
                     price: parseFloat(req.body.price).toFixed(2),
-                    img: `http://localhost:3000/images/listing_imgs/${imgID}.jpg`,
+                    img: `${DOMAIN}/images/listing_imgs/${imgID}.jpg`,
                     imgID: imgID,
                     timeID: time.getTime()
                 }).then(() => {
@@ -268,7 +237,7 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                             fs.close(fd);
                         });
 
-                        update.img = `http://localhost:3000/images/listing_imgs/${imgID}.jpg`;
+                        update.img = `${DOMAIN}/images/listing_imgs/${imgID}.jpg`;
                         update.imgID = imgID;
                     } else {
                         update.img = "";
@@ -594,12 +563,23 @@ app.get("/404", (req, res) => {
     res.render("pages/404");
 });
 
-app.get("/messages", (req, res) => {
-    res.render("pages/messages", { message_rooms: message_rooms });
+app.get("/messages/:idToken", (req, res) => {
+    const idToken = req.params.idToken;
+
+    const auth = getAuth();
+    auth.verifyIdToken(idToken)
+    .then(async (decodedToken) => {
+        const conversations = db.collection("conversations");
+        const convos = await conversations.find({ owner: decodedToken.uid }).toArray();
+        res.render("pages/messages", { message_rooms: convos });
+    })
+    .catch((err) => {
+        res.redirect(`${DOMAIN}/login`);
+    });
 });
 
-app.get("/chat", (req, res) => {
-    res.render("pages/chat", { messages: messages });
+app.get("/chat/:target", (req, res) => {
+    res.render("pages/chat");
 });
 
 // ********** Not Included in intial Build *********************
@@ -629,7 +609,7 @@ app.get("/home/category/:category", async (req, res) => {
         const listings = await db.collection("listings").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
         res.render("pages/category", { category: category.replaceAll('_', ' '), listings: listings });
     } else {
-        res.redirect("http://localhost:3000/404");
+        res.redirect(`${DOMAIN}/404`);
     }
 });
 
@@ -743,5 +723,3 @@ const genRequestUpdate = (data, req) => {
 }
 
 exports.source = app;
-exports.db = db;
-exports.getAuth = getAuth;

@@ -13,7 +13,6 @@ const firebaseConfig = {
 
 const fb = initializeApp(firebaseConfig);
 let socket = undefined;
-let target = undefined;
 const messages = [];
 
 const signIn = async () => {
@@ -220,16 +219,27 @@ const deleteRequest = () => {
         });
 }
 
-const connectSocket = () => {
-    if (document.getElementById("target").value != "") {
-        socket = io();
-        target = document.getElementById("target").value;
-    
-        const auth = getAuth(fb);
-        auth.currentUser.getIdToken()
-        .then((idToken) => {
-            socket.emit("validate", idToken);
-    
+const viewMessagesRedirect = async () => {
+    const auth = getAuth(fb);
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            window.location = `/messages/${await user.getIdToken()}`
+        } else {
+            window.location = "/login";
+        }
+    });
+}
+
+const connectSocket = (target) => {
+    socket = io();
+
+    const auth = getAuth(fb);
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const idToken = await user.getIdToken();
+            socket.emit("validate", { target: target, idToken: idToken});
+
             axios({
                 method: "get",
                 url: `http://localhost:3000/unread_messages/${idToken}/${target}`
@@ -240,26 +250,17 @@ const connectSocket = () => {
                 });
                 populateMessages();
             });
-    
+
             socket.on("message", (message) => {
                 if (message.target == auth.currentUser.uid) {
                     messages.push(message);
                     populateMessages();
                 }
             });
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-    }
-}
-
-const sendMessage = () => {
-    if (target) {
-        socket.emit("message", target, document.getElementById("message").value);
-    } else {
-        console.log("no target");
-    }
+        } else {
+            window.location = "/login";
+        }
+    });
 }
 
 const populateMessages = () => {
@@ -267,12 +268,42 @@ const populateMessages = () => {
 
     messages.forEach((message) => {
         if (!document.getElementById(message.time)) {
-            const item = document.createElement("li");
-            item.setAttribute("id", message.time);
-            item.appendChild(document.createTextNode(`[${message.time}] ${message.msg}`));
-            list.appendChild(item);
+            const msg = document.createElement("div");
+            msg.setAttribute("id", message.time);
+            msg.classList.add("card", "rounded-3", "shadow", "border-dark", "mb-3");
+            msg.style.width = "50vw";
+
+            const msg_head = document.createElement("div");
+            msg_head.classList.add("card-header");
+            msg_head.style.fontWeight = "bold";
+            msg_head.style.fontSize = "large";
+            msg_head.style.whiteSpace = "nowrap";
+            msg_head.style.fontSize = "larger";
+            
+            const msg_title = document.createElement("div");
+            msg_title.classList.add("card-title", "text-wrap");
+            msg_title.appendChild(document.createTextNode(message.from));
+
+            const msg_body = document.createElement("div");
+            msg_body.classList.add("card-body", "text-wrap");
+            msg_body.appendChild(document.createTextNode(message.msg));
+
+            const msg_footer = document.createElement("div");
+            msg_footer.classList.add("card-footer");
+
+            msg_head.appendChild(msg_title);
+            msg_head.appendChild(msg_body);
+            msg_head.appendChild(msg_footer);
+
+            msg.appendChild(msg_head);
+
+            list.appendChild(msg);
         }
     });
+}
+
+if (document.getElementById("view-messages")) {
+    document.getElementById("view-messages").addEventListener("click", viewMessagesRedirect);
 }
 
 if (document.getElementById("login")) {
@@ -331,7 +362,13 @@ if (document.getElementById("delete_request")) {
     }
 }
 
-if (document.getElementById("socket-connect")) {
-    document.getElementById("socket-connect").addEventListener("click", connectSocket);
-    document.getElementById("send_msg").addEventListener("click", sendMessage);
+if (document.getElementById("chat")) {
+    const path = window.location.pathname;
+    const target = path.substring(6);
+
+    connectSocket(target);
+
+    document.getElementById("send-msg").addEventListener("click", () => {
+        socket.emit("message", target, document.getElementById("msg-body").value);
+    });
 }
