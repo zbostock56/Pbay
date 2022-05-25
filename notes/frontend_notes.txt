@@ -23,3 +23,10 @@ Ideas for messages and chat:
 -> How do we get around not reloading the page when a message has been sent from one of the users?
 -> How do we differentiate between the sent messages and the received messages between two of the same users
 accessing the same chat room?
+
+General Posting Notes:
+-> Ask user if they would accept venmo
+    -> if they accept venmo, ask for their venmo handle
+    -> ask in the form of a checkbox in create/edit posting
+        -> if yes, posting could have a "bubble" that says they accept venmo
+            -> something like "accepts (then venmo sign)" in venmo colors
