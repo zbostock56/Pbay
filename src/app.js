@@ -598,8 +598,14 @@ app.get("/chat/:target", (req, res) => {
 app.get("/home/create_listing", (req, res) => {
     res.render("pages/create_post");
 });
-app.get("/home/edit_listing", (req, res) => {
+app.get("/home/my_postings/edit_listing", (req, res) => {
     res.render("pages/edit_post");
+});
+app.get("/home/my_postings", (req, res) => {
+    // ********* Will need to send listings that are only for current user **********
+    res.render("pages/my_postings",
+    // {my_listings: my_listings}
+    );
 });
 
 // Categories

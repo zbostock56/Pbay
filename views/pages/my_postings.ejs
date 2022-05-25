@@ -1,0 +1,64 @@
+<!-- 
+  ===========  Title ============= 
+  DESC:
+  My posting page to find all of the
+  postings that a user has posted. Then,
+  the postings can be edited or deleted
+
+  PARAMETERS:
+  Postings that are related to only the user
+
+  RETURNS:
+  My Posting Page
+  ===========================
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('../partials/head'); %>
+  </head>
+  <body>
+    <header><%- include('../partials/header'); %></header>
+    <main>
+      <div class="main">
+        <div 
+        class="container"
+        style="padding-top: 120px; position: relative; min-height: 100vh">
+         <h1 class="mb-3">
+            My Postings
+         </h1>
+         <!-- <div class="row row-cols-1 row-cols-md-1 g-1">
+            <% let counter = 0; %>
+            <%  // my_listings.forEach((my_listing) => { %>
+                <div class="col" style="padding-bottom: 3vh;">
+                    <% // counter++; %>
+                    <%- // include('../partials/card', {my_listing: my_listing}); %>
+                </div>
+            <% // }); %> 
+         </div>   -->
+         <% if (counter === 0) { %>
+            <div class="mb-3">
+              <small class="text-muted">You do not have any posts.</small>
+            </div>
+            <div class="mb-3">
+                <a
+                class="btn btn-primary"
+                role="button"
+                href="/home/create_listing"
+                >Make your first!</a>
+            </div>
+        <% } %>
+        </div>
+      </div>
+    </main>
+    <footer><%- include('../partials/footer'); %></footer>
+    <!-- 
+      ***** JavaScript Add-Ons *****
+      DESC:
+      -> Add the necessary resources
+      for Bootstrap. Includes scripting
+      for transitions/animations
+     -->
+     <%- include('../partials/scripts'); %>
+  </body>
+</html>
