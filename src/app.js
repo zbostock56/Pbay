@@ -379,6 +379,7 @@ app.post("/create_request", formParser, requestValidator, async (req, res) => {
             user: uid,
             title: req.body.title,
             desc: req.body.desc,
+            category: parseInt(req.body.category),
             timeId: time.getTime()
         })
         .then(() => {
@@ -543,8 +544,9 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
 // Base Routes
 app.get("/home", async (req, res) => {
     const listings = await db.collection("listings").find().toArray();
+    const requests = await db.collection("requests").find().toArray();
 
-    res.render("pages/index", { listings: listings });
+    res.render("pages/index", { listings: listings, requests: requests });
 });
 
 app.get("/login", (req, res) => {
@@ -598,14 +600,27 @@ app.get("/chat/:target", (req, res) => {
 app.get("/home/create_listing", (req, res) => {
     res.render("pages/create_post");
 });
-app.get("/home/my_postings/edit_listing", (req, res) => {
+app.get("/home/my_postings/edit_listing/:listing_id", (req, res) => {
     res.render("pages/edit_post");
 });
-app.get("/home/my_postings", (req, res) => {
-    // ********* Will need to send listings that are only for current user **********
-    res.render("pages/my_postings",
-    // {my_listings: my_listings}
-    );
+app.get("/home/my_postings/edit_request/:request_id", (req, res) => {
+    res.render("pages/edit_request");
+});
+app.get("/home/my_postings/:idToken", (req, res) => {
+    const auth = getAuth();
+
+    auth.verifyIdToken(req.params.idToken)
+    .then( async (decodedToken) => {
+        const listings = await db.collection("listings").find({ user: decodedToken.uid }).toArray();
+        const requests = await db.collection("requests").find({ user: decodedToken.uid }).toArray();
+
+        res.render("pages/my_postings", { my_listings: listings, my_requests: requests });
+    })
+    .catch((err) => {
+        if (err) {
+            res.status(200).json({ msg: err });
+        }
+    });
 });
 
 // Categories
@@ -613,7 +628,8 @@ app.get("/home/category/:category", async (req, res) => {
     const category = req.params.category;
     if (CATEGORIES.includes(category)) {
         const listings = await db.collection("listings").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
-        res.render("pages/category", { category: category.replaceAll('_', ' '), listings: listings });
+        const requests = await db.collection("requests").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
+        res.render("pages/category", { category: category.replaceAll('_', ' '), listings: listings, requests: requests });
     } else {
         res.redirect(`${DOMAIN}/404`);
     }
@@ -723,6 +739,10 @@ const genRequestUpdate = (data, req) => {
 
     if (req.body.desc != "" && (data.desc != req.body.desc)) {
         update.desc = req.body.desc;
+    }
+
+    if (req.body.category != "" && (data.category != parseInt(req.body.category))) {
+        update.category = parseInt(req.body.category);
     }
 
     return update;

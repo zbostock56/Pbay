@@ -27,27 +27,48 @@
          <h1 class="mb-3">
             My Postings
          </h1>
-         <!-- <div class="row row-cols-1 row-cols-md-1 g-1">
+         <div class="row row-cols-1 row-cols-md-1 g-1">
+            <h2> Listings </h2>
             <% let counter = 0; %>
-            <%  // my_listings.forEach((my_listing) => { %>
+            <% my_listings.forEach((my_listing) => { %>
                 <div class="col" style="padding-bottom: 3vh;">
-                    <% // counter++; %>
-                    <%- // include('../partials/card', {my_listing: my_listing}); %>
+                    <% counter++; %>
+                    <%- include('../partials/card', { listing: my_listing, editable: true }); %>
                 </div>
-            <% // }); %> 
-         </div>   -->
-         <% if (counter === 0) { %>
-            <div class="mb-3">
-              <small class="text-muted">You do not have any posts.</small>
-            </div>
-            <div class="mb-3">
-                <a
-                class="btn btn-primary"
-                role="button"
-                href="/home/create_listing"
-                >Make your first!</a>
-            </div>
-        <% } %>
+            <% }); %>
+            <% if (counter === 0) { %>
+              <div class="mb-3">
+                <small class="text-muted">You do not have any listings.</small>
+              </div>
+              <div class="mb-3">
+                  <a
+                  class="btn btn-primary"
+                  role="button"
+                  href="/home/create_listing"
+                  >Make your first!</a>
+              </div>
+            <% } %>
+            <h2> Requests </h2>
+            <% counter = 0; %>
+            <% my_requests.forEach((request) => { %>
+              <div class="col" style="padding-bottom: 3vh;">
+                  <% counter++; %>
+                  <%- include('../partials/request_card', { request: request, editable: true }); %>
+              </div>
+            <% }); %>
+            <% if (counter === 0) { %>
+              <div class="mb-3">
+                <small class="text-muted">You do not have any requests.</small>
+              </div>
+              <div class="mb-3">
+                  <a
+                  class="btn btn-primary"
+                  role="button"
+                  href="/home/create_listing"
+                  >Make your first!</a>
+              </div>
+            <% } %>
+          </div>
         </div>
       </div>
     </main>

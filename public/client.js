@@ -114,29 +114,31 @@ const editListing = () => {
     });
 }
 
-const deleteListing = () => {
+const deleteListing = (id) => {
     const auth = getAuth(fb);
 
-    auth.currentUser.getIdToken()
-    .then((idToken) => {
-        const data = {
-            idToken: idToken,
-            listing: document.getElementById("listing").value
-        };
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const idToken = await user.getIdToken();
 
-        axios.post("http://localhost:3000/delete_listing", data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        }).then((res) => {
-            console.log(res);
-        }).catch((err) => {
-            console.log(err);
-        });
+            const data = {
+                idToken: idToken,
+                listing: id
+            };
+    
+            axios.post("http://localhost:3000/delete_listing", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            }).then((res) => {
+                location.reload();
+            }).catch((err) => {
+                console.log(err);
+            });
+        } else {
+            window.location = "/login";
+        }
     })
-    .catch((err) => {
-        console.log(err);
-    });
 }
 
 const createRequest = () => {
@@ -147,7 +149,8 @@ const createRequest = () => {
         const data = {
             idToken: idToken,
             title: document.getElementById("title").value,
-            desc: document.getElementById("desc").value
+            desc: document.getElementById("description").value,
+            category: document.getElementById("category").value
         }
 
         axios.post("http://localhost:3000/create_request", data, {
@@ -156,10 +159,16 @@ const createRequest = () => {
             }
         })
         .then((res) => {
-            console.log(res);
+            window.location = "/home";
         })
         .catch((err) => {
-            console.log(err);
+            const res = await JSON.parse(err.response.request.response);
+            let error = "";
+            for (const msg in res.msg) {
+                error = `${error} ${res.msg[msg]},`;
+            }
+            error = error.substring(0, error.length - 1);
+            document.getElementById("err-txt").innerHTML = error;
         });
     })
     .catch((err) => {
@@ -194,29 +203,31 @@ const editRequest = () => {
     });
 }
 
-const deleteRequest = () => {
+const deleteRequest = (id) => {
     const auth = getAuth(fb);
 
-    auth.currentUser.getIdToken()
-        .then((idToken) => {
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const idToken = await user.getIdToken();
+
             const data = {
                 idToken: idToken,
-                request: document.getElementById("request").value
+                request: id
             };
-
+    
             axios.post("http://localhost:3000/delete_request", data, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
             }).then((res) => {
-                console.log(res);
+                location.reload();
             }).catch((err) => {
                 console.log(err);
             });
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+        } else {
+            window.location = "/login";
+        }
+    })
 }
 
 const viewMessagesRedirect = async () => {
@@ -225,6 +236,18 @@ const viewMessagesRedirect = async () => {
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             window.location = `/messages/${await user.getIdToken()}`
+        } else {
+            window.location = "/login";
+        }
+    });
+}
+
+const viewPostsRedirect = async () => {
+    const auth = getAuth(fb);
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            window.location = `/home/my_postings/${await user.getIdToken()}`
         } else {
             window.location = "/login";
         }
@@ -306,6 +329,10 @@ if (document.getElementById("view-messages")) {
     document.getElementById("view-messages").addEventListener("click", viewMessagesRedirect);
 }
 
+if (document.getElementById("view-posts")) {
+    document.getElementById("view-posts").addEventListener("click", viewPostsRedirect);
+}
+
 if (document.getElementById("login")) {
     document.getElementById("login-button").addEventListener("click", signIn);
 
@@ -314,7 +341,7 @@ if (document.getElementById("login")) {
     }
 }
 
-if (document.getElementById("create-listing")) {
+if (document.getElementById("submit_listing")) {
     if (checkRedirect()) {
         document.getElementById("submit_listing").addEventListener("click", createListing);
     } else {
@@ -338,6 +365,16 @@ if (document.getElementById("delete_listing")) {
     }
 }
 
+if (document.getElementsByClassName("delete_listing").length > 0) {
+    if (checkRedirect()) {
+        Array.from(document.getElementsByClassName("delete_listing")).forEach((listing) => {
+            listing.addEventListener("click", () => { deleteListing(listing.id) });
+        });
+    } else {
+        window.location = "/login";
+    }
+}
+
 if (document.getElementById("submit_request")) {
     if (checkRedirect()) {
         document.getElementById("submit_request").addEventListener("click", createRequest);
@@ -354,9 +391,11 @@ if (document.getElementById("edit_request")) {
     }
 }
 
-if (document.getElementById("delete_request")) {
+if (document.getElementsByClassName("delete_request").length > 0) {
     if (checkRedirect()) {
-        document.getElementById("delete_request").addEventListener("click", deleteRequest);
+        Array.from(document.getElementsByClassName("delete_request")).forEach((request) => {
+            request.addEventListener("click", () => { deleteRequest(request.id) });
+        });
     } else {
         window.location = "/login";
     }

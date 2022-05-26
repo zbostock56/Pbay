@@ -10,21 +10,21 @@ const requestValidator = (req, res, next) => {
     const errors = {};
 
     const title = req.body.title;
-    if (title && ((typeof title !== "string") || (title.length > 100) || (title.length === 0))) {
+    if (title !== undefined && ((typeof title !== "string") || (title.length > 100) || (title.length === 0))) {
         status = false;
-        errors.title = "Invalid title"
+        errors.title = "Invalid title";
     }
-
+    
     const desc = req.body.desc;
-    if (desc && ((typeof desc !== "string") || (desc.length > 1000))) {
+    if (desc !== undefined && ((typeof desc !== "string") || (desc.length > 1000))) {
         status = false;
-        errors.title = "Invalid description";
+        errors.desc = "Invalid description";
     }
 
     const category = req.body.category;
-    if (category && ((parseInt(category) == NaN) || (category < 1) || (category > 19))) {
+    if (category !== undefined && (isNaN(parseInt(category)) || (category < 1) || (category > 19))) {
         status = false;
-        errors.title = "Invalid category";
+        errors.category = "Invalid category";
     }
 
     if (status == false) {
