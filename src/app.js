@@ -554,11 +554,14 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
 // ========================== ROUTING ===========================
 
 // Base Routes
-app.get("/home", async (req, res) => {
+app.get("/home", 
+async (req, res) => {
     const listings = await db.collection("listings").find().toArray();
     const requests = await db.collection("requests").find().toArray();
 
-    res.render("pages/index", { listings: listings, requests: requests });
+    res.render("pages/index", 
+    { listings: listings, requests: requests }
+    );
 });
 
 app.get("/login", (req, res) => {

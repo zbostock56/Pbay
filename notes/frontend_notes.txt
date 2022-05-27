@@ -30,3 +30,6 @@ General Posting Notes:
     -> ask in the form of a checkbox in create/edit posting
         -> if yes, posting could have a "bubble" that says they accept venmo
             -> something like "accepts (then venmo sign)" in venmo colors
+
+Future Ideas:
+-> Mail system that would send push notifications to users through their Purdue email

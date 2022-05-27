@@ -50,9 +50,11 @@
           height
           ************************************************************
         -->
+        <%- include('../partials/filter_selection'); %>
         <h1 class="mb-3">
           Listings
         </h1>
+         
         <div class="row row-cols-1 row-cols-md-1 g-1">
           <% let counter = 0; %>
           <% listings.forEach((listing) => { %>
