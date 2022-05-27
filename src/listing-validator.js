@@ -28,6 +28,12 @@ const listingValidator = (req, res, next) => {
         errors.category = "Invalid category";
     }
 
+    const updateImg = req.body.updateImg;
+    if (updateImg !== undefined && (updateImg !== "1" && updateImg !== "0")) {
+        status = false;
+        errors.updateImg = "Invalid image update option";
+    }
+
     // const location = req.body.location;
     // if (location && ((typeof location !== "string") || (location.length > 50) || (title.length === 0))) {
     //     status = false;

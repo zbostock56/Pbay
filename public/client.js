@@ -86,31 +86,68 @@ const createListing = () => {
 const editListing = () => {
     const auth = getAuth(fb);
 
-    auth.currentUser.getIdToken()
-    .then((idToken) => {
-        const data = {
-            idToken: idToken,
-            listing: document.getElementById("listing").value,
-            title: document.getElementById("title").value,
-            desc: document.getElementById("desc").value,
-            location: document.getElementById("location").value,
-            phoneNumber: document.getElementById("phoneNumber").value,
-            price: document.getElementById("price").value,
-            img: document.getElementById("img").files[0]
-        };
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            if (document.getElementById("agreeToTermsAndConditions").checked) {
+                const idToken = await user.getIdToken();
+                const path = window.location.pathname;
+                const listing = path.substring(31);
 
-        axios.post("http://localhost:3000/edit_listing", data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
+                const data = {
+                    idToken: idToken,
+                    listing: listing
+                };
+
+                if (document.getElementById("title").value != "") {
+                    data.title = document.getElementById("title").value;
+                }
+
+                if (document.getElementById("delete-desc").checked) {
+                    data.desc = "";
+                } else if (document.getElementById("description").value != "") {
+                    data.desc = document.getElementById("description").value;
+                }
+
+                if (parseInt(document.getElementById("category").value) >= 1 && parseInt(document.getElementById("category").value) <= 19) {
+                    data.category = document.getElementById("category").value;
+                }
+
+                if (document.getElementById("make-free").checked) {
+                    data.price = "0.0";
+                } else if (document.getElementById("Price-Input").value != "") {
+                    data.price = document.getElementById("Price-Input").value;
+                }
+
+                if (document.getElementById("delete-img").checked) {
+                    data.updateImg = "1";
+                } else if (document.getElementById("file-input").files[0]) {
+                    data.updateImg = "1";
+                    data.img = document.getElementById("file-input").files[0];
+                } else {
+                    data.updateImg = "0";
+                }
+
+                axios.post("http://localhost:3000/edit_listing", data, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }).then((res) => {
+                    window.location = `/home/my_postings/${idToken}`;
+                }).catch(async (err) => {
+                    const res = await JSON.parse(err.response.request.response);
+                    let error = "";
+                    for (const msg in res.msg) {
+                        error = `${error} ${res.msg[msg]},`;
+                    }
+                    error = error.substring(0, error.length - 1);
+                    document.getElementById("err-txt").innerHTML = error;
+                });
+            } else {
+                document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
             }
-        }).then((res) => {
-            console.log(res);
-        }).catch((err) => {
-            console.log(err);
-        });
-    })
-    .catch((err) => {
-        console.log(err);
+        } else {
+            window.location = "/login";
+        }
     });
 }
 
@@ -146,30 +183,34 @@ const createRequest = () => {
 
     auth.currentUser.getIdToken()
     .then((idToken) => {
-        const data = {
-            idToken: idToken,
-            title: document.getElementById("title").value,
-            desc: document.getElementById("description").value,
-            category: document.getElementById("category").value
-        }
+        if (document.getElementById("agreeToTermsAndConditions").checked) {
+            const data = {
+                idToken: idToken,
+                title: document.getElementById("title").value,
+                desc: document.getElementById("description").value,
+                category: document.getElementById("category").value
+            }
 
-        axios.post("http://localhost:3000/create_request", data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
-        .then((res) => {
-            window.location = "/home";
-        })
-        .catch((err) => {
-            const res = await JSON.parse(err.response.request.response);
-            let error = "";
-            for (const msg in res.msg) {
-                error = `${error} ${res.msg[msg]},`;
-            }
-            error = error.substring(0, error.length - 1);
-            document.getElementById("err-txt").innerHTML = error;
-        });
+            axios.post("http://localhost:3000/create_request", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            })
+            .then((res) => {
+                window.location = "/home";
+            })
+            .catch(async (err) => {
+                const res = await JSON.parse(err.response.request.response);
+                let error = "";
+                for (const msg in res.msg) {
+                    error = `${error} ${res.msg[msg]},`;
+                }
+                error = error.substring(0, error.length - 1);
+                document.getElementById("err-txt").innerHTML = error;
+            });
+        } else {
+            document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+        }
     })
     .catch((err) => {
         console.log(err);
@@ -179,27 +220,56 @@ const createRequest = () => {
 const editRequest = () => {
     const auth = getAuth(fb);
 
-    auth.currentUser.getIdToken()
-    .then((idToken) => {
-        const data = {
-            idToken: idToken,
-            request: document.getElementById("request").value,
-            title: document.getElementById("title").value,
-            desc: document.getElementById("desc").value
-        }
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            if (document.getElementById("agreeToTermsAndConditions").checked) {
+                const idToken = await user.getIdToken();
+                const path = window.location.pathname;
+                const request = path.substring(31);
 
-        axios.post("http://localhost:3000/edit_request", data, {
-            headers: {
-                "Content-Type": "multipart/form-data"
+                const data = {
+                    idToken: idToken,
+                    request: request
+                };
+
+                if (document.getElementById("title").value != "") {
+                    data.title = document.getElementById("title").value;
+                }
+
+                if (document.getElementById("delete-desc").checked) {
+                    data.desc = "";
+                } else if (document.getElementById("description").value != "") {
+                    data.desc = document.getElementById("description").value;
+                }
+
+                if (parseInt(document.getElementById("category").value) >= 1 && parseInt(document.getElementById("category").value) <= 19) {
+                    data.category = document.getElementById("category").value;
+                }
+                
+                console.log(data);
+        
+                axios.post("http://localhost:3000/edit_request", data, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }).then((res) => {
+                    window.location = `/home/my_postings/${idToken}`;
+                }).catch(async (err) => {
+                    console.log(err);
+                    const res = await JSON.parse(err.response.request.response);
+                    let error = "";
+                    for (const msg in res.msg) {
+                        error = `${error} ${res.msg[msg]},`;
+                    }
+                    error = error.substring(0, error.length - 1);
+                    document.getElementById("err-txt").innerHTML = error;
+                });
+            } else {
+                document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
             }
-        }).then((res) => {
-            console.log(res);
-        }).catch((err) => {
-            console.log(err);
-        })
-    })
-    .catch((err) => {
-        console.log(err);
+        } else {
+            window.location = "/login";
+        }
     });
 }
 

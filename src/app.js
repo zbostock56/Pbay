@@ -221,47 +221,33 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                 const timeID = new Date().getTime();
                 const imgID = `${uid}+${req.body.title}+${timeID}`;
 
-                try {
-                    if (req.body.img) {
-                        fs.open(`${IMG_DIR}/${imgID}.jpg`, "w", (err, fd) => {
-                            if (err) {
-                                res.status(400).json({ msg: err.message });
-                            }
-
-                            fs.write(fd, req.body.img, (err, written, buffer) => {
+                if (parseInt(req.body.updateImg) == 1) {
+                    try {
+                        if (req.body.img) {
+                            fs.open(`${IMG_DIR}/${imgID}.jpg`, "w", (err, fd) => {
                                 if (err) {
                                     res.status(400).json({ msg: err.message });
                                 }
+    
+                                fs.write(fd, req.body.img, (err, written, buffer) => {
+                                    if (err) {
+                                        res.status(400).json({ msg: err.message });
+                                    }
+                                });
+    
+                                fs.close(fd);
                             });
-
-                            fs.close(fd);
-                        });
-
-                        update.img = `${DOMAIN}/images/listing_imgs/${imgID}.jpg`;
-                        update.imgID = imgID;
-                    } else {
-                        update.img = "";
-                        update.imgID = "";
-                    }
-
-                    fs.access(`${IMG_DIR}/${oldImgID}.jpg`, async (doesntExist) => {
-                        if (doesntExist) {
-                            await listings.update({ _id: _id }, { $set: update })
-                            .then(() => {
-                                res.status(200).json({ msg: "Listing updated" });
-                            })
-                            .catch((err) => {
-                                if (err) {
-                                    res.status(400).json({ msg: err.message });
-                                }
-                            });
+    
+                            update.img = `${DOMAIN}/images/listing_imgs/${imgID}.jpg`;
+                            update.imgID = imgID;
                         } else {
-                            fs.unlink(`${IMG_DIR}/${oldImgID}.jpg`, async (err) => {
-                                if (err) {
-                                    res.status(400).json({ msg: err.message });
-                                }
-
-                                await listings.update({ _id: _id }, { $set: update })
+                            update.img = "";
+                            update.imgID = "";
+                        }
+    
+                        fs.access(`${IMG_DIR}/${oldImgID}.jpg`, async (doesntExist) => {
+                            if (doesntExist) {
+                                await listings.updateOne({ _id: _id }, { $set: update })
                                 .then(() => {
                                     res.status(200).json({ msg: "Listing updated" });
                                 })
@@ -270,13 +256,39 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                                         res.status(400).json({ msg: err.message });
                                     }
                                 });
-                            });
+                            } else {
+                                fs.unlink(`${IMG_DIR}/${oldImgID}.jpg`, async (err) => {
+                                    if (err) {
+                                        res.status(400).json({ msg: err.message });
+                                    }
+    
+                                    await listings.updateOne({ _id: _id }, { $set: update })
+                                    .then(() => {
+                                        res.status(200).json({ msg: "Listing updated" });
+                                    })
+                                    .catch((err) => {
+                                        if (err) {
+                                            res.status(400).json({ msg: err.message });
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    } catch (err) {
+                        if (err) {
+                            res.status(400).json({ msg: err.message });
+                        }
+                    }
+                } else {
+                    await listings.updateOne({ _id: _id }, { $set: update })
+                    .then(() => {
+                        res.status(200).json({ msg: "Listing updated" });
+                    })
+                    .catch((err) => {
+                        if (err) {
+                            res.status(400).json({ msg: err.message });
                         }
                     });
-                } catch (err) {
-                    if (err) {
-                        res.status(400).json({ msg: err.message });
-                    }
                 }
             } else {
                 res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
@@ -424,7 +436,7 @@ app.post("/edit_request", formParser, requestValidator, async (req, res) => {
         const uid = decodedToken.uid;
 
         const requests = db.collection("requests");
-        const _id = new mongo.ObjectId(req.body.request)
+        const _id = new mongo.ObjectId(req.body.request);
         const request = await requests.findOne({ _id: _id });
 
         if (request) {
@@ -689,26 +701,27 @@ app.get("/chat_test", (req, res) => {
 const genListingUpdate = (data, req) => {
     const update = {};
 
-    if (req.body.title != "" && (data.title != req.body.title)) {
+    if (req.body.title != undefined && (data.title != req.body.title)) {
         update.title = req.body.title;
     }
 
-    if (req.body.desc != "" && (data.desc != req.body.desc)) {
+    if (req.body.desc != undefined && (data.desc != req.body.desc)) {
         update.desc = req.body.desc;
     }
 
-    if (req.body.category != "" && (data.category != parseInt(req.body.category))) {
+    if (req.body.category != undefined && (data.category != parseInt(req.body.category))) {
         update.category = parseInt(req.body.category);
     }
 
-    if (req.body.location != "" && (data.location != req.body.location)) {
-        update.location = req.body.location;
-    }
+    // if (req.body.location != "" && (data.location != req.body.location)) {
+    //     update.location = req.body.location;
+    // }
 
-    if (req.body.phoneNumber != "" && (data.phoneNumber != req.body.phoneNumber)) {
-        update.phoneNumber = req.body.phoneNumber;
-    }
-    if (req.body.price != "" && (data.price != parseFloat(req.body.price))) {
+    // if (req.body.phoneNumber != "" && (data.phoneNumber != req.body.phoneNumber)) {
+    //     update.phoneNumber = req.body.phoneNumber;
+    // }
+
+    if (req.body.price != undefined && (parseFloat(data.price) != parseFloat(req.body.price))) {
         update.price = parseFloat(req.body.price).toFixed(2);
     }
 
@@ -733,15 +746,15 @@ const genListingUpdate = (data, req) => {
 const genRequestUpdate = (data, req) => {
     const update = {};
 
-    if (req.body.title != "" && (data.title != req.body.title)) {
+    if (req.body.title != undefined && (data.title != req.body.title)) {
         update.title = req.body.title;
     }
 
-    if (req.body.desc != "" && (data.desc != req.body.desc)) {
+    if (req.body.desc != undefined && (data.desc != req.body.desc)) {
         update.desc = req.body.desc;
     }
 
-    if (req.body.category != "" && (data.category != parseInt(req.body.category))) {
+    if (req.body.category != undefined && (data.category != parseInt(req.body.category))) {
         update.category = parseInt(req.body.category);
     }
 

@@ -26,7 +26,7 @@
         position: relative; 
         min-height: 100vh;">
         <div style="padding-bottom: calc(256px - 120px);">
-          <h1>Change Your Listing Information</h1>
+          <h1>Change Your Request Information</h1>
           <p id="err-txt" class="text-danger"></p>
           <div class="mb-3">
             <div class="row">
@@ -43,7 +43,7 @@
               <div class="col">
                 <label for="category" class="form-label">Change Category</label>
                 <select class="form-select" id="category">
-                  <option value="-1" selected>Select a Category</option>
+                  <option selected>Select a Category</option>
                   <option value="1">Applicances</option>
                   <option value="2">Beauty Products</option>
                   <option value="3">Books or Textbooks</option>
@@ -68,22 +68,9 @@
             </div>
           </div>
           <div class="mb-3">
-            <label for="file-input" class="form-label">Upload a Different Picture</label>
-            <input
-              class="form-check-input"
-              type="checkbox"
-              value=""
-              id="delete-img"
-            />
-            <label class="form-check-label" for="delete-img">
-              Delete listing image
+            <label for="description" class="form-label">
+              Change the Description
             </label>
-            <input type="file" class="form-control" id="file-input" />
-          </div>
-          <div class="mb-3">
-            <label for="description" class="form-label"
-              >Change the Description</label
-            >
             <input
               class="form-check-input"
               type="checkbox"
@@ -101,28 +88,6 @@
               aria-label="Description-input"
             ></textarea>
           </div>
-          <label for="Price-Input" class="form-label"
-            >Change Asking Price
-          </label>
-          <input
-            class="form-check-input"
-            type="checkbox"
-            value=""
-            id="make-free"
-          />
-          <label class="form-check-label" for="make-free">
-            Make listing free
-          </label>
-          <div class="input-group mb-3">
-            <span class="input-group-text">$</span>
-            <input
-              type="text"
-              id="Price-Input"
-              class="form-control"
-              aria-label="Price-Input"
-              placeholder="0.00"
-            />
-          </div>
           <div class="mb-3">
             <div class="mb-3">
               <div class="form-check">
@@ -135,20 +100,18 @@
                 <label class="form-check-label" for="agreeToTermsAndConditions">
                   I agree to the <a href="/terms" target="_blank">Terms and Conditions</a>
                 </label>
-              </div>
-            </div>
-            <div class="mb-3">
-              <div class="mb-3">
-                <input
-                id="submit_edit"
-                class="btn btn-primary"
-                type="submit"
-                value="Change Listing"
-                />
-              </div>
             </div>
           </div>
-        </div>
+          <div class="mb-3">
+            <div class="mb-3">
+              <input
+              id="edit_request"
+              class="btn btn-primary"
+              type="submit"
+              value="Change Request"
+            />
+            </div>
+          </div>
         </div>
       </div>
     </main>
