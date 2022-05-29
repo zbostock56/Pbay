@@ -17,7 +17,13 @@ const imgValidator = (req, res, next) => {
     }
 
     if (status == false) {
-        res.status(400).json({ msg: errors });
+        let errMsg = "";
+        for (const msg in errors) {
+            errMsg = `${errMsg} ${errors[msg]},`;
+        }
+        errMsg = errMsg.substring(0, errMsg.length - 1);
+
+        res.status(400).json({ msg: errMsg });
     } else {
         next();
     }

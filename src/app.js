@@ -629,7 +629,34 @@ app.get("/home/my_postings/:idToken", (req, res) => {
         const listings = await db.collection("listings").find({ user: decodedToken.uid }).toArray();
         const requests = await db.collection("requests").find({ user: decodedToken.uid }).toArray();
 
-        res.render("pages/my_postings", { my_listings: listings, my_requests: requests });
+        const opStatus = req.query.status;
+        let successMsg = "";
+        let failMsg = "";
+
+        if (opStatus === "lc_success") {
+            successMsg = "Listing successfully created";
+        } else if (opStatus === "le_success") {
+            successMsg = "Listing successfully edited";
+        } else if (opStatus === "ld_success") {
+            successMsg = "Listing successfully deleted";
+        } else if (opStatus === "ld_fail") {
+            failMsg = "Failed to delete listing";
+        } else if (opStatus === "rc_success") {
+            successMsg = "Request successfully created";
+        } else if (opStatus === "re_success") {
+            successMsg = "Request successfully edited";
+        } else if (opStatus === "rd_success") {
+            successMsg = "Request successfully deleted";
+        } else if (opStatus === "rd_fail") {
+            failMsg = "Failed to delete request";
+        }
+
+        res.render("pages/my_postings", {
+            my_listings: listings,
+            my_requests: requests,
+            success_msg: successMsg,
+            fail_msg: failMsg
+        });
     })
     .catch((err) => {
         if (err) {

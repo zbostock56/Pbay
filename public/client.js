@@ -63,23 +63,18 @@ const createListing = () => {
                 }
             })
             .then((res) => {
-                window.location = "/home";
+                window.location = `/home/my_postings/${idToken}?status=lc_success`;
             })
             .catch(async (err) => {
                 const res = await JSON.parse(err.response.request.response);
-                let error = "";
-                for (const msg in res.msg) {
-                    error = `${error} ${res.msg[msg]},`;
-                }
-                error = error.substring(0, error.length - 1);
-                document.getElementById("err-txt").innerHTML = error;
+                document.getElementById("err-txt").innerHTML = res.msg;
             });
         } else {
             document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
         }
     })
     .catch((err) => {
-        console.log(err);
+        window.location = "/login";
     });
 }
 
@@ -132,15 +127,10 @@ const editListing = () => {
                         "Content-Type": "multipart/form-data"
                     }
                 }).then((res) => {
-                    window.location = `/home/my_postings/${idToken}`;
+                    window.location = `/home/my_postings/${idToken}?status=le_success`;
                 }).catch(async (err) => {
                     const res = await JSON.parse(err.response.request.response);
-                    let error = "";
-                    for (const msg in res.msg) {
-                        error = `${error} ${res.msg[msg]},`;
-                    }
-                    error = error.substring(0, error.length - 1);
-                    document.getElementById("err-txt").innerHTML = error;
+                    document.getElementById("err-txt").innerHTML = res.msg;
                 });
             } else {
                 document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
@@ -168,9 +158,9 @@ const deleteListing = (id) => {
                     "Content-Type": "multipart/form-data"
                 }
             }).then((res) => {
-                location.reload();
+                window.location = `/home/my_postings/${idToken}?status=ld_success`;
             }).catch((err) => {
-                console.log(err);
+                window.location = `/home/my_postings/${idToken}?status=ld_fail`;
             });
         } else {
             window.location = "/login";
@@ -197,23 +187,18 @@ const createRequest = () => {
                 }
             })
             .then((res) => {
-                window.location = "/home";
+                window.location = `/home/my_postings/${idToken}?status=rc_success`;
             })
             .catch(async (err) => {
                 const res = await JSON.parse(err.response.request.response);
-                let error = "";
-                for (const msg in res.msg) {
-                    error = `${error} ${res.msg[msg]},`;
-                }
-                error = error.substring(0, error.length - 1);
-                document.getElementById("err-txt").innerHTML = error;
+                document.getElementById("err-txt").innerHTML = res.msg;
             });
         } else {
             document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
         }
     })
     .catch((err) => {
-        console.log(err);
+        window.location = "/login";
     });
 }
 
@@ -245,24 +230,16 @@ const editRequest = () => {
                 if (parseInt(document.getElementById("category").value) >= 1 && parseInt(document.getElementById("category").value) <= 19) {
                     data.category = document.getElementById("category").value;
                 }
-                
-                console.log(data);
         
                 axios.post("http://localhost:3000/edit_request", data, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
                 }).then((res) => {
-                    window.location = `/home/my_postings/${idToken}`;
+                    window.location = `/home/my_postings/${idToken}?status=re_success`;
                 }).catch(async (err) => {
-                    console.log(err);
                     const res = await JSON.parse(err.response.request.response);
-                    let error = "";
-                    for (const msg in res.msg) {
-                        error = `${error} ${res.msg[msg]},`;
-                    }
-                    error = error.substring(0, error.length - 1);
-                    document.getElementById("err-txt").innerHTML = error;
+                    document.getElementById("err-txt").innerHTML = res.msg;
                 });
             } else {
                 document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
@@ -290,9 +267,9 @@ const deleteRequest = (id) => {
                     "Content-Type": "multipart/form-data"
                 }
             }).then((res) => {
-                location.reload();
+                window.location = `/home/my_postings/${idToken}?status=rd_success`;
             }).catch((err) => {
-                console.log(err);
+                window.location = `/home/my_postings/${idToken}?status=rd_fail`;
             });
         } else {
             window.location = "/login";
