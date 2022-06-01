@@ -652,7 +652,7 @@ app.get("/home/category/:category", async (req, res) => {
     if (CATEGORIES.includes(category)) {
         const listings = await db.collection("listings").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
         const requests = await db.collection("requests").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
-        res.render("pages/category", { category: category.replaceAll('_', ' '), listings: listings, requests: requests });
+        res.render("pages/category", { category: category.replace(/_+/g, " "), listings: listings, requests: requests });
     } else {
         res.redirect(`${DOMAIN}/404`);
     }
