@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
-import { OAuthProvider, getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-auth.js"
+import { OAuthProvider, getAuth, signInWithRedirect, signOut, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-auth.js"
 
 const firebaseConfig = {
     apiKey: "AIzaSyBtuKD3x-8ggb5UoZsuX4MF-qQhoIMK0_k",
@@ -12,11 +12,18 @@ const firebaseConfig = {
 };
 
 const fb = initializeApp(firebaseConfig);
+
+//let connected = false;
+
 let socket = undefined;
 const messages = [];
 
 const signIn = async () => {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
     const provider = new OAuthProvider('microsoft.com');
     provider.setCustomParameters({
@@ -26,60 +33,56 @@ const signIn = async () => {
     signInWithRedirect(auth, provider);
 }
 
-const checkRedirect = async () => {
-    const auth = getAuth(fb);
-
-    await getRedirectResult(auth)
-    .then((result) => {
-        if (result) {
-            return true;
-        }
-    })
-    .catch((err) => {
-        return false;
-    });
-}
-
 const createListing = () => {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
-    auth.currentUser.getIdToken()
-    .then((idToken) => {
-        if (document.getElementById("agreeToTermsAndConditions").checked) {
-            const data = {
-                idToken: idToken, 
-                title: document.getElementById("title").value,
-                desc: document.getElementById("description").value,
-                category: document.getElementById("category").value,
-                // location: document.getElementById("location").value,
-                // phoneNumber: document.getElementById("phoneNumber").value,
-                price: document.getElementById("Price-Input").value,
-                img: document.getElementById("img").files[0]
-            };
-            
-            axios.post("http://localhost:3000/create_listing", data, {
-                headers: {
-                    "Content-Type" : "multipart/form-data"
-                }
-            })
-            .then((res) => {
-                window.location = `/home/my_postings/${idToken}?status=lc_success`;
-            })
-            .catch(async (err) => {
-                const res = await JSON.parse(err.response.request.response);
-                document.getElementById("err-txt").innerHTML = res.msg;
-            });
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const idToken = await user.getIdToken();
+
+            if (document.getElementById("agreeToTermsAndConditions").checked) {
+                const data = {
+                    idToken: idToken,
+                    title: document.getElementById("title").value,
+                    desc: document.getElementById("description").value,
+                    category: document.getElementById("category").value,
+                    // location: document.getElementById("location").value,
+                    // phoneNumber: document.getElementById("phoneNumber").value,
+                    price: document.getElementById("Price-Input").value,
+                    img: document.getElementById("img").files[0]
+                };
+
+                axios.post("http://localhost:3000/create_listing", data, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                })
+                    .then((res) => {
+                        window.location = `/home/my_postings/${idToken}?status=lc_success`;
+                    })
+                    .catch(async (err) => {
+                        const res = await JSON.parse(err.response.request.response);
+                        document.getElementById("err-txt").innerHTML = res.msg;
+                    });
+            } else {
+                document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+            }
         } else {
-            document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+            window.location = "/login";
         }
-    })
-    .catch((err) => {
-        window.location = "/login";
     });
 }
 
 const editListing = () => {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -143,6 +146,10 @@ const editListing = () => {
 
 const deleteListing = (id) => {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -170,40 +177,50 @@ const deleteListing = (id) => {
 
 const createRequest = () => {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
-    auth.currentUser.getIdToken()
-    .then((idToken) => {
-        if (document.getElementById("agreeToTermsAndConditions").checked) {
-            const data = {
-                idToken: idToken,
-                title: document.getElementById("title").value,
-                desc: document.getElementById("description").value,
-                category: document.getElementById("category").value
-            }
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const idToken = await user.getIdToken();
 
-            axios.post("http://localhost:3000/create_request", data, {
-                headers: {
-                    "Content-Type": "multipart/form-data"
+            if (document.getElementById("agreeToTermsAndConditions").checked) {
+                const data = {
+                    idToken: idToken,
+                    title: document.getElementById("title").value,
+                    desc: document.getElementById("description").value,
+                    category: document.getElementById("category").value
                 }
-            })
-            .then((res) => {
-                window.location = `/home/my_postings/${idToken}?status=rc_success`;
-            })
-            .catch(async (err) => {
-                const res = await JSON.parse(err.response.request.response);
-                document.getElementById("err-txt").innerHTML = res.msg;
-            });
+
+                axios.post("http://localhost:3000/create_request", data, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                })
+                    .then((res) => {
+                        window.location = `/home/my_postings/${idToken}?status=rc_success`;
+                    })
+                    .catch(async (err) => {
+                        const res = await JSON.parse(err.response.request.response);
+                        document.getElementById("err-txt").innerHTML = res.msg;
+                    });
+            } else {
+                document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+            }
         } else {
-            document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+            window.location = "/login";
         }
-    })
-    .catch((err) => {
-        window.location = "/login";
     });
 }
 
 const editRequest = () => {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -252,6 +269,10 @@ const editRequest = () => {
 
 const deleteRequest = (id) => {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -279,6 +300,10 @@ const deleteRequest = (id) => {
 
 const viewMessagesRedirect = async () => {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -291,6 +316,10 @@ const viewMessagesRedirect = async () => {
 
 const viewPostsRedirect = async () => {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -305,6 +334,10 @@ const connectSocket = (target) => {
     socket = io();
 
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             const idToken = await user.getIdToken();
@@ -319,12 +352,41 @@ const connectSocket = (target) => {
                     messages.push(msg);
                 });
                 populateMessages();
+            })
+            .catch((err) => {
+                console.log(err);
+                if (err) {
+                    if (document.getElementById("err-msg")) {
+                        document.getElementById("err-msg").innerHTML = err.msg;
+                    }
+                }
             });
 
             socket.on("message", (message) => {
+                if (document.getElementById("err-msg")) {
+                    document.getElementById("err-msg").innerHTML = "";
+                }
+
                 if (message.target == auth.currentUser.uid) {
                     messages.push(message);
                     populateMessages();
+                }
+            });
+
+            socket.on("ping", (message) => {
+                if (document.getElementById("err-msg")) {
+                    document.getElementById("err-msg").innerHTML = "";
+                }
+
+                if (message.from === auth.currentUser.uid) {
+                    messages.push(message);
+                    populateMessages();
+                }
+            });
+
+            socket.on("error", (err) => {
+                if (document.getElementById("err-msg")) {
+                    document.getElementById("err-msg").innerHTML = err.msg;
                 }
             });
         } else {
@@ -340,32 +402,17 @@ const populateMessages = () => {
         if (!document.getElementById(message.time)) {
             const msg = document.createElement("div");
             msg.setAttribute("id", message.time);
-            msg.classList.add("card", "rounded-3", "shadow", "border-dark", "mb-3");
-            msg.style.width = "50vw";
+            msg.style.overflowWrap = "break-word";
 
-            const msg_head = document.createElement("div");
-            msg_head.classList.add("card-header");
-            msg_head.style.fontWeight = "bold";
-            msg_head.style.fontSize = "large";
-            msg_head.style.whiteSpace = "nowrap";
-            msg_head.style.fontSize = "larger";
-            
-            const msg_title = document.createElement("div");
-            msg_title.classList.add("card-title", "text-wrap");
-            msg_title.appendChild(document.createTextNode(message.from));
+            const from = document.createElement("h6");
+            from.classList.add("mb-0");
+            from.innerHTML = message.from_name;
 
-            const msg_body = document.createElement("div");
-            msg_body.classList.add("card-body", "text-wrap");
-            msg_body.appendChild(document.createTextNode(message.msg));
+            const text = document.createElement("p");
+            text.innerHTML = message.msg;
 
-            const msg_footer = document.createElement("div");
-            msg_footer.classList.add("card-footer");
-
-            msg_head.appendChild(msg_title);
-            msg_head.appendChild(msg_body);
-            msg_head.appendChild(msg_footer);
-
-            msg.appendChild(msg_head);
+            msg.appendChild(from);
+            msg.appendChild(text);
 
             list.appendChild(msg);
         }
@@ -380,72 +427,163 @@ if (document.getElementById("view-posts")) {
     document.getElementById("view-posts").addEventListener("click", viewPostsRedirect);
 }
 
-if (document.getElementById("login")) {
-    document.getElementById("login-button").addEventListener("click", signIn);
+if (document.getElementById("loginLogout")) {
+    const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
-    if (checkRedirect()) {
-        window.location = "/home";
-    }
+    await auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById("loginLogout").innerHTML = "Logout";
+            document.getElementById("loginLogout").addEventListener("click", () => {
+                signOut(auth).then(() => {
+                    window.location = "/home";
+                })
+                .catch((err) => {
+                    window.location = "/home"
+                });
+            });
+        } else {
+            document.getElementById("loginLogout").innerHTML = "Login";
+            document.getElementById("loginLogout").addEventListener("click", () => {
+                window.location = "/login";
+            });
+        }
+    })
+}
+
+if (document.getElementById("login")) {
+    const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
+
+    await auth.onAuthStateChanged((user) => {
+        if (user) {
+            window.location = "/home";
+        } else {
+            document.getElementById("login-button").addEventListener("click", signIn);
+        }
+    });
 }
 
 if (document.getElementById("submit_listing")) {
-    if (checkRedirect()) {
-        document.getElementById("submit_listing").addEventListener("click", createListing);
-    } else {
-        window.location = "/login";
-    }
+    const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
+
+    await auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById("submit_listing").addEventListener("click", createListing);
+        } else {
+            window.location = "/login";
+        }
+    });
 }
 
 if (document.getElementById("submit_edit")) {
-    if (checkRedirect()) {
-        document.getElementById("submit_edit").addEventListener("click", editListing);
-    } else {
-        window.location = "/login";
-    }
+    const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
+
+    await auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById("submit_edit").addEventListener("click", editListing);
+        } else {
+            window.location = "/login";
+        }
+    });
 }
 
 if (document.getElementById("delete_listing")) {
-    if (checkRedirect()) {
-        document.getElementById("delete_listing").addEventListener("click", deleteListing);
-    } else {
-        window.location = "/login";
-    }
+    const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
+
+    await auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById("delete_listing").addEventListener("click", deleteListing);
+        } else {
+            window.location = "/login";
+        }
+    });
 }
 
 if (document.getElementsByClassName("delete_listing").length > 0) {
-    if (checkRedirect()) {
-        Array.from(document.getElementsByClassName("delete_listing")).forEach((listing) => {
-            listing.addEventListener("click", () => { deleteListing(listing.id) });
-        });
-    } else {
-        window.location = "/login";
-    }
+    const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
+
+    await auth.onAuthStateChanged((user) => {
+        if (user) {
+            Array.from(document.getElementsByClassName("delete_listing")).forEach((listing) => {
+                listing.addEventListener("click", () => { deleteListing(listing.id) });
+            });
+        } else {
+            window.location = "/login";
+        }
+    });
 }
 
 if (document.getElementById("submit_request")) {
-    if (checkRedirect()) {
-        document.getElementById("submit_request").addEventListener("click", createRequest);
-    } else {
-        window.location = "/login";
-    }
+    const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
+
+    await auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById("submit_request").addEventListener("click", createRequest);
+        } else {
+            window.location = "/login";
+        }
+    });
 }
 
 if (document.getElementById("edit_request")) {
-    if (checkRedirect()) {
-        document.getElementById("edit_request").addEventListener("click", editRequest);
-    } else {
-        window.location = "/login";
-    }
+    const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
+
+    await auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById("edit_request").addEventListener("click", editRequest);
+        } else {
+            window.location = "/login";
+        }
+    });
 }
 
 if (document.getElementsByClassName("delete_request").length > 0) {
-    if (checkRedirect()) {
-        Array.from(document.getElementsByClassName("delete_request")).forEach((request) => {
-            request.addEventListener("click", () => { deleteRequest(request.id) });
-        });
-    } else {
-        window.location = "/login";
-    }
+    const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
+
+    await auth.onAuthStateChanged((user) => {
+        if (user) {
+            Array.from(document.getElementsByClassName("delete_request")).forEach((request) => {
+                request.addEventListener("click", () => { deleteRequest(request.id) });
+            });
+        } else {
+            window.location = "/login";
+        }
+    });
 }
 
 if (document.getElementById("chat")) {

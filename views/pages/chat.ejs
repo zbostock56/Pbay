@@ -25,11 +25,14 @@
         style="padding-top: 120px; padding-bottom: 60px; position: relative; min-height: 100vh;">
           <div id = "messages" class="row row-cols-1 row-cols-md-1 g-2">
           </div>
-          <div class="input-group fixed-bottom">
-            <textarea id="msg-body" class="form-control" placeholder="Enter your message..."></textarea>
-            <button id="send-msg" class="btn btn-primary btn-sm" type="submit">
-              Send
-            </button>
+          <div class="fixed-bottom">
+            <p id="err-msg" class="text-danger text-center"></p>
+            <div class="input-group">
+              <textarea id="msg-body" class="form-control" placeholder="Enter your message..."></textarea>
+              <button id="send-msg" class="btn btn-primary btn-sm" type="submit">
+                Send
+              </button>
+            </div>
           </div>
         </div>
       </div>

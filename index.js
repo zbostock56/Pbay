@@ -58,12 +58,14 @@ app.use(helmet.contentSecurityPolicy({
         "connect-src": [
             "self",
             "http://localhost:3000",
+            "http://localhost:9099",
             "ws://localhost:3000/socket.io/",
             "https://*.googleapis.com",
             "https://*.google.com",
             "https://*.gstatic.com"
         ],
         "frame-src": [
+            "http://localhost:9099",
             "http://127.0.0.1:9099",
             "https://pbay-51219.firebaseapp.com/"
         ]
@@ -92,67 +94,80 @@ io.on("connection", (socket) => {
             });
 
             socket.on('message', async (target, msg) => {
-                const conversations = db.collection("conversations");
+                admin.auth().getUser(target)
+                .then(async (t_record) => {
+                    const conversations = db.collection("conversations");
 
-                // Check if conversation exists for both parties
-                const convo_user = await conversations.findOne({
-                    owner: decodedToken.uid,
-                    target: target
-                });
-
-                const convo_target = await conversations.findOne({
-                    owner: target,
-                    target: decodedToken.uid
-                });
-
-                // Create conversations for both parties if non existent
-                if (!convo_user) {
-                    conversations.insertOne({
+                    // Check if conversation exists for both parties
+                    const convo_user = await conversations.findOne({
                         owner: decodedToken.uid,
-                        target: target,
-                        unread: false
+                        target: target
                     });
-                }
 
-                if (!convo_target) {
-                    conversations.insertOne({
+                    const convo_target = await conversations.findOne({
                         owner: target,
-                        target: decodedToken.uid,
-                        unread: false
-                    })
-                }
+                        target: decodedToken.uid
+                    });
 
-                // Set convo of user to read                
-                await conversations.updateOne({
-                    owner: decodedToken.uid,
-                    target: target
-                }, { $set: { unread: false }});
-
-                // Send message
-                if (connected_users.includes(`${target}+${decodedToken.uid}`)) {
-                    io.emit("message", { target: target, from: decodedToken.uid, msg: msg, time: new Date().getTime() });
-                } else {
-                    const target = admin.auth().getUser(target)
-                    .then(async () => {
-                        const messages = db.collection("messages");
-
-                        await messages.insertOne({
+                    // Create conversations for both parties if non existent
+                    if (!convo_user) {
+                        await conversations.insertOne({
+                            owner: decodedToken.uid,
                             target: target,
-                            from: decodedToken.uid,
-                            msg: msg,
-                            time: new Date().getTime()
+                            target_name: t_record.displayName,
+                            messages: [],
+                            unread: false
                         });
+                    }
+
+                    if (!convo_target) {
+                        await conversations.insertOne({
+                            owner: target,
+                            target: decodedToken.uid,
+                            target_name: decodedToken.name,
+                            messages: [],
+                            unread: false
+                        })
+                    }
+
+                    // Set convo of user to read                
+                    await conversations.updateOne({
+                        owner: decodedToken.uid,
+                        target: target
+                    }, { $set: { unread: false }});
+
+                    // Send message
+                    if (msg.length > 80) {
+                        io.emit("error", { msg: "Message cannot exceed 80 characters!" });
+                    } else if (connected_users.includes(`${target}+${decodedToken.uid}`)) {
+                        io.emit("message", { target: target, from: decodedToken.uid, from_name: decodedToken.name, msg: msg, time: (new Date()).getTime() });
+                        io.emit("ping", { target: target, from: decodedToken.uid, from_name: decodedToken.name, msg: msg, time: (new Date).getTime() });
+                    } else {
+                        const target_convo = await conversations.findOne({
+                            owner: target,
+                            target: decodedToken.uid
+                        });
+
+                        const target_log = target_convo.messages;
+
+                        target_log.push({ from: decodedToken.uid, from_name: decodedToken.name, msg: msg, time: new Date().getTime() });
+
+                        if (target_log.length > 100) {
+                            target_log.splice(0, 1);
+                        }
 
                         // Update convo of target to be unread since target is offline
                         await conversations.updateOne({
                             owner: target,
                             target: decodedToken.uid
-                        }, { $set: { unread: true }});
-                    })
-                    .catch(() => {
-                        console.log("Invalid target");
-                    });
-                }
+                        }, { $set: { messages: target_log, unread: true } });
+
+                        io.emit("ping", { target: target, from: decodedToken.uid, from_name: decodedToken.name, msg: msg, time: (new Date).getTime() });
+                    }
+                })
+                .catch(() => {
+                    io.emit("error", { msg: "Invalid target" });
+                });
             });
         })
         .catch((err) => {

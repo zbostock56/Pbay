@@ -32,41 +32,6 @@ const CATEGORIES = [ "appliances", "beauty", "books", "car_supplies", "clothing"
 
 const DOMAIN = "http://localhost:3000";
 
-const messages = [
-    {
-        // Denotes whether the message was sent from the current user or from the opposing person
-        from: "Ghengis Khan",
-        to: "Alexander the Great",
-        contents: "Hello, welcome to the multiverse of madness. I am your host, MatPat.",
-        // This is something we are probably going to want
-        timeStamp: "",
-    },
-    {
-        fromCurrentUser: false,
-        contents: "Fuck you MatPat, I hate your videos and I know that you're a conspiracy theorist."
-    },
-    {
-        fromCurrentUser: true,
-        contents: "Hey man, that really hurt. You should go out and rethink your life. I mean, would you say that to your mom?"
-    },
-    {
-        fromCurrentUser: false,
-        contents: "Well, I'm not sure, but I just thought it was funny."
-    },
-    {
-        fromCurrentUser: false,
-        contents: "Can you at least give it to me that it was a bit funny?"
-    },
-    {
-        fromCurrentUser: true,
-        contents: "Yeah, I guess so."
-    },
-    {
-        fromCurrentUser: true,
-        contents: "You kind of have a point..."
-    }
-];
-
 // DOC TEMPLATE
 /*
   ==========  ==========
@@ -523,20 +488,37 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
 
         admin.auth().getUser(req.params.target)
         .then(async () => {
-            const messages = db.collection("messages");
-            const unread = await messages.find({ target: uid, from: req.params.target }).toArray();
+            const conversations = db.collection("conversations");
+            const convo = await conversations.findOne({
+                owner: uid,
+                target: req.params.target
+            });
+
+            if (!convo) {
+                res.status(200).send({ unread: [] });
+            }
+
+            const unread = convo.messages;
+
+            await conversations.updateOne({
+                owner: uid,
+                target: req.params.target
+            }, { $set: {
+                unread: false,
+                messages: []
+            }});
 
             res.status(200).send({ unread: unread });
         })
         .catch((err) => {
             if (err) {
-                res.status(400).json({ msg: err });
+                res.status(400).send({ msg: err.message });
             }
         })
     })
     .catch((err) => {
         if (err) {
-            res.status(200).json({ msg: err });
+            res.status(200).send({ msg: err.message });
         }
     })
 });
@@ -554,8 +536,7 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
 // ========================== ROUTING ===========================
 
 // Base Routes
-app.get("/home", 
-async (req, res) => {
+app.get("/home", async (req, res) => {
     const listings = await db.collection("listings").find().toArray();
     const requests = await db.collection("requests").find().toArray();
 

@@ -25,13 +25,13 @@
       <% if(message_room.target === "") { %>
       No "to" data 
       <% } else { %>
-      <%= message_room.target %> 
+      <%= message_room.target_name %> 
       <% } %>
     </div>
     </div>
     <!-- Could use profile picture in card if wanted to later down the line -->
     <div class="card-body">
-        <a class="btn btn-primary btn-sm" role="button" href="#">
+        <a href="/chat/<%= message_room.target %>" class="btn btn-primary btn-sm" role="button" href="#">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
