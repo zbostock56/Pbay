@@ -71,7 +71,7 @@
         See more info
       </button>
 
-      <a class="btn btn-primary btn-sm" role="button" href="/chat/<%= request.user %>">
+      <a class="btn btn-primary btn-sm message_button message_<%= request.user %>" role="button" href="/chat/<%= request.user %>">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -96,7 +96,7 @@
           <small class="text-muted">Category: </small>
           <% if (request.category === "") { %> No Category 
           <% } else { %>
-          <%= CATEGORIES[listing.category - 1].replace(/_+/g, " ") %> 
+          <%= CATEGORIES[request.category - 1].replace(/_+/g, " ") %> 
           <% } %>
         </div>
         <% if(request.desc === "") { %> No description was listed 

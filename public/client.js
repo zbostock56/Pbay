@@ -538,22 +538,6 @@ if (document.getElementById("submit_edit")) {
     });
 }
 
-if (document.getElementById("delete_listing")) {
-    const auth = getAuth(fb);
-    // if (!connected) {
-    //     connectAuthEmulator(auth, "http://localhost:9099");
-    //     connected = true;
-    // }
-
-    await auth.onAuthStateChanged((user) => {
-        if (user) {
-            document.getElementById("delete_listing").addEventListener("click", deleteListing);
-        } else {
-            window.location = "/login";
-        }
-    });
-}
-
 if (document.getElementsByClassName("delete_listing").length > 0) {
     const auth = getAuth(fb);
     // if (!connected) {
@@ -630,5 +614,21 @@ if (document.getElementById("chat")) {
 
     document.getElementById("send-msg").addEventListener("click", () => {
         socket.emit("message", target, document.getElementById("msg-body").value);
+    });
+}
+
+if (document.getElementsByClassName("message_button").length > 0) {
+    const auth = getAuth(fb);
+
+    await auth.onAuthStateChanged((user) => {
+        const buttons = document.getElementsByClassName("message_button");
+
+        if (user) {
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].classList.contains(`message_${user.uid}`)) {
+                    buttons[i].style.display = "none";
+                }
+            }
+        }
     });
 }
