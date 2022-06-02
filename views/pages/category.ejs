@@ -30,7 +30,7 @@
                 <% listings.forEach((listing) => { %>
                 <%   counter++; %>
                 <div class="col" style="padding-bottom: 3vh;">
-                  <%- include('../partials/card', {listing: listing, editable: false }); %>
+                  <%- include('../partials/card', {listing: listing, editable: false, CATEGORIES: CATEGORIES }); %>
                   </div>
                 <% }); %>          
             </div>
@@ -46,7 +46,7 @@
                 <% requests.forEach((request) => { %>
                 <%   counter++; %>
                 <div class="col" style="padding-bottom: 3vh;">
-                  <%- include('../partials/request_card', {request: request, editable: false }); %>
+                  <%- include('../partials/request_card', {request: request, editable: false, CATEGORIES: CATEGORIES }); %>
                   </div>
                 <% }); %>
             </div>

@@ -68,9 +68,9 @@
         class="btn btn-primary btn-sm"
         type="button"
         data-bs-toggle="collapse"
-        data-bs-target="#<%= listing.id %>"
+        data-bs-target="#collapse_<%= listing._id %>"
         aria-expanded="false"
-        aria-controls="descriptionCollapse"
+        aria-controls="<%= listing._id %>"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -109,13 +109,13 @@
         Message about item
       </a>
     </p>
-    <div class="collapse" id="<%= listing._id %>">
+    <div class="collapse" id="collapse_<%= listing._id %>">
       <div class="card card-body">
         <div class="mb-2">
           <small class="text-muted">Category: </small>
           <% if (listing.category === "") { %> No Category 
           <% } else { %>
-          <%= listing.category %> 
+          <%= CATEGORIES[listing.category - 1].replace(/_+/g, " ") %> 
           <% } %>
         </div>
         <% if(listing.desc === "") { %> No description was listed 

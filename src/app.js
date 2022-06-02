@@ -540,9 +540,7 @@ app.get("/home", async (req, res) => {
     const listings = await db.collection("listings").find().toArray();
     const requests = await db.collection("requests").find().toArray();
 
-    res.render("pages/index", 
-    { listings: listings, requests: requests }
-    );
+    res.render("pages/index", { listings: listings, requests: requests, CATEGORIES: CATEGORIES });
 });
 
 app.get("/login", (req, res) => {
@@ -572,12 +570,20 @@ app.get("/messages/:idToken", (req, res) => {
         res.render("pages/messages", { message_rooms: convos });
     })
     .catch((err) => {
-        res.redirect(`${DOMAIN}/login`);
+        res.redirect(`${DOMAIN}/404`);
     });
 });
 
 app.get("/chat/:target", (req, res) => {
-    res.render("pages/chat");
+    const auth = getAuth();
+
+    auth.getUser(req.params.target)
+    .then((user) => {
+        res.render("pages/chat");
+    })
+    .catch((err) => {
+        res.redirect(`${DOMAIN}/404`);
+    });
 });
 
 // ********** Not Included in intial Build *********************
@@ -596,12 +602,39 @@ app.get("/chat/:target", (req, res) => {
 app.get("/home/create_listing", (req, res) => {
     res.render("pages/create_post");
 });
-app.get("/home/my_postings/edit_listing/:listing_id", (req, res) => {
-    res.render("pages/edit_post");
+
+app.get("/home/my_postings/edit_listing/:listing_id", async (req, res) => {
+    const listings = await db.collection("listings");
+
+    try {
+        const listing = await listings.findOne({ _id: new mongo.ObjectId(req.params.listing_id) });
+
+        if (listing) {
+            res.render("pages/edit_post");
+        } else {
+            res.redirect(`${DOMAIN}/404`);
+        }
+    } catch {
+        res.redirect(`${DOMAIN}/404`);
+    }
 });
-app.get("/home/my_postings/edit_request/:request_id", (req, res) => {
-    res.render("pages/edit_request");
+
+app.get("/home/my_postings/edit_request/:request_id", async (req, res) => {
+    const requests = await db.collection("requests");
+
+    try {
+        const request = await requests.findOne({ _id: new mongo.ObjectId(req.params.request_id) });
+
+        if (request) {
+            res.render("pages/edit_request");
+        } else {
+            res.redirect(`${DOMAIN}/404`);
+        }
+    } catch {
+        res.redirect(`${DOMAIN}/404`);
+    }
 });
+
 app.get("/home/my_postings/:idToken", (req, res) => {
     const auth = getAuth();
 
@@ -635,13 +668,14 @@ app.get("/home/my_postings/:idToken", (req, res) => {
         res.render("pages/my_postings", {
             my_listings: listings,
             my_requests: requests,
+            CATEGORIES: CATEGORIES,
             success_msg: successMsg,
             fail_msg: failMsg
         });
     })
     .catch((err) => {
         if (err) {
-            res.status(200).json({ msg: err });
+            res.redirect(`${DOMAIN}/404`);
         }
     });
 });
@@ -652,44 +686,10 @@ app.get("/home/category/:category", async (req, res) => {
     if (CATEGORIES.includes(category)) {
         const listings = await db.collection("listings").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
         const requests = await db.collection("requests").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
-        res.render("pages/category", { category: category.replace(/_+/g, " "), listings: listings, requests: requests });
+        res.render("pages/category", { category: category.replace(/_+/g, " "), listings: listings, requests: requests, CATEGORIES: CATEGORIES });
     } else {
         res.redirect(`${DOMAIN}/404`);
     }
-});
-
-// TEST ROUTES
-
-app.get("/login_test", (req, res) => {
-    res.render("pages/TEST_PAGES/test_login");
-});
-
-app.get("/create_listing_test", (req, res) => {
-    res.render("pages/TEST_PAGES/test");
-});
-
-app.get("/edit_listing_test", (req, res) => {
-    res.render("pages/TEST_PAGES/test_edit_listing");
-});
-
-app.get("/delete_listing_test", (req, res) => {
-    res.render("pages/TEST_PAGES/test_delete_listing");
-});
-
-app.get("/create_request_test", (req, res) => {
-    res.render("pages/TEST_PAGES/test_create_request");
-});
-
-app.get("/edit_request_test", (req, res) => {
-    res.render("pages/TEST_PAGES/test_edit_request");
-});
-
-app.get("/delete_request_test", (req, res) => {
-    res.render("pages/TEST_PAGES/test_delete_request");
-})
-
-app.get("/chat_test", (req, res) => {
-    res.render("pages/TEST_PAGES/test_chat");
 });
 
 // ========================== HELPERS ===========================
