@@ -540,6 +540,9 @@ app.get("/home", async (req, res) => {
     const listings = await db.collection("listings").find().toArray();
     const requests = await db.collection("requests").find().toArray();
 
+    listings.sort(compFunc);
+    requests.sort(compFunc);
+
     res.render("pages/index", { listings: listings, requests: requests, CATEGORIES: CATEGORIES });
 });
 
@@ -643,6 +646,9 @@ app.get("/home/my_postings/:idToken", (req, res) => {
         const listings = await db.collection("listings").find({ user: decodedToken.uid }).toArray();
         const requests = await db.collection("requests").find({ user: decodedToken.uid }).toArray();
 
+        listings.sort(compFunc);
+        requests.sort(compFunc);
+
         const opStatus = req.query.status;
         let successMsg = "";
         let failMsg = "";
@@ -686,6 +692,10 @@ app.get("/home/category/:category", async (req, res) => {
     if (CATEGORIES.includes(category)) {
         const listings = await db.collection("listings").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
         const requests = await db.collection("requests").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
+
+        listings.sort(compFunc);
+        requests.sort(compFunc);
+
         res.render("pages/category", { category: category.replace(/_+/g, " "), listings: listings, requests: requests, CATEGORIES: CATEGORIES });
     } else {
         res.redirect(`${DOMAIN}/404`);
@@ -770,6 +780,31 @@ const genRequestUpdate = (data, req) => {
     }
 
     return update;
+}
+
+/*
+  ========== compFunc ==========
+  DESC: Compare function to be used in sorting the listing
+  and request arrays so the arrays go from most to least
+  recent.
+
+  PARAMETERS:
+   - a (Object): First listing/request object
+   - b (Object): Second listing/request object
+
+  RETURNS:
+  -1: a should go before b, 1: a sould go after b, 0: The positions of
+  a and b should be unchanged
+  ======================================
+*/
+const compFunc = (a, b) => {
+    if (a.timeID > b.timeID) {
+        return -1;
+    } else if (a.timeID < b.timeID) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 exports.source = app;
