@@ -470,6 +470,42 @@ if (document.getElementById("login")) {
     });
 }
 
+if (document.getElementById("filter_menu")) {
+    const both = document.getElementById("both");
+    const listing_only = document.getElementById("listing_only");
+    const request_only = document.getElementById("request_only");
+
+    const listing_display = document.getElementById("listing_display");
+    const request_display = document.getElementById("request_display");
+
+    both.addEventListener("click", () => {
+        both.classList.add("active");
+        listing_only.classList.remove("active");
+        request_only.classList.remove("active");
+
+        listing_display.style.display="block";
+        request_display.style.display="block";
+    });
+
+    listing_only.addEventListener("click", () => {
+        listing_only.classList.add("active");
+        both.classList.remove("active");
+        request_only.classList.remove("active");
+
+        listing_display.style.display = "block";
+        request_display.style.display = "none";
+    });
+
+    request_only.addEventListener("click", () => {
+        request_only.classList.add("active");
+        listing_only.classList.remove("active");
+        both.classList.remove("active");
+
+        listing_display.style.display = "none";
+        request_display.style.display = "block";
+    })
+}
+
 if (document.getElementById("submit_listing")) {
     const auth = getAuth(fb);
     // if (!connected) {

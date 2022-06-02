@@ -20,35 +20,40 @@
           class="container"
           style="padding-top: 120px; position: relative; min-height: 100vh"
         >
-        <h1 class="mb-3">
-          All <%= category %> listings
-        </h1>
-          <div class="row row-cols-1 row-cols-md-1 g-1">
-            <% let counter = 0; %>
-            <% listings.forEach((listing) => { %>
-            <%   counter++; %>
-            <div class="col" style="padding-bottom: 3vh;">
-              <%- include('../partials/card', {listing: listing, editable: false }); %>
-              </div>
-            <% }); %>          
-        </div>
-        <%- include('../partials/no_listings', {counter}); %>
+          <%- include('../partials/filter_selection'); %>
+          <div id="listing_display">
+            <h1 class="mb-3">
+              All <%= category %> listings
+            </h1>
+              <div class="row row-cols-1 row-cols-md-1 g-1">
+                <% let counter = 0; %>
+                <% listings.forEach((listing) => { %>
+                <%   counter++; %>
+                <div class="col" style="padding-bottom: 3vh;">
+                  <%- include('../partials/card', {listing: listing, editable: false }); %>
+                  </div>
+                <% }); %>          
+            </div>
+            <%- include('../partials/no_listings', {counter}); %>
+          </div>
 
-        <h1 class="mb-3">
-          All <%= category %> requests
-        </h1>
-          <div class="row row-cols-1 row-cols-md-1 g-1">
-            <% counter = 0; %>
-            <% requests.forEach((request) => { %>
-            <%   counter++; %>
-            <div class="col" style="padding-bottom: 3vh;">
-              <%- include('../partials/request_card', {request: request, editable: false }); %>
-              </div>
-            <% }); %>          
+          <div id="request_display">
+            <h1 class="mb-3">
+              All <%= category %> requests
+            </h1>
+              <div class="row row-cols-1 row-cols-md-1 g-1">
+                <% counter = 0; %>
+                <% requests.forEach((request) => { %>
+                <%   counter++; %>
+                <div class="col" style="padding-bottom: 3vh;">
+                  <%- include('../partials/request_card', {request: request, editable: false }); %>
+                  </div>
+                <% }); %>
+            </div>
+            <%- include('../partials/no_requests', {counter}); %>
+          </div>
         </div>
-        <%- include('../partials/no_requests', {counter}); %>
       </div>
-    </div>
     </main>
     <footer><%- include('../partials/footer'); %></footer>
     <!-- 

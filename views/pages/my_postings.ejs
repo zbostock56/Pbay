@@ -14,74 +14,82 @@
 -->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <%- include('../partials/head'); %>
-  </head>
-  <body>
-    <header><%- include('../partials/header'); %></header>
-    <main>
-      <div class="main">
-        <div 
-        class="container"
-        style="padding-top: 120px; position: relative; min-height: 100vh">
-         <h1 class="mb-3">
-            My Postings
-         </h1>
-         <p id="err-txt" class="text-danger"><%= fail_msg %></p>
-         <p id="success-txt" class="text-success"><%= success_msg %></p>
-         <div class="row row-cols-1 row-cols-md-1 g-1">
+
+<head>
+  <%- include('../partials/head'); %>
+</head>
+
+<body>
+  <header>
+    <%- include('../partials/header'); %>
+  </header>
+  <main>
+    <div class="main">
+      <div class="container" style="padding-top: 120px; position: relative; min-height: 100vh">
+
+        <h1 class="mb-3">
+          My Postings
+        </h1>
+        <p id="err-txt" class="text-danger">
+          <%= fail_msg %>
+        </p>
+        <p id="success-txt" class="text-success">
+          <%= success_msg %>
+        </p>
+        <%- include('../partials/filter_selection'); %>
+        <div class="row row-cols-1 row-cols-md-1 g-1">
+          <div id="listing_display">
             <h2> Listings </h2>
-            <% let counter = 0; %>
-            <% my_listings.forEach((my_listing) => { %>
-                <div class="col" style="padding-bottom: 3vh;">
-                    <% counter++; %>
-                    <%- include('../partials/card', { listing: my_listing, editable: true }); %>
-                </div>
+            <% let counter=0; %>
+            <% my_listings.forEach((my_listing)=> { %>
+              <div class="col" style="padding-bottom: 3vh;">
+                <% counter++; %>
+                <%- include('../partials/card', { listing: my_listing, editable: true }); %>
+              </div>
             <% }); %>
-            <% if (counter === 0) { %>
+            <% if (counter===0) { %>
               <div class="mb-3">
                 <small class="text-muted">You do not have any listings.</small>
               </div>
               <div class="mb-3">
-                  <a
-                  class="btn btn-primary"
-                  role="button"
-                  href="/home/create_listing"
-                  >Make your first!</a>
+                <a class="btn btn-primary" role="button" href="/home/create_listing">Make your first!</a>
               </div>
             <% } %>
+          </div>
+          
+          <div id="request_display">
             <h2> Requests </h2>
-            <% counter = 0; %>
-            <% my_requests.forEach((request) => { %>
+            <% counter=0; %>
+            <% my_requests.forEach((request)=> { %>
               <div class="col" style="padding-bottom: 3vh;">
-                  <% counter++; %>
-                  <%- include('../partials/request_card', { request: request, editable: true }); %>
+                <% counter++; %>
+                <%- include('../partials/request_card', { request: request, editable: true }); %>
               </div>
             <% }); %>
-            <% if (counter === 0) { %>
+            <% if (counter===0) { %>
               <div class="mb-3">
                 <small class="text-muted">You do not have any requests.</small>
               </div>
               <div class="mb-3">
-                  <a
-                  class="btn btn-primary"
-                  role="button"
-                  href="/home/create_listing"
-                  >Make your first!</a>
+                <a class="btn btn-primary" role="button" href="/home/create_listing">Make your first!</a>
               </div>
             <% } %>
           </div>
         </div>
       </div>
-    </main>
-    <footer><%- include('../partials/footer'); %></footer>
-    <!-- 
+    </div>
+  </main>
+  <footer>
+    <%- include('../partials/footer'); %>
+  </footer>
+  <!-- 
       ***** JavaScript Add-Ons *****
       DESC:
       -> Add the necessary resources
       for Bootstrap. Includes scripting
       for transitions/animations
      -->
-     <%- include('../partials/scripts'); %>
-  </body>
+  <%- include('../partials/scripts'); %>
+</body>
+
 </html>

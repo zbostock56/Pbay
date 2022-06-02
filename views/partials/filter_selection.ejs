@@ -1,28 +1,5 @@
-<!-- Button trigger modal -->
-<div class="d-grid col-10 mx-auto">
-<button type="button" class="btn btn-outline-primary btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#filter">
-    Filters
-    </button>
-    
-    <!-- Modal -->
-    <div class="modal fade" id="filter" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Filters</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <div class="d-flex justify-content-center mb-3">
-                <input class="btn btn-primary btn-sm" style="margin-right: 3px;" type="button" value="Both"></input>
-                <input class="btn btn-primary btn-sm" style="margin-right: 3px;" type="button" value="Only Listings"></input>
-                <input class="btn btn-primary btn-sm" style="margin-right: 3px;" type="button" value="Only Requests"></input>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-        </div>
-        </div>
-    </div>
-    </div>
+<div id="filter_menu" class="btn-group mb-3" role="group">
+    <button id="both" class="btn btn-primary btn-sm active">Both</button>
+    <button id="listing_only" class="btn btn-primary btn-sm">Only Listings</button>
+    <button id="request_only" class="btn btn-primary btn-sm">Only requests</button>
 </div>
