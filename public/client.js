@@ -67,7 +67,12 @@ const createListing = () => {
                         window.location = `/home/my_postings/${idToken}?status=lc_success`;
                     })
                     .catch(async (err) => {
-                        const res = await JSON.parse(err.response.request.response);
+                        let res = {}
+                        if (err.response.status === 413) { 
+                            res = { msg: "Image cannot exceed 2MB" };
+                        } else {
+                            res = await JSON.parse(err.response.request.response);
+                        }
                         document.getElementById("err-txt").innerHTML = res.msg;
                     });
             } else {
@@ -134,7 +139,12 @@ const editListing = () => {
                 }).then((res) => {
                     window.location = `/home/my_postings/${idToken}?status=le_success`;
                 }).catch(async (err) => {
-                    const res = await JSON.parse(err.response.request.response);
+                    let res = {}
+                    if (err.response.status === 413) { 
+                        res = { msg: "Image cannot exceed 2MB" };
+                    } else {
+                        res = await JSON.parse(err.response.request.response);
+                    }
                     document.getElementById("err-txt").innerHTML = res.msg;
                 });
             } else {
@@ -205,7 +215,12 @@ const createRequest = () => {
                         window.location = `/home/my_postings/${idToken}?status=rc_success`;
                     })
                     .catch(async (err) => {
-                        const res = await JSON.parse(err.response.request.response);
+                        let res = {}
+                        if (err.response.status === 413) { 
+                            res = { msg: "Image cannot exceed 2MB" };
+                        } else {
+                            res = await JSON.parse(err.response.request.response);
+                        }
                         document.getElementById("err-txt").innerHTML = res.msg;
                     });
             } else {
@@ -257,7 +272,12 @@ const editRequest = () => {
                 }).then((res) => {
                     window.location = `/home/my_postings/${idToken}?status=re_success`;
                 }).catch(async (err) => {
-                    const res = await JSON.parse(err.response.request.response);
+                    let res = {}
+                    if (err.response.status === 413) { 
+                        res = { msg: "Image cannot exceed 2MB" };
+                    } else {
+                        res = await JSON.parse(err.response.request.response);
+                    }
                     document.getElementById("err-txt").innerHTML = res.msg;
                 });
             } else {

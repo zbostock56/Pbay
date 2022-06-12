@@ -38,7 +38,7 @@ client.connect().then(() => {
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-app.use(busboy({ immediate: true }));
+app.use(busboy({ immediate: true, limits: { fileSize: 1048576 * 2 } }));
 
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
 app.use(helmet.contentSecurityPolicy({
@@ -57,6 +57,7 @@ app.use(helmet.contentSecurityPolicy({
             "https://*.gstatic.com",
             "https://*.googleapis.com",
             "https://*.google.com",
+            "https://*.googlesyndication.com"
         ],
         "connect-src": [
             "self",

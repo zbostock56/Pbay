@@ -40,6 +40,11 @@ const formParser = (req, res, next) => {
             file.pipe(writeStream);
     
             const promise = new Promise((resolve, reject) => {
+                file.on("limit", () => {
+                  writeStream.end();
+                  res.status(400).json({ msg: "Uploaded file cannot be more than 2MB" });
+                });
+
                 file.on("end", () => {
                     writeStream.end();
                 });
