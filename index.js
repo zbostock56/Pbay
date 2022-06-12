@@ -48,6 +48,9 @@ app.use(helmet.contentSecurityPolicy({
             "http://localhost:3000/client.js",
             "http://localhost:3000/footer.js",
             "http://localhost:3000/socket.io/socket.io.js",
+            "https://www.pbayshop.com/client.js",
+            "https://www.pbayshop.com/footer.js",
+            "https://www.pbayshop.com/socket.io/socket.io.js",
             "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js",
             "https://pbay-51219.firebaseapp.com/",
             "https://unpkg.com/axios/dist/axios.min.js",
@@ -59,7 +62,9 @@ app.use(helmet.contentSecurityPolicy({
             "self",
             "http://localhost:3000",
             "http://localhost:9099",
+            "http://www.pbayshop.com",
             "ws://localhost:3000/socket.io/",
+            "ws://www.pbayshop.com/socket.io/",
             "https://*.googleapis.com",
             "https://*.google.com",
             "https://*.gstatic.com"
@@ -68,7 +73,7 @@ app.use(helmet.contentSecurityPolicy({
             "http://localhost:9099",
             "http://127.0.0.1:9099",
             "https://pbay-51219.firebaseapp.com/"
-        ]
+        ],
     }
 }));
 
