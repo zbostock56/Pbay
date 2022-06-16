@@ -357,7 +357,7 @@ app.post("/create_request", formParser, requestValidator, async (req, res) => {
             title: req.body.title,
             desc: req.body.desc,
             category: parseInt(req.body.category),
-            timeId: time.getTime()
+            timeID: time.getTime()
         })
         .then(() => {
             res.status(200).json({ msg: "Request created" });

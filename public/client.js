@@ -18,7 +18,7 @@ const fb = initializeApp(firebaseConfig);
 let socket = undefined;
 const messages = [];
 
-const DOMAIN = "www.pbayshop.com";
+const DOMAIN = "https://www.pbayshop.com";
 
 const signIn = async () => {
     const auth = getAuth(fb);
@@ -58,7 +58,7 @@ const createListing = () => {
                     img: document.getElementById("img").files[0]
                 };
 
-                axios.post(`https://${DOMAIN}/create_listing`, data, {
+                axios.post(`${DOMAIN}/create_listing`, data, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
@@ -132,7 +132,7 @@ const editListing = () => {
                     data.updateImg = "0";
                 }
 
-                axios.post(`https://${DOMAIN}/edit_listing`, data, {
+                axios.post(`${DOMAIN}/edit_listing`, data, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
@@ -172,7 +172,7 @@ const deleteListing = (id) => {
                 listing: id
             };
     
-            axios.post(`https://${DOMAIN}/delete_listing`, data, {
+            axios.post(`${DOMAIN}/delete_listing`, data, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -206,7 +206,7 @@ const createRequest = () => {
                     category: document.getElementById("category").value
                 }
 
-                axios.post(`https://${DOMAIN}/create_request`, data, {
+                axios.post(`${DOMAIN}/create_request`, data, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
@@ -265,7 +265,7 @@ const editRequest = () => {
                     data.category = document.getElementById("category").value;
                 }
         
-                axios.post(`https://${DOMAIN}/edit_request`, data, {
+                axios.post(`${DOMAIN}/edit_request`, data, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
@@ -305,7 +305,7 @@ const deleteRequest = (id) => {
                 request: id
             };
     
-            axios.post(`https://${DOMAIN}/delete_request`, data, {
+            axios.post(`${DOMAIN}/delete_request`, data, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -367,7 +367,7 @@ const connectSocket = (target) => {
 
             axios({
                 method: "get",
-                url: `https://${DOMAIN}/unread_messages/${idToken}/${target}`
+                url: `${DOMAIN}/unread_messages/${idToken}/${target}`
             })
             .then((res) => {
                 res.data.unread.forEach((msg) => {
