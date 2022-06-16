@@ -1,6 +1,7 @@
 const os = require("os");
 const path = require("path");
 const fs = require("fs");
+const sharp = require("sharp");
 
 /*
   ============= formParser =============
@@ -66,7 +67,16 @@ const formParser = (req, res, next) => {
         for (const file in uploads) {
             const filename = uploads[file];
 
-            req.body[file] = fs.readFileSync(filename);
+            const uncompressed = fs.readFileSync(filename);
+            await sharp(uncompressed).resize({ width: 500 }).toBuffer()
+            .then((data) => {
+                req.body[file] = data;
+            })
+            .catch((err) => {
+                console.log(err);
+                res.status(400).json({ msg: err });
+            });
+
             fs.unlinkSync(filename);
         }
 
