@@ -8,7 +8,7 @@ test.jpg
 test2.jpg
 creds.sh
 listing_imgs/
-
+nohup.out
 
 # dependencies
 node_modules/
