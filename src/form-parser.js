@@ -36,7 +36,7 @@ const formParser = (req, res, next) => {
             const filepath = path.join(tempDir, info.filename);
             const writeStream = fs.createWriteStream(filepath);
     
-            uploads[field] = filepath;
+            uploads[info.filename] = filepath;
     
             file.pipe(writeStream);
     
@@ -64,13 +64,14 @@ const formParser = (req, res, next) => {
 
         req.body = fields;
 
+        req.body.imgs = [];
         for (const file in uploads) {
             const filename = uploads[file];
 
             const uncompressed = fs.readFileSync(filename);
             await sharp(uncompressed).resize({ width: 500 }).toBuffer()
             .then((data) => {
-                req.body[file] = data;
+                req.body.imgs.push(data);
             })
             .catch((err) => {
                 console.log(err);

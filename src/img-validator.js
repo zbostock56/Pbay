@@ -9,11 +9,22 @@ const imgValidator = (req, res, next) => {
     let status = true;
     const errors = {};
 
-    if (req.body.img) {
-        if (!(req.body.img instanceof Uint8Array)) {
+    if (req.body.imgs && Array.isArray(req.body.imgs)) {
+        if (req.body.imgs.length > 3) {
             status = false;
-            errors.img = "Invalid image";
+            errors.imgs = "Cannot upload more than 3 images";
         }
+
+        for (let i = 0; i < req.body.imgs.length; i++) {
+            if (!(req.body.imgs[i] instanceof Uint8Array)) {
+                status = false;
+                errors.imgs = "Invalid image";
+                break;
+            }
+        }
+    } else if (req.body.imgs) {
+        status = false;
+        errors.imgs = "Invalid image input";
     }
 
     if (status == false) {

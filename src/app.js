@@ -31,6 +31,7 @@ const CATEGORIES = [ "appliances", "beauty", "books", "car_supplies", "clothing"
                      "office_supplies", "sporting", "toys", "other" ];
 
 const DOMAIN = "https://www.pbayshop.com";
+// const DOMAIN = "http://localhost:3000";
 
 // DOC TEMPLATE
 /*
@@ -81,19 +82,27 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
 
         try {
             const listings = db.collection("listings");
-            if (req.body.img) {
-                fs.open(`${IMG_DIR}/${imgID}.jpg`, "w", (err, fd) => {
-                    if (err) {
-                        res.status(400).json({ msg: err.message });
-                    }
+            if (req.body.imgs && req.body.imgs.length > 0) {
+                const imgUrls = [];
+                const imgIDs = [];
 
-                    fs.write(fd, req.body.img, 0, (err, written, buffer) => {
+                for (let i = 0; i < req.body.imgs.length; i++) {
+                    fs.open(`${IMG_DIR}/${imgID}-${i}.jpg`, "w", (err, fd) => {
                         if (err) {
                             res.status(400).json({ msg: err.message });
                         }
+
+                        fs.write(fd, req.body.imgs[i], 0, (err, written, buffer) => {
+                            if (err) {
+                                res.status(400).json({ msg: err.message });
+                            }
+                        });
+                        fs.close(fd);
                     });
-                    fs.close(fd);
-                });
+
+                    imgUrls.push(`${DOMAIN}/images/listing_imgs/${imgID}-${i}.jpg`);
+                    imgIDs.push(`${imgID}-${i}`);
+                }
                 
                 await listings.insertOne({
                     user: uid,
@@ -103,8 +112,8 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     //location: req.body.location,
                     //phoneNumber: req.body.phoneNumber,
                     price: parseFloat(req.body.price).toFixed(2),
-                    img: `${DOMAIN}/images/listing_imgs/${imgID}.jpg`,
-                    imgID: imgID,
+                    imgs: imgUrls,
+                    imgIDs: imgIDs,
                     timeID: time.getTime()
                 }).then(() => {
                     res.status(200).json({ msg: "Success" });
@@ -122,8 +131,8 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     //location: req.body.location,
                     //phoneNumber: req.body.phoneNumber,
                     price: parseFloat(req.body.price).toFixed(2),
-                    img: "",
-                    imgID: "",
+                    imgs: [],
+                    imgIDs: [],
                     timeID: time.getTime()
                 }).then(() => {
                     res.status(200).json({ msg: "Success" });
@@ -181,63 +190,73 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
             if (uid === listing.user) {
                 const update = genListingUpdate(listing, req);
 
-                const oldImgID = listing.imgID;
+                const oldImgIDs = listing.imgIDs;
 
                 const timeID = new Date().getTime();
                 const imgID = `${uid}+${req.body.title}+${timeID}`;
 
                 if (parseInt(req.body.updateImg) == 1) {
                     try {
-                        if (req.body.img) {
-                            fs.open(`${IMG_DIR}/${imgID}.jpg`, "w", (err, fd) => {
-                                if (err) {
-                                    res.status(400).json({ msg: err.message });
-                                }
-    
-                                fs.write(fd, req.body.img, (err, written, buffer) => {
+                        if (req.body.imgs && req.body.imgs.length > 0) {
+                            const imgUrls = [];
+                            const imgIDs = [];
+
+                            for (let i = 0; i < req.body.imgs.length; i++) {
+                                fs.open(`${IMG_DIR}/${imgID}-${i}.jpg`, "w", (err, fd) => {
                                     if (err) {
                                         res.status(400).json({ msg: err.message });
                                     }
-                                });
-    
-                                fs.close(fd);
-                            });
-    
-                            update.img = `${DOMAIN}/images/listing_imgs/${imgID}.jpg`;
-                            update.imgID = imgID;
-                        } else {
-                            update.img = "";
-                            update.imgID = "";
-                        }
-    
-                        fs.access(`${IMG_DIR}/${oldImgID}.jpg`, async (doesntExist) => {
-                            if (doesntExist) {
-                                await listings.updateOne({ _id: _id }, { $set: update })
-                                .then(() => {
-                                    res.status(200).json({ msg: "Listing updated" });
-                                })
-                                .catch((err) => {
-                                    if (err) {
-                                        res.status(400).json({ msg: err.message });
-                                    }
-                                });
-                            } else {
-                                fs.unlink(`${IMG_DIR}/${oldImgID}.jpg`, async (err) => {
-                                    if (err) {
-                                        res.status(400).json({ msg: err.message });
-                                    }
-    
-                                    await listings.updateOne({ _id: _id }, { $set: update })
-                                    .then(() => {
-                                        res.status(200).json({ msg: "Listing updated" });
-                                    })
-                                    .catch((err) => {
+
+                                    fs.write(fd, req.body.imgs[i], (err, written, buffer) => {
                                         if (err) {
                                             res.status(400).json({ msg: err.message });
                                         }
                                     });
+
+                                    fs.close(fd);
                                 });
+
+                                imgUrls.push(`${DOMAIN}/images/listing_imgs/${imgID}-${i}.jpg`);
+                                imgIDs.push(`${imgID}-${i}`);
                             }
+    
+                            update.imgs = imgUrls;
+                            update.imgIDs = imgIDs;
+                        } else {
+                            update.imgs = [];
+                            update.imgID = [];
+                        }
+                        
+                        oldImgIDs.forEach((id) => {
+                            fs.access(`${IMG_DIR}/${id}.jpg`, async (doesntExist) => {
+                                if (doesntExist) {
+                                    await listings.updateOne({ _id: _id }, { $set: update })
+                                        .then(() => {
+                                            res.status(200).json({ msg: "Listing updated" });
+                                        })
+                                        .catch((err) => {
+                                            if (err) {
+                                                res.status(400).json({ msg: err.message });
+                                            }
+                                        });
+                                } else {
+                                    fs.unlink(`${IMG_DIR}/${id}.jpg`, async (err) => {
+                                        if (err) {
+                                            res.status(400).json({ msg: err.message });
+                                        }
+
+                                        await listings.updateOne({ _id: _id }, { $set: update })
+                                            .then(() => {
+                                                res.status(200).json({ msg: "Listing updated" });
+                                            })
+                                            .catch((err) => {
+                                                if (err) {
+                                                    res.status(400).json({ msg: err.message });
+                                                }
+                                            });
+                                    });
+                                }
+                            });
                         });
                     } catch (err) {
                         if (err) {
@@ -298,11 +317,13 @@ app.post("/delete_listing", formParser, async (req, res) => {
 
         if(listing) {
             if (listing.user == uid) {
-                if (listing.imgID != "") {
-                    fs.unlink(`${IMG_DIR}/${listing.imgID}.jpg`, (err) => {
-                        if (err) {
-                            res.status(400).json({ msg: err.message });
-                        }
+                if (listing.imgIDs && listing.imgIDs.length > 0) {
+                    listing.imgIDs.forEach((id) => {
+                        fs.unlink(`${IMG_DIR}/${id}.jpg`, (err) => {
+                            if (err) {
+                                res.status(400).json({ msg: err.message });
+                            }
+                        });
                     });
                 }
 

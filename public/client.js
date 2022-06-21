@@ -19,6 +19,7 @@ let socket = undefined;
 const messages = [];
 
 const DOMAIN = "https://www.pbayshop.com";
+// const DOMAIN = "http://localhost:3000";
 
 const signIn = async () => {
     const auth = getAuth(fb);
@@ -55,8 +56,13 @@ const createListing = () => {
                     // location: document.getElementById("location").value,
                     // phoneNumber: document.getElementById("phoneNumber").value,
                     price: document.getElementById("Price-Input").value,
-                    img: document.getElementById("img").files[0]
+                    //img: document.getElementById("img").files
                 };
+
+                const files = document.getElementById("img").files;
+                for (let i = 0; i < files.length; i++) {
+                    data[i] = files[i];
+                }
 
                 axios.post(`${DOMAIN}/create_listing`, data, {
                     headers: {
@@ -126,8 +132,11 @@ const editListing = () => {
                 if (document.getElementById("delete-img").checked) {
                     data.updateImg = "1";
                 } else if (document.getElementById("file-input").files[0]) {
+                    const files = document.getElementById("file-input").files;
+                    for (let i = 0; i < files.length; i++) {
+                        data[i] = files[i];
+                    }
                     data.updateImg = "1";
-                    data.img = document.getElementById("file-input").files[0];
                 } else {
                     data.updateImg = "0";
                 }
