@@ -635,7 +635,17 @@ if (document.getElementById("chat")) {
     connectSocket(target);
 
     document.getElementById("send-msg").addEventListener("click", () => {
-        socket.emit("message", target, document.getElementById("msg-body").value);
+        if (document.getElementById("msg-body").value !== "") {
+            socket.emit("message", target, document.getElementById("msg-body").value);
+            document.getElementById("msg-body").value = "";
+        }
+    });
+
+    document.getElementById("msg-body").addEventListener("keydown", (e) => {
+        if (e.code === "Enter" && document.getElementById("msg-body").value !== "") {
+            socket.emit("message", target, document.getElementById("msg-body").value);
+            document.getElementById("msg-body").value = "";
+        }
     });
 }
 
