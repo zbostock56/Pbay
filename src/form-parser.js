@@ -32,56 +32,63 @@ const formParser = (req, res, next) => {
     });
 
     req.busboy.on("file", (field, file, info) => {
-        if (info.filename) {
-            const filepath = path.join(tempDir, info.filename);
-            const writeStream = fs.createWriteStream(filepath);
-    
-            uploads[info.filename] = filepath;
-    
-            file.pipe(writeStream);
-    
-            const promise = new Promise((resolve, reject) => {
-                file.on("limit", () => {
-                  writeStream.end();
-                  res.status(400).json({ msg: "Uploaded files cannot total more than 6MB" });
+        try {
+            if (info.filename) {
+                const filepath = path.join(tempDir, info.filename);
+                const writeStream = fs.createWriteStream(filepath);
+
+                uploads[info.filename] = filepath;
+
+                file.pipe(writeStream);
+
+                const promise = new Promise((resolve, reject) => {
+                    file.on("limit", () => {
+                        writeStream.end();
+                        throw { message: "Uploaded files cannot total more than 6MB" };
+                    });
+
+                    file.on("end", () => {
+                        writeStream.end();
+                    });
+                    writeStream.on("finish", resolve);
+                    writeStream.on("error", reject);
                 });
 
-                file.on("end", () => {
-                    writeStream.end();
-                });
-                writeStream.on("finish", resolve);
-                writeStream.on("error", reject);
-            });
-    
-            writes.push(promise);
-        } else {
-            file.resume();
+                writes.push(promise);
+            } else {
+                file.resume();
+            }
+        } catch (err) {
+            return res.status(400).json({ msg: err.message });
         }
     });
 
     req.busboy.on("finish", async () => {
-        await Promise.all(writes);
+        try {
+            await Promise.all(writes);
 
-        req.body = fields;
+            req.body = fields;
 
-        req.body.imgs = [];
-        for (const file in uploads) {
-            const filename = uploads[file];
+            req.body.imgs = [];
+            for (const file in uploads) {
+                const filename = uploads[file];
 
-            const uncompressed = fs.readFileSync(filename);
-            await sharp(uncompressed).resize({ width: 500 }).toBuffer()
-            .then((data) => {
-                req.body.imgs.push(data);
-            })
-            .catch((err) => {
-                console.log(err);
-                res.status(400).json({ msg: err });
-            });
+                const uncompressed = fs.readFileSync(filename);
+                await sharp(uncompressed).resize({ width: 500 }).toBuffer()
+                .then((data) => {
+                    req.body.imgs.push(data);
+                })
+                .catch((err) => {
+                    throw err;
+                });
 
-            fs.unlinkSync(filename);
+                fs.unlinkSync(filename);
+            }
+
+            next();
+        } catch (err) {
+            return res.status(400).json({ msg: err.message });
         }
-
-        next();
     });
 
     req.busboy.on("error", (err) => {

@@ -11,25 +11,31 @@ const listingValidator = (req, res, next) => {
     const errors = {}
 
     const title = req.body.title;
-    if ((typeof title !== "string") || (title.length > 100) || (title.length === 0)) {
+    if (title !== undefined && ((typeof title !== "string") || (title.length > 100) || (title.length === 0))) {
         status = false;
         errors.title = "Invalid title";
     }
 
     const desc = req.body.desc;
-    if ((typeof desc !== "string") || (desc.length > 1000)) {
+    if (desc !== undefined && ((typeof desc !== "string") || (desc.length > 1000))) {
         status = false;
         errors.desc = "Invalid description";
     }
 
     const category = req.body.category;
-    if (isNaN(parseInt(category)) || (category < 1) || (category > 19)) {
+    if (category !== undefined && (isNaN(parseInt(category)) || (category < 1) || (category > 19))) {
         status = false;
         errors.category = "Invalid category";
     }
 
+    const updateImg = req.body.updateImg;
+    if (updateImg !== undefined && updateImg !== "1" && updateImg !== "0") {
+        status = false;
+        errors.updateImg = "Invalid image update option";
+    }
+
     const price = req.body.price;
-    if (isNaN(parseFloat(price)) || (price < 0)) {
+    if (price !== undefined && (isNaN(parseFloat(price)) || (price < 0))) {
         status = false;
         errors.price = "Invalid price";
     }

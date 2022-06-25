@@ -21,7 +21,9 @@ client.connect().then(() => {
 
 const formParser = require("./form-parser");
 const listingValidator = require("./listing-validator");
+const listingUpdateValidator = require("./listing-update-validator");
 const requestValidator = require("./request-validator");
+const requestUpdateValidator = require("./request-update-validator");
 const imgValidator = require("./img-validator");
 
 const IMG_DIR = "./public/images/listing_imgs";
@@ -80,21 +82,21 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
         // Create image id in the form {EMAIL}+{IMAGE_TITLE}+{TIME}
         const imgID = `${uid}+${req.body.title}+${time.getTime()}`
 
-        try {
-            const listings = db.collection("listings");
-            if (req.body.imgs && req.body.imgs.length > 0) {
-                const imgUrls = [];
-                const imgIDs = [];
+        const listings = db.collection("listings");
+        if (req.body.imgs && req.body.imgs.length > 0) {
+            const imgUrls = [];
+            const imgIDs = [];
 
+            try {
                 for (let i = 0; i < req.body.imgs.length; i++) {
                     fs.open(`${IMG_DIR}/${imgID}-${i}.jpg`, "w", (err, fd) => {
                         if (err) {
-                            res.status(400).json({ msg: err.message });
+                            throw err;
                         }
 
                         fs.write(fd, req.body.imgs[i], 0, (err, written, buffer) => {
                             if (err) {
-                                res.status(400).json({ msg: err.message });
+                                throw err;
                             }
                         });
                         fs.close(fd);
@@ -103,54 +105,49 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
                     imgUrls.push(`${DOMAIN}/images/listing_imgs/${imgID}-${i}.jpg`);
                     imgIDs.push(`${imgID}-${i}`);
                 }
-                
-                await listings.insertOne({
-                    user: uid,
-                    title: req.body.title,
-                    desc: req.body.desc,
-                    category: parseInt(req.body.category),
-                    //location: req.body.location,
-                    //phoneNumber: req.body.phoneNumber,
-                    price: parseFloat(req.body.price).toFixed(2),
-                    imgs: imgUrls,
-                    imgIDs: imgIDs,
-                    timeID: time.getTime()
-                }).then(() => {
-                    res.status(200).json({ msg: "Success" });
-                }).catch((err) => {
-                    if (err) {
-                        res.status(400).json({ msg: err.message });
-                    }
-                });
-            } else {
-                await listings.insertOne({
-                    user: uid,
-                    title: req.body.title,
-                    desc: req.body.desc,
-                    category: parseInt(req.body.category),
-                    //location: req.body.location,
-                    //phoneNumber: req.body.phoneNumber,
-                    price: parseFloat(req.body.price).toFixed(2),
-                    imgs: [],
-                    imgIDs: [],
-                    timeID: time.getTime()
-                }).then(() => {
-                    res.status(200).json({ msg: "Success" });
-                }).catch((err) => {
-                    if (err) {
-                        res.status(400).json({ msg: err.message });
-                    }
-                });
+            } catch (err) {
+                return res.status(400).json({ msg: err.message });
             }
-        } catch (err) {
-            // Send error message on error
-            res.status(400).json({ msg: err.message });   
+            
+            await listings.insertOne({
+                user: uid,
+                title: req.body.title,
+                desc: req.body.desc,
+                category: parseInt(req.body.category),
+                //location: req.body.location,
+                //phoneNumber: req.body.phoneNumber,
+                price: parseFloat(req.body.price).toFixed(2),
+                imgs: imgUrls,
+                imgIDs: imgIDs,
+                timeID: time.getTime()
+            }).then(() => {
+                res.status(200).json({ msg: "Success" });
+            })
+            .catch((err) => {
+                res.status(400).json({ msg: err.message });
+            });
+        } else {
+            await listings.insertOne({
+                user: uid,
+                title: req.body.title,
+                desc: req.body.desc,
+                category: parseInt(req.body.category),
+                //location: req.body.location,
+                //phoneNumber: req.body.phoneNumber,
+                price: parseFloat(req.body.price).toFixed(2),
+                imgs: [],
+                imgIDs: [],
+                timeID: time.getTime()
+            }).then(() => {
+                res.status(200).json({ msg: "Success" });
+            })
+            .catch((err) => {
+                res.status(400).json({ msg: err.message });
+            });
         }
     })
     .catch((err) => {
-        if (err) {
-            res.status(400).json({ msg: err.message });
-        }
+        res.status(400).json({ msg: err.message });
     });
 });
 
@@ -176,7 +173,7 @@ app.post("/create_listing", formParser, listingValidator, imgValidator, async (r
   msg: Message relating to request status
   =================================
 */
-app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req, res) => {
+app.post("/edit_listing", formParser, listingUpdateValidator, imgValidator, async (req, res) => {
     const auth = getAuth();
     auth.verifyIdToken(req.body.idToken)
     .then(async (decodedToken) => {
@@ -204,12 +201,12 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                             for (let i = 0; i < req.body.imgs.length; i++) {
                                 fs.open(`${IMG_DIR}/${imgID}-${i}.jpg`, "w", (err, fd) => {
                                     if (err) {
-                                        res.status(400).json({ msg: err.message });
+                                        throw err;
                                     }
 
                                     fs.write(fd, req.body.imgs[i], (err, written, buffer) => {
                                         if (err) {
-                                            res.status(400).json({ msg: err.message });
+                                            throw err;
                                         }
                                     });
 
@@ -224,55 +221,43 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
                             update.imgIDs = imgIDs;
                         } else {
                             update.imgs = [];
-                            update.imgID = [];
+                            update.imgIDs = [];
                         }
                         
                         oldImgIDs.forEach((id) => {
                             fs.access(`${IMG_DIR}/${id}.jpg`, async (doesntExist) => {
-                                if (doesntExist) {
-                                    await listings.updateOne({ _id: _id }, { $set: update })
-                                        .then(() => {
-                                            res.status(200).json({ msg: "Listing updated" });
-                                        })
-                                        .catch((err) => {
-                                            if (err) {
-                                                res.status(400).json({ msg: err.message });
-                                            }
-                                        });
-                                } else {
+                                if (!doesntExist) {
                                     fs.unlink(`${IMG_DIR}/${id}.jpg`, async (err) => {
                                         if (err) {
-                                            res.status(400).json({ msg: err.message });
+                                            throw err;
                                         }
-
-                                        await listings.updateOne({ _id: _id }, { $set: update })
-                                            .then(() => {
-                                                res.status(200).json({ msg: "Listing updated" });
-                                            })
-                                            .catch((err) => {
-                                                if (err) {
-                                                    res.status(400).json({ msg: err.message });
-                                                }
-                                            });
                                     });
                                 }
                             });
                         });
+                        
+                        await listings.updateOne({ _id: _id }, { $set: update })
+                        .then(() => {
+                            res.status(200).json({ msg: "Listing updated" });
+                        })
+                        .catch((err) => {
+                            throw err;
+                        });
                     } catch (err) {
-                        if (err) {
-                            res.status(400).json({ msg: err.message });
-                        }
+                        res.status(400).json({ msg: err.message });
                     }
                 } else {
-                    await listings.updateOne({ _id: _id }, { $set: update })
-                    .then(() => {
-                        res.status(200).json({ msg: "Listing updated" });
-                    })
-                    .catch((err) => {
-                        if (err) {
-                            res.status(400).json({ msg: err.message });
-                        }
-                    });
+                    try {
+                        await listings.updateOne({ _id: _id }, { $set: update })
+                        .then(() => {
+                            res.status(200).json({ msg: "Listing updated" });
+                        })
+                        .catch((err) => {
+                            throw err;
+                        });
+                    } catch (err) {
+                        res.status(400).json({ msg: err.message });
+                    }
                 }
             } else {
                 res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
@@ -282,9 +267,7 @@ app.post("/edit_listing", formParser, listingValidator, imgValidator, async (req
         }
     })
     .catch((err) => {
-        if (err) {
-            res.status(400).json({ msg: err.message });
-        }
+        res.status(400).json({ msg: err.message });
     });
 });
 
@@ -317,19 +300,27 @@ app.post("/delete_listing", formParser, async (req, res) => {
 
         if(listing) {
             if (listing.user == uid) {
-                if (listing.imgIDs && listing.imgIDs.length > 0) {
-                    listing.imgIDs.forEach((id) => {
-                        fs.unlink(`${IMG_DIR}/${id}.jpg`, (err) => {
-                            if (err) {
-                                res.status(400).json({ msg: err.message });
-                            }
+                try {
+                    if (listing.imgIDs && listing.imgIDs.length > 0) {
+                        listing.imgIDs.forEach((id) => {
+                            fs.unlink(`${IMG_DIR}/${id}.jpg`, (err) => {
+                                if (err) {
+                                    throw err;
+                                }
+                            });
                         });
-                    });
+                    }
+                } catch (err) {
+                    return res.status(400).json({ msg: err.message });
                 }
 
-                await listings.deleteOne({ _id: _id });
-
-                res.status(200).json({ msg: "Listing deleted" });
+                await listings.deleteOne({ _id: _id })
+                .then(() => {
+                    res.status(200).json({ msg: "Listing deleted" });
+                })
+                .catch((err) => {
+                    res.status(400).json({ msg: err.message });
+                });
             } else {
                 res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
             }
@@ -414,7 +405,7 @@ app.post("/create_request", formParser, requestValidator, async (req, res) => {
   msg: Message relating to request status
   =================================
 */
-app.post("/edit_request", formParser, requestValidator, async (req, res) => {
+app.post("/edit_request", formParser, requestUpdateValidator, async (req, res) => {
     const auth = getAuth();
 
     auth.verifyIdToken(req.body.idToken)
@@ -434,9 +425,7 @@ app.post("/edit_request", formParser, requestValidator, async (req, res) => {
                     res.status(200).json({ msg: "Request updated" });
                 })
                 .catch((err) => {
-                    if (err) {
-                        res.status(400).json({ msg: err.message });
-                    }
+                    res.status(400).json({ msg: err.message });
                 });
             } else {
                 res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
@@ -481,9 +470,13 @@ app.post("/delete_request", formParser, async (req, res) => {
 
         if (request) {
             if (uid === request.user) {
-                await requests.deleteOne({ _id: _id });
-
-                res.status(200).json({ msg: "Request deleted" });
+                await requests.deleteOne({ _id: _id })
+                .then(() => {
+                    res.status(200).json({ msg: "Request deleted" });
+                })
+                .catch((err) => {
+                    res.status(400).json({ msg: err.message });
+                });
             } else {
                 res.status(400).json({ msg: "Permission denied (auth/permission-denied)" });
             }
@@ -492,9 +485,7 @@ app.post("/delete_request", formParser, async (req, res) => {
         }
     })
     .catch((err) => {
-        if (err) {
-            res.status(400).json({ msg: err.message });
-        }
+        res.status(400).json({ msg: err.message });
     });
 });
 
@@ -516,7 +507,7 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
             });
 
             if (!convo) {
-                res.status(200).send({ unread: [] });
+                return res.status(200).send({ unread: [] });
             }
 
             const unread = convo.messages;
@@ -527,9 +518,13 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
             }, { $set: {
                 unread: false,
                 messages: []
-            }});
-
-            res.status(200).send({ unread: unread });
+            }})
+            .then(() => {
+                res.status(200).send({ unread: unread });
+            })
+            .catch((err) => {
+                res.status(400).json({ msg: err.message });
+            });
         })
         .catch((err) => {
             if (err) {

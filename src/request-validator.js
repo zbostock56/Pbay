@@ -10,19 +10,19 @@ const requestValidator = (req, res, next) => {
     const errors = {};
 
     const title = req.body.title;
-    if (title !== undefined && ((typeof title !== "string") || (title.length > 100) || (title.length === 0))) {
+    if ((typeof title !== "string") || (title.length > 100) || (title.length === 0)) {
         status = false;
         errors.title = "Invalid title";
     }
     
     const desc = req.body.desc;
-    if (desc !== undefined && ((typeof desc !== "string") || (desc.length > 1000))) {
+    if ((typeof desc !== "string") || (desc.length > 1000)) {
         status = false;
         errors.desc = "Invalid description";
     }
 
     const category = req.body.category;
-    if (category !== undefined && (isNaN(parseInt(category)) || (category < 1) || (category > 19))) {
+    if (isNaN(parseInt(category)) || (category < 1) || (category > 19)) {
         status = false;
         errors.category = "Invalid category";
     }
@@ -34,7 +34,7 @@ const requestValidator = (req, res, next) => {
         }
         errMsg = errMsg.substring(0, errMsg.length - 1);
 
-        res.status(400).json({ msg: errMsg });
+        return res.status(400).json({ msg: errMsg });
     } else {
         next();
     }

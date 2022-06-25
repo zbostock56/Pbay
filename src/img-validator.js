@@ -9,7 +9,7 @@ const imgValidator = (req, res, next) => {
     let status = true;
     const errors = {};
 
-    if (req.body.imgs && Array.isArray(req.body.imgs)) {
+    if (Array.isArray(req.body.imgs)) {
         if (req.body.imgs.length > 3) {
             status = false;
             errors.imgs = "Cannot upload more than 3 images";
@@ -22,7 +22,7 @@ const imgValidator = (req, res, next) => {
                 break;
             }
         }
-    } else if (req.body.imgs) {
+    } else {
         status = false;
         errors.imgs = "Invalid image input";
     }
@@ -34,7 +34,7 @@ const imgValidator = (req, res, next) => {
         }
         errMsg = errMsg.substring(0, errMsg.length - 1);
 
-        res.status(400).json({ msg: errMsg });
+        return res.status(400).json({ msg: errMsg });
     } else {
         next();
     }
