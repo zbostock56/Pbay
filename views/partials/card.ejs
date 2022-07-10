@@ -12,7 +12,7 @@
   A card instance
   ===========================
 -->
-<div class="card rounded-3 shadow border-dark mb-3">
+<div id="card_<%= listing._id %>" class="card rounded-3 shadow border-dark mb-3">
   <div
     class="card-header"
     style="
@@ -32,7 +32,7 @@
           <a class="btn btn-primary btn-sm" role="button" href="/home/my_postings/edit_listing/<%= listing._id %>">
             Edit listing
           </a>
-          <button id="<%= listing._id %>" class="delete_listing btn btn-primary btn-sm" role="button">
+          <button id="delete_<%= listing._id %>" class="delete_listing btn btn-primary btn-sm" role="button">
             Delete listing
           </button>
         <% } %> 
@@ -108,7 +108,7 @@
         See more info
       </button>
 
-      <a class="btn btn-primary btn-sm message_button message_<%= listing.user %>" role="button" href="/chat/<%= listing.user %>">
+      <a id="message_button_<%= listing._id %>" class="btn btn-primary btn-sm message_button message_<%= listing.user %>" role="button" href="/chat/<%= listing.user %>">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"

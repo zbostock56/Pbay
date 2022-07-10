@@ -28,6 +28,8 @@ const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 let db;
 
+const MESSAGE_LIMIT = 160;
+
 client.connect().then(() => {
     db = client.db("Pbay");
     console.log(`Connected to database at: ${url}`);
@@ -143,8 +145,8 @@ io.on("connection", (socket) => {
                     }, { $set: { unread: false }});
 
                     // Send message
-                    if (msg.length > 80) {
-                        io.emit("error", { msg: "Message cannot exceed 80 characters!" });
+                    if (msg.length > MESSAGE_LIMIT) {
+                        io.emit("error", { msg: `Message cannot exceed ${MESSAGE_LIMIT} characters!` });
                     } else if (connected_users.includes(`${target}+${decodedToken.uid}`)) {
                         io.emit("message", { target: target, from: decodedToken.uid, from_name: decodedToken.name, msg: msg, time: (new Date()).getTime() });
                         io.emit("ping", { target: target, from: decodedToken.uid, from_name: decodedToken.name, msg: msg, time: (new Date).getTime() });

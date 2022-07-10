@@ -18,8 +18,15 @@ const fb = initializeApp(firebaseConfig);
 let socket = undefined;
 const messages = [];
 
-const DOMAIN = "https://www.pbayshop.com";
-// const DOMAIN = "http://localhost:3000";
+// const DOMAIN = "https://www.pbayshop.com";
+const DOMAIN = "http://localhost:3000";
+
+let nextSearchIndex = 0;
+let nextListingIndex = 0;
+let nextRequestIndex = 0;
+
+const listingBuffer = [];
+const requestBuffer = [];
 
 const signIn = async () => {
     const auth = getAuth(fb);
@@ -516,6 +523,8 @@ if (document.getElementById("filter_menu")) {
 
         listing_display.style.display="block";
         request_display.style.display="block";
+
+        document.getElementById("search-bar").value = "";
     });
 
     listing_only.addEventListener("click", () => {
@@ -525,6 +534,8 @@ if (document.getElementById("filter_menu")) {
 
         listing_display.style.display = "block";
         request_display.style.display = "none";
+
+        document.getElementById("search-bar").value = "";
     });
 
     request_only.addEventListener("click", () => {
@@ -534,7 +545,381 @@ if (document.getElementById("filter_menu")) {
 
         listing_display.style.display = "none";
         request_display.style.display = "block";
+
+        document.getElementById("search-bar").value = "";
     })
+
+    let prev = "";
+    setInterval(async () => {
+        if (document.getElementById("search-list").classList.contains("invisible")) {
+            document.getElementById("search-list").classList.remove("invisible");
+        }
+
+        const query = document.getElementById("search-bar").value.toLowerCase();
+        if (query !== prev) {
+            const list = document.getElementById("search-list");
+            if (query !== "") {
+                while (list.lastChild) {
+                    list.removeChild(list.lastChild);
+                }
+
+                let listingCount = 0;
+                for (let i = 0; i < listingBuffer.length; i++) {
+                    if (listingBuffer[i].title.toLowerCase().includes(query)) {
+                        list.innerHTML += `<a href="#card_${listingBuffer[i].id}" class="list-group-item list-group-item-action">Listings - ${listingBuffer[i].title} - ${listingBuffer[i].category}</a>`;
+                        listingCount++;
+                    }
+
+                    if (listingCount === 5) {
+                        break;
+                    }
+                }
+
+                let requestCount = 0;
+                for (let i = 0; i < requestBuffer.length; i++) {
+                    if (requestBuffer[i].title.toLowerCase().includes(query)) {
+                        list.innerHTML += `<a href="#card_${requestBuffer[i].id}" class="list-group-item list-group-item-action">Requests - ${requestBuffer[i].title} - ${requestBuffer[i].category}</a>`;
+                        requestCount++;
+                    }
+
+                    if (requestCount === 5) {
+                        break;
+                    }
+                }
+            } else {
+                while (list.lastChild) {
+                    list.removeChild(list.lastChild);
+                }
+            }
+        }
+        prev = query;
+    }, 100);
+
+    document.getElementById("load-more").addEventListener("click", async () => {
+        console.log("hit");
+        if (nextSearchIndex !== -1) {
+            const query = document.getElementById("search-bar").value.toLowerCase();
+            const list = document.getElementById("search-list");
+            
+            let queryStr = "?";
+            if (document.getElementById("listing_only").classList.contains("active")) {
+                queryStr += "type=listings";
+            } else if (document.getElementById("request_only").classList.contains("active")) {
+                queryStr += "type=requests";
+            }
+            
+            if (document.getElementById("category_page")) {
+                if (queryStr === "?") {
+                    queryStr += `category=${document.getElementById("listing_display").classList[0]}`;
+                } else {
+                    queryStr += `&category=${document.getElementById("listing_display").classList[0]}`;
+                }
+            }
+
+            if (document.getElementById("user_page")) {
+                const auth = getAuth(fb);
+
+                await auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        const idToken = await user.getIdToken();
+
+                        axios({
+                            method: "get",
+                            url: `${DOMAIN}/search_user/${idToken}/${query}/${nextSearchIndex}${queryStr}`
+                        })
+                        .then((res) => {
+                            const nextIndex = res.data.nextIndex;
+                            const records = res.data.responses;
+
+                            records.forEach((record) => {
+                                list.innerHTML = record + list.innerHTML;
+                            });
+
+                            if (nextIndex != -1) {
+                                document.getElementById("load-more").style.display = "block";
+                                nextSearchIndex = nextIndex;
+                            } else {
+                                document.getElementById("load-more").style.display = "none";
+                            }
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                            if (err) {
+                                if (document.getElementById("err-msg")) {
+                                    document.getElementById("err-msg").innerHTML = err.msg;
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                axios({
+                    method: "get",
+                    url: `${DOMAIN}/search/${query}/${nextSearchIndex}${queryStr}`
+                })
+                .then((res) => {
+                    const nextIndex = res.data.nextIndex;
+                    const records = res.data.responses;
+
+                    records.forEach((record) => {
+                        list.innerHTML = record + list.innerHTML;
+                    });
+
+                    if (nextIndex != -1) {
+                        document.getElementById("load-more").style.display = "block";
+                        nextSearchIndex = nextIndex;
+                    } else {
+                        document.getElementById("load-more").style.display = "none";
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    if (err) {
+                        if (document.getElementById("err-msg")) {
+                            document.getElementById("err-msg").innerHTML = err.msg;
+                        }
+                    }
+                });
+            }
+        }
+    });
+}
+
+if (document.getElementById("home_page") || document.getElementById("category_page") || document.getElementById("user_page")) {
+    const auth = getAuth(fb);
+
+    await auth.onAuthStateChanged(async (user) => {
+        let routes = [];
+        if (document.getElementById("user_page")) {
+            if (user) {
+                const idToken = await user.getIdToken();
+                routes[0] = `user_listings/${idToken}`;
+                routes[1] = `user_requests/${idToken}`;
+            } else {
+                window.location = "/login";
+            }
+        } else {
+            routes[0] = "listings";
+            routes[1] = "requests";
+        }
+
+        let queryStr = "?";
+        if (document.getElementById("category_page")) {
+            queryStr += `category=${document.getElementById("listing_display").classList[0]}`;
+        }
+
+        const listingList = document.getElementById("cards");
+        axios({
+            method: "get",
+            url: `${DOMAIN}/${routes[0]}/${nextListingIndex}${queryStr}`
+        })
+        .then((res) => {
+            const listings = res.data.listings;
+            const nextIndex = res.data.nextIndex;
+
+            listings.forEach((listing) => {
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("col");
+                wrapper.style.paddingBottom = "3vh";
+                wrapper.innerHTML = listing.html;
+
+                listingList.appendChild(wrapper);
+
+                if (user) {
+                    if (document.getElementById(`delete_${listing.id}`)) {
+                        document.getElementById(`delete_${listing.id}`).addEventListener("click", () => {
+                            deleteListing(listing.id);
+                        });
+                    }
+
+                    if (document.getElementById(`message_button_${listing.id}`) &&
+                        document.getElementById(`message_button_${listing.id}`).classList.contains(`message_${user.uid}`)) {
+                        document.getElementById(`message_button_${listing.id}`).style.display = "none";
+                    }
+                }
+
+                listingBuffer.push({ id: listing.id, title: listing.title, category: listing.category });
+            });
+
+            if (listings.length > 0) {
+                document.getElementById("no_listings").style.display = "none";
+            }
+
+            if (nextIndex === -1) {
+                nextListingIndex = -1;
+            } else {
+                nextListingIndex = nextIndex;
+                document.getElementById("load_more_listings").style.display = "block";
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            if (err) {
+                if (document.getElementById("err-msg")) {
+                    document.getElementById("err-msg").innerHTML = err.msg;
+                }
+            }
+        });
+
+        const requestList = document.getElementById("request_cards");
+        axios({
+            method: "get",
+            url: `${DOMAIN}/${routes[1]}/${nextRequestIndex}${queryStr}`
+        })
+        .then((res) => {
+            const requests = res.data.requests;
+            const nextIndex = res.data.nextIndex;
+
+            requests.forEach((request) => {
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("col");
+                wrapper.style.paddingBottom = "3vh";
+                wrapper.innerHTML = request.html;
+
+                requestList.appendChild(wrapper);
+
+                if (user) {
+                    if (document.getElementById(`delete_${request.id}`)) {
+                        document.getElementById(`delete_${request.id}`).addEventListener("click", () => {
+                            deleteRequest(request.id);
+                        });
+                    }
+
+                    if (document.getElementById(`message_button_${request.id}`) && 
+                        document.getElementById(`message_button_${request.id}`).classList.contains(`message_${user.uid}`)) {
+                        document.getElementById(`message_button_${request.id}`).style.display = "none";
+                    }
+                }
+
+                requestBuffer.push({ id: request.id, title: request.title, category: request.category });
+            });
+
+            if (requests.length > 0) {
+                document.getElementById("no_requests").style.display = "none";
+            }
+
+            if (nextIndex === -1) {
+                nextRequestIndex = -1;
+            } else {
+                nextRequestIndex = nextIndex;
+                document.getElementById("load_more_requests").style.display = "block";
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            if (err) {
+                if (document.getElementById("err-msg")) {
+                    document.getElementById("err-msg").innerHTML = err.msg;
+                }
+            }
+        });
+
+        document.getElementById("load_more_listings").addEventListener("click", () => {
+            if (nextListingIndex !== -1) {
+                const listingList = document.getElementById("cards");
+                axios({
+                    method: "get",
+                    url: `${DOMAIN}/${routes[0]}/${nextListingIndex}${queryStr}`
+                })
+                .then((res) => {
+                    const listings = res.data.listings;
+                    const nextIndex = res.data.nextIndex;
+
+                    listings.forEach((listing) => {
+                        const wrapper = document.createElement("div");
+                        wrapper.classList.add("col");
+                        wrapper.style.paddingBottom = "3vh";
+                        wrapper.innerHTML = listing.html;
+
+                        listingList.appendChild(wrapper);
+
+                        if (user) {
+                            if (document.getElementById(`delete_${listing.id}`)) {
+                                document.getElementById(`delete_${listing.id}`).addEventListener("click", () => {
+                                    deleteListing(listing.id);
+                                });
+                            }
+
+                            if (document.getElementById(`message_button_${listing.id}`) &&
+                                document.getElementById(`message_button_${listing.id}`).classList.contains(`message_${user.uid}`)) {
+                                document.getElementById(`message_button_${listing.id}`).style.display = "none";
+                            }
+                        }
+
+                        listingBuffer.push({ id: listing.id, title: listing.title, category: listing.category });
+                    });
+
+                    if (nextIndex === -1) {
+                        nextListingIndex = -1;
+                        document.getElementById("load_more_listings").style.display = "none";
+                    } else {
+                        nextListingIndex = nextIndex;
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    if (err) {
+                        if (document.getElementById("err-msg")) {
+                            document.getElementById("err-msg").innerHTML = err.msg;
+                        }
+                    }
+                });
+            }
+        });
+
+        document.getElementById("load_more_requests").addEventListener("click", () => {
+            if (nextRequestIndex !== -1) {
+                const requestList = document.getElementById("request_cards");
+                axios({
+                    method: "get",
+                    url: `${DOMAIN}/${routes[1]}/${nextRequestIndex}${queryStr}`
+                })
+                .then((res) => {
+                    const requests = res.data.requests;
+                    const nextIndex = res.data.nextIndex;
+
+                    requests.forEach((request) => {
+                        const wrapper = document.createElement("div");
+                        wrapper.classList.add("col");
+                        wrapper.style.paddingBottom = "3vh";
+                        wrapper.innerHTML = request.html;
+
+                        requestList.appendChild(wrapper);
+
+                        if (user) {
+                            if (document.getElementById(`delete_${request.id}`)) {
+                                document.getElementById(`delete_${request.id}`).addEventListener("click", () => {
+                                    deleteRequest(request.id);
+                                });
+                            }
+
+                            if (document.getElementById(`message_button_${request.id}`) && 
+                                document.getElementById(`message_button_${request.id}`).classList.contains(`message_${user.uid}`)) {
+                                document.getElementById(`message_button_${request.id}`).style.display = "none";
+                            }
+                        }
+
+                        requestBuffer.push({ id: request.id, title: request.title, category: request.category });
+                    });
+                    
+                    if (nextIndex === -1) {
+                        nextRequestIndex = -1;
+                        document.getElementById("load_more_requests").style.display = "none";
+                    } else {
+                        nextRequestIndex = nextIndex;
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    if (err) {
+                        if (document.getElementById("err-msg")) {
+                            document.getElementById("err-msg").innerHTML = err.msg;
+                        }
+                    }
+                });
+            }
+        });
+    });
 }
 
 if (document.getElementById("submit_listing")) {
@@ -563,24 +948,6 @@ if (document.getElementById("submit_edit")) {
     await auth.onAuthStateChanged((user) => {
         if (user) {
             document.getElementById("submit_edit").addEventListener("click", editListing);
-        } else {
-            window.location = "/login";
-        }
-    });
-}
-
-if (document.getElementsByClassName("delete_listing").length > 0) {
-    const auth = getAuth(fb);
-    // if (!connected) {
-    //     connectAuthEmulator(auth, "http://localhost:9099");
-    //     connected = true;
-    // }
-
-    await auth.onAuthStateChanged((user) => {
-        if (user) {
-            Array.from(document.getElementsByClassName("delete_listing")).forEach((listing) => {
-                listing.addEventListener("click", () => { deleteListing(listing.id) });
-            });
         } else {
             window.location = "/login";
         }
@@ -619,24 +986,6 @@ if (document.getElementById("edit_request")) {
     });
 }
 
-if (document.getElementsByClassName("delete_request").length > 0) {
-    const auth = getAuth(fb);
-    // if (!connected) {
-    //     connectAuthEmulator(auth, "http://localhost:9099");
-    //     connected = true;
-    // }
-
-    await auth.onAuthStateChanged((user) => {
-        if (user) {
-            Array.from(document.getElementsByClassName("delete_request")).forEach((request) => {
-                request.addEventListener("click", () => { deleteRequest(request.id) });
-            });
-        } else {
-            window.location = "/login";
-        }
-    });
-}
-
 if (document.getElementById("chat")) {
     const path = window.location.pathname;
     const target = path.substring(6);
@@ -654,22 +1003,6 @@ if (document.getElementById("chat")) {
         if (e.code === "Enter" && document.getElementById("msg-body").value !== "") {
             socket.emit("message", target, document.getElementById("msg-body").value);
             document.getElementById("msg-body").value = "";
-        }
-    });
-}
-
-if (document.getElementsByClassName("message_button").length > 0) {
-    const auth = getAuth(fb);
-
-    await auth.onAuthStateChanged((user) => {
-        const buttons = document.getElementsByClassName("message_button");
-
-        if (user) {
-            for (let i = 0; i < buttons.length; i++) {
-                if (buttons[i].classList.contains(`message_${user.uid}`)) {
-                    buttons[i].style.display = "none";
-                }
-            }
         }
     });
 }

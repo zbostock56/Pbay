@@ -19,6 +19,7 @@ client.connect().then(() => {
     console.log(err);
 });
 
+const ejs = require("ejs");
 const formParser = require("./form-parser");
 const listingValidator = require("./listing-validator");
 const listingUpdateValidator = require("./listing-update-validator");
@@ -32,8 +33,10 @@ const CATEGORIES = [ "appliances", "beauty", "books", "car_supplies", "clothing"
                      "furniture", "health", "home_decor", "jewelry", "kitchenware", "media", "outdoor_travel", "pet", 
                      "office_supplies", "sporting", "toys", "other" ];
 
-const DOMAIN = "https://www.pbayshop.com";
-// const DOMAIN = "http://localhost:3000";
+// const DOMAIN = "https://www.pbayshop.com";
+const DOMAIN = "http://localhost:3000";
+
+const LOAD_INCREMENT = 10;
 
 // DOC TEMPLATE
 /*
@@ -539,7 +542,477 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
     })
 });
 
-// ========================== REPORTING =========================
+// =========================== SEARCH ===========================
+
+/*
+  ========= GET /search ==========
+  DESC: Given a search query, returns a list of 0 - 10 results
+  with a similar title
+
+  PARAMETERS:
+   - idToken (String, required): authentication token of current user
+   - query (String, required): search query
+   - start (Integer, required): index to start at in the overall list of
+     matching queries
+
+  QUERIES:
+   - type (String, optional): type of record to search for (listing or request)
+   - category (String, optional): category of record to search for (must be one
+     of categories in CATEGORIES array)
+
+  RETURNS:
+  status:
+   - 200: success
+   - 400: failure
+
+  msg: Status message
+
+  responses: Array of response objects matching the given query, with each object
+  containing the record's title and category
+
+  nextIndex: the beginning index of the next batch of records to be send or -1 
+  if no more records to be sent
+  ================================
+*/
+app.get("/search/:query/:start", async (req, res) => {
+    if (isNaN(parseInt(req.params.start))) {
+        return res.status(400).send({ msg: "Invalid index" });
+    }
+
+    const type = req.query.type;
+    const category = req.query.category;
+    const query = req.params.query;
+    const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
+
+    let nextIndex = -1;
+    const responses = [];
+
+    const dbQuery = genDbQuery({ category: category, query: query });
+
+    if (type && (type === "listings" || type === "requests")) {
+        const collection = await db.collection(type).find(dbQuery).toArray();
+
+        let upperLimit = 0;
+        if (collection.length > startingIndex + 10) {
+            upperLimit = startingIndex + 10;
+            nextIndex = startingIndex + 10;
+        } else {
+            upperLimit = collection.length;
+        }
+
+        for (let i = startingIndex; i < upperLimit; i++) {
+            responses.push(`<a href="#card_${collection[i]._id}" class="list-group-item list-group-item-action">${type} - ${collection[i].title} - ${CATEGORIES[collection[i].category - 1]}</a>`);
+        }
+    } else {
+        const listings = await db.collection("listings").find(dbQuery).toArray();
+        const requests = await db.collection("requests").find(dbQuery).toArray();
+
+        let numListings = 0;
+        let numRequests = 0;
+        if (listings.length > startingIndex + 5) {
+            numListings = startingIndex + 5;
+            nextIndex = startingIndex + 5;
+        } else {
+            numListings = listings.length;
+        }
+        if (requests.length > startingIndex + 5) {
+            numRequests = startingIndex + 5;
+            nextIndex = startingIndex + 5;
+        } else {
+            numRequests = requests.length;
+        }
+
+        for (let i = startingIndex; i < numListings; i++) {
+            responses.push(`<a href="#card_${listings[i]._id}" class="list-group-item list-group-item-action">listings - ${listings[i].title} - ${CATEGORIES[listings[i].category - 1]}</a>`);
+        }
+        for (let i = startingIndex; i < numRequests; i++) {
+            responses.push(`<a href="#card_${requests[i]._id}" class="list-group-item list-group-item-action">requests - ${requests[i].title} - ${CATEGORIES[requests[i].category - 1]}</a>`);
+        }
+    }
+
+    res.status(200).send({ responses: responses, nextIndex: nextIndex });
+});
+
+/*
+  ========= GET /search_user ==========
+  DESC: Given a search query, returns a list of 0 - 10 results
+  with a similar title belonging to the given user
+
+  PARAMETERS:
+   - idToken (String, required): authentication token of current user
+   - query (String, required): search query
+   - start (Integer, required): index to start at in the overall list of
+     matching queries
+
+  QUERIES:
+   - type (String, optional): type of record to search for (listing or request)
+   - category (String, optional): category of record to search for (must be one
+     of categories in CATEGORIES array)
+
+  RETURNS:
+  status:
+   - 200: success
+   - 400: failure
+
+  msg: Status message
+
+  responses: Array of response objects matching the given query, with each object
+  containing the record's title and category
+
+  nextIndex: the beginning index of the next batch of records to be send or -1 
+  if no more records to be sent
+  ================================
+*/
+app.get("/search_user/:idToken/:query/:start", (req, res) => {
+    const auth = getAuth();
+
+    auth.verifyIdToken(req.params.idToken)
+    .then(async (decodedToken) => {
+        if (isNaN(parseInt(req.params.start))) {
+            return res.status(400).send({ msg: "Invalid index" });
+        }
+    
+        const uid = decodedToken.uid;
+        const type = req.query.type;
+        const category = req.query.category;
+        const query = req.params.query;
+        const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
+
+        let nextIndex = -1;
+        let responses = [];
+
+        const dbQuery = genDbQuery({ uid: uid, category: category, query: query });
+
+        if (type && (type === "listings" || type === "requests")) {
+            const collection = await db.collection(type).find(dbQuery).toArray();
+
+            let upperLimit = 0;
+            if (collection.length > startingIndex + 10) {
+                upperLimit = startingIndex + 10;
+                nextIndex = startingIndex + 10;
+            } else {
+                upperLimit = collection.length;
+            }
+
+            for (let i = startingIndex; i < upperLimit; i++) {
+                responses.push(`<a href="#card_${collection[i]._id}" class="list-group-item list-group-item-action">${type} - ${collection[i].title} - ${CATEGORIES[collection[i].category - 1]}</a>`);
+            }
+        } else {
+            const listings = await db.collection("listings").find(dbQuery).toArray();
+            const requests = await db.collection("requests").find(dbQuery).toArray();
+
+            let numListings = 0;
+            let numRequests = 0;
+            if (listings.length > startingIndex + 5) {
+                numListings = startingIndex + 5;
+                nextIndex = startingIndex + 5;
+            } else {
+                numListings = listings.length;
+            }
+            if (requests.length > startingIndex + 5) {
+                numRequests = startingIndex + 5;
+                nextIndex = startingIndex + 5;
+            } else {
+                numRequests = requests.length;
+            }
+
+            for (let i = startingIndex; i < numListings; i++) {
+                responses.push(`<a href="#card_${listings[i]._id}" class="list-group-item list-group-item-action">listings - ${listings[i].title} - ${CATEGORIES[listings[i].category - 1]}</a>`);
+            }
+            for (let i = startingIndex; i < numRequests; i++) {
+                responses.push(`<a href="#card_${requests[i]._id}" class="list-group-item list-group-item-action">requests - ${requests[i].title} - ${CATEGORIES[requests[i].category - 1]}</a>`);
+            }
+        }
+
+        res.status(200).send({ responses: responses, nextIndex: nextIndex });
+    })
+    .catch((err) => {
+        if (err) {
+            res.status(400).send({ msg: err.message });
+        }
+    })
+});
+
+// ==================== INCREMENTAL POPULATION ====================
+
+/*
+  ========== GET /listtings ==========
+  DESC: Returns a list of 0 - 10 listings starting at a certain position
+  in the master listing list
+
+  PARAMETERS:
+   - Start (integer, required): index to start at in master list
+
+  QUERIES:
+   - category (String, optional): category to search through
+
+  RETURNS:
+  status:
+   - 200: success
+   - 400: failure
+
+  msg: Status message
+
+  listings: listing object list
+  
+  nextIndex: the beginning index of the next batch of records to be send or -1 
+  if no more records to be sent
+*/
+app.get("/listings/:start", async (req, res) => {
+    let err = "";
+    if (isNaN(parseInt(req.params.start))) {
+        return res.status(400).send({ msg: "Invalid index" });
+    }
+
+    const category = req.query.category;
+    const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
+
+    let listings = [];
+    if (category && CATEGORIES.indexOf(category) !== -1) {
+        listings = await db.collection("listings").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
+    } else {
+        listings = await db.collection("listings").find().toArray();
+    }
+
+    let nextIndex = -1;
+    const responses = [];
+    let upperLimit = 0;
+    if (listings.length > startingIndex + LOAD_INCREMENT) {
+        upperLimit = startingIndex + LOAD_INCREMENT;
+        nextIndex = startingIndex + LOAD_INCREMENT;
+    } else {
+        upperLimit = listings.length;
+    }
+    listings.sort(compFunc);
+
+    for (let i = startingIndex; i < upperLimit; i++) {
+        ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listings[i], editable: false, CATEGORIES: CATEGORIES }, (err, str) => {
+            if (err) {
+                err = err.message;
+            }
+
+            responses.push({ id: listings[i]._id, title: listings[i].title, category: CATEGORIES[listings[i].category - 1], html: str });
+        });
+    }
+
+    if (err !== "") {
+        res.status(400).json({ msg: err });
+    }  else {
+        res.status(200).send({ listings: responses, nextIndex: nextIndex });
+    }
+});
+
+/*
+  ========== GET /listtings ==========
+  DESC: Returns a list of 0 - 10 listings starting at a certain position
+  in the master listing list that belong to the given user
+
+  PARAMETERS:
+   - idToken (String, required): Autnentication token of current user
+   - Start (integer, required): index to start at in master list
+
+  QUERIES:
+   - category (String, optional): category to search through
+
+  RETURNS:
+  status:
+   - 200: success
+   - 400: failure
+
+  msg: Status message
+
+  listings: listing object list
+
+  nextIndex: the beginning index of the next batch of records to be send or -1 
+  if no more records to be sent
+*/
+app.get("/user_listings/:idToken/:start", (req, res) => {
+    const auth = getAuth();
+
+    auth.verifyIdToken(req.params.idToken)
+    .then(async (decodedToken) => {
+        if (isNaN(parseInt(req.params.start))) {
+            return res.status(400).send({ msg: "Invalid index" });
+        }
+    
+        const uid = decodedToken.uid;
+        const category = req.query.category;
+        const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
+
+        let listings = [];
+        if (category && CATEGORIES.indexOf(category) !== -1) {
+            listings = await db.collection("listings").find({ user: uid, category: CATEGORIES.indexOf(category) + 1 }).toArray();
+        } else {
+            listings = await db.collection("listings").find({ user: uid }).toArray();
+        }
+        listings.sort(compFunc);
+
+        let nextIndex = -1;
+        const responses = [];
+        let upperLimit = 0;
+        if (listings.length > startingIndex + LOAD_INCREMENT) {
+            upperLimit = startingIndex + LOAD_INCREMENT;
+            nextIndex = startingIndex + LOAD_INCREMENT;
+        } else {
+            upperLimit = listings.length;
+        }
+
+        for (let i = startingIndex; i < upperLimit; i++) {
+            ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listings[i], editable: true, CATEGORIES: CATEGORIES }, (err, str) => {
+                if (err) {
+                    err = err.message;
+                }
+
+                responses.push({ id: listings[i]._id, title: listings[i].title, category: CATEGORIES[listings[i].category - 1], html: str });
+            });
+        }
+
+        res.status(200).send({ listings: responses, nextIndex: nextIndex });
+    })
+    .catch((err) => {
+        if (err) {
+            res.status(400).send({ msg: err.message });
+        }
+    });
+});
+
+/*
+  ========== GET /requests ==========
+  DESC: Returns a list of 0 - 10 requests starting at a certain position
+  in the master request list
+
+  PARAMETERS:
+   - Start (integer, required): index to start at in master list
+
+  QUERIES:
+   - category (String, optional): category to search through
+
+  RETURNS:
+  status:
+   - 200: success
+   - 400: failure
+
+  msg: Status message
+
+  requests: request object list
+  
+  nextIndex: the beginning index of the next batch of records to be send or -1 
+  if no more records to be sent
+*/
+app.get("/requests/:start", async (req, res) => {
+    if (isNaN(parseInt(req.params.start))) {
+        return res.status(400).send({ msg: "Invalid index" });
+    }
+
+    const category = req.query.category;
+    const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
+
+    let requests = [];
+    if (category && CATEGORIES.indexOf(category) !== -1) {
+        requests = await db.collection("requests").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
+    } else {
+        requests = await db.collection("requests").find().toArray();
+    }
+    requests.sort(compFunc);
+
+    let nextIndex = -1;
+    const responses = [];
+    let upperLimit = 0;
+    if (requests.length > startingIndex + LOAD_INCREMENT) {
+        upperLimit = startingIndex + LOAD_INCREMENT;
+        nextIndex = startingIndex + LOAD_INCREMENT;
+    } else {
+        upperLimit = requests.length;
+    }
+
+    for (let i = startingIndex; i < upperLimit; i++) {
+        ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: requests[i], editable: false, CATEGORIES: CATEGORIES }, (err, str) => {
+            if (err) {
+                err = err.message;
+            }
+
+            responses.push({ id: requests[i]._id, title: requests[i].title, category: CATEGORIES[requests[i].category - 1], html: str });
+        });
+    }
+
+    res.status(200).send({ requests: responses, nextIndex: nextIndex });
+});
+
+/*
+  ========== GET /requests ==========
+  DESC: Returns a list of 0 - 10 requests starting at a certain position
+  in the master request list belonging to the given user
+
+  PARAMETERS:
+   - Start (integer, required): index to start at in master list
+
+  QUERIES:
+   - idToken (String, required): Autnentication token of current user
+   - category (String, optional): category to search through
+
+  RETURNS:
+  status:
+   - 200: success
+   - 400: failure
+
+  msg: Status message
+
+  requests: request object list
+  
+  nextIndex: the beginning index of the next batch of records to be send or -1 
+  if no more records to be sent
+*/
+app.get("/user_requests/:idToken/:start", (req, res) => {
+    const auth = getAuth();
+
+    auth.verifyIdToken((req.params.idToken))
+    .then(async (decodedToken) => {
+        if (isNaN(parseInt(req.params.start))) {
+            return res.status(400).send({ msg: "Invalid index" });
+        }
+
+        const uid = decodedToken.uid;
+        const category = req.query.category;
+        const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
+
+        let requests = [];
+        if (category && CATEGORIES.indexOf(category) !== -1) {
+            requests = await db.collection("requests").find({ user: uid, category: CATEGORIES.indexOf(category) + 1 }).toArray();
+        } else {
+            requests = await db.collection("requests").find({ user: uid }).toArray();
+        }
+        requests.sort(compFunc);
+
+        let nextIndex = -1;
+        const responses = [];
+        let upperLimit = 0;
+        if (requests.length > startingIndex + LOAD_INCREMENT) {
+            upperLimit = startingIndex + LOAD_INCREMENT;
+            nextIndex = startingIndex + LOAD_INCREMENT;
+        } else {
+            upperLimit = requests.length;
+        }
+
+        for (let i = startingIndex; i < upperLimit; i++) {
+            ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: requests[i], editable: true, CATEGORIES: CATEGORIES }, (err, str) => {
+                if (err) {
+                    err = err.message;
+                }
+
+                responses.push({ id: requests[i]._id, title: requests[i].title, category: CATEGORIES[requests[i].category - 1], html: str });
+            });
+        }
+
+        res.status(200).send({ requests: responses, nextIndex: nextIndex });
+    })
+    .catch((err) => {
+        if (err) {
+            res.status(400).send({ msg: err.message });
+        }
+    });
+});
+
+// ========================== REPORTING ==========================
 
 // app.post("/report", formParser, async (req, res) => {
 //     const user = auth.currentUser;
@@ -553,22 +1026,10 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
 
 // Base Routes
 app.get("/", async (req, res) => {
-    const listings = await db.collection("listings").find().toArray();
-    const requests = await db.collection("requests").find().toArray();
-
-    listings.sort(compFunc);
-    requests.sort(compFunc);
-
-    res.render("pages/index", { listings: listings, requests: requests, CATEGORIES: CATEGORIES });
+    res.redirect("/home");
 });
 app.get("/home", async (req, res) => {
-    const listings = await db.collection("listings").find().toArray();
-    const requests = await db.collection("requests").find().toArray();
-
-    listings.sort(compFunc);
-    requests.sort(compFunc);
-
-    res.render("pages/index", { listings: listings, requests: requests, CATEGORIES: CATEGORIES });
+    res.render("pages/index", { listings: [], requests: [], CATEGORIES: CATEGORIES });
 });
 
 app.get("/login", (req, res) => {
@@ -668,12 +1129,6 @@ app.get("/home/my_postings/:idToken", (req, res) => {
 
     auth.verifyIdToken(req.params.idToken)
     .then( async (decodedToken) => {
-        const listings = await db.collection("listings").find({ user: decodedToken.uid }).toArray();
-        const requests = await db.collection("requests").find({ user: decodedToken.uid }).toArray();
-
-        listings.sort(compFunc);
-        requests.sort(compFunc);
-
         const opStatus = req.query.status;
         let successMsg = "";
         let failMsg = "";
@@ -697,8 +1152,8 @@ app.get("/home/my_postings/:idToken", (req, res) => {
         }
 
         res.render("pages/my_postings", {
-            my_listings: listings,
-            my_requests: requests,
+            my_listings: [],
+            my_requests: [],
             CATEGORIES: CATEGORIES,
             success_msg: successMsg,
             fail_msg: failMsg
@@ -830,6 +1285,37 @@ const compFunc = (a, b) => {
     } else {
         return 0;
     }
+}
+
+/*
+  ========== genDbQuery ==========
+  DESC: Generate a search query for the database
+  based on the given options
+
+  PARAMETERS:
+   - options (object): Object containing
+   query options
+
+  RETURNS:
+   - dbQuery: query object to be used when searching
+   database
+  ================================
+*/
+const genDbQuery = (options) => {
+    const dbQuery = {};
+    if (options.uid) {
+        dbQuery.user = options.uid;
+    }
+
+    if (options.category && CATEGORIES.indexOf(options.category) !== -1) {
+        dbQuery.category = CATEGORIES.indexOf(options.category) + 1;
+    }
+
+    if (options.query) {
+        dbQuery.title = { '$regex': `.*${options.query}.*`, '$options': 'i' }
+    }
+
+    return dbQuery;
 }
 
 exports.source = app;

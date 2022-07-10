@@ -40,7 +40,7 @@
     <header><%- include('../partials/header'); %></header>
     <main>
       <div class="main">
-        <div class="container"
+        <div id="home_page" class="container"
              style="padding-top: 120px; position: relative; min-height: 100vh">
         <!-- 
           ***** Notes on the Navbar and Spacing below the Navbar *****
@@ -57,7 +57,7 @@
           <h1 class="mb-3">
             Listings
           </h1>
-          <div class="row row-cols-1 row-cols-md-1 g-1">
+          <div id="cards" class="row row-cols-1 row-cols-md-1 g-1">
             <% let counter = 0; %>
             <% listings.forEach((listing) => { %>
             <div class="col" style="padding-bottom: 3vh">
@@ -66,14 +66,15 @@
             </div>
             <% }); %>
           </div>
-          <%- include('../partials/no_listings', {counter}); %>
+          <%- include('../partials/load_more_listings'); %>
+          <%- include('../partials/no_listings'); %>
         </div>
         
         <div id="request_display">
           <h1 class="mb-3">
             Requests
           </h1>
-          <div class="row row-cols-1 row-cols-md-1 g-1">
+          <div id="request_cards" class="row row-cols-1 row-cols-md-1 g-1">
             <% counter = 0; %>
             <% requests.forEach((request) => { %>
             <div class="col" style="padding-bottom: 3vh">
@@ -82,7 +83,8 @@
             </div>
             <% }); %>
           </div>
-          <%- include('../partials/no_requests', {counter}); %>
+          <%- include('../partials/load_more_requests'); %>
+          <%- include('../partials/no_requests'); %>
         </div>
        </div>
       </div>
