@@ -18,8 +18,8 @@ const fb = initializeApp(firebaseConfig);
 let socket = undefined;
 const messages = [];
 
-// const DOMAIN = "https://www.pbayshop.com";
-const DOMAIN = "http://localhost:3000";
+const DOMAIN = "https://www.pbayshop.com";
+// const DOMAIN = "http://localhost:3000";
 
 let nextSearchIndex = 0;
 let nextListingIndex = 0;

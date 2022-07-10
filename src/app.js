@@ -33,8 +33,8 @@ const CATEGORIES = [ "appliances", "beauty", "books", "car_supplies", "clothing"
                      "furniture", "health", "home_decor", "jewelry", "kitchenware", "media", "outdoor_travel", "pet", 
                      "office_supplies", "sporting", "toys", "other" ];
 
-// const DOMAIN = "https://www.pbayshop.com";
-const DOMAIN = "http://localhost:3000";
+const DOMAIN = "https://www.pbayshop.com";
+// const DOMAIN = "http://localhost:3000";
 
 const LOAD_INCREMENT = 10;
 
