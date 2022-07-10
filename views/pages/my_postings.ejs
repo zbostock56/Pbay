@@ -41,14 +41,13 @@
           <div id="listing_display">
             <h2> Listings </h2>
             <div id="cards" class="row row-cols-1 row-cols-md-1 g-1">
-              <% let counter=0; %>
               <% my_listings.forEach((my_listing)=> { %>
                 <div class="col" style="padding-bottom: 3vh;">
-                  <% counter++; %>
                   <%- include('../partials/card', { listing: my_listing, editable: true, CATEGORIES: CATEGORIES }); %>
                 </div>
               <% }); %>
             </div>
+            <div id="preview_listing"></div>
             <%- include('../partials/load_more_listings'); %>
             <%- include('../partials/no_listings'); %>
           </div>
@@ -56,14 +55,13 @@
           <div id="request_display">
             <h2> Requests </h2>
             <div id="request_cards" class="row row-cols-1 row-cols-md-1 g-1">
-              <% counter=0; %>
               <% my_requests.forEach((request)=> { %>
                 <div class="col" style="padding-bottom: 3vh;">
-                  <% counter++; %>
                   <%- include('../partials/request_card', { request: request, editable: true, CATEGORIES: CATEGORIES }); %>
                 </div>
               <% }); %>
             </div>
+            <div id="preview_request"></div>
             <%- include('../partials/load_more_requests'); %>
             <%- include('../partials/no_requests'); %>
           </div>

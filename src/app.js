@@ -574,17 +574,11 @@ app.get("/unread_messages/:idToken/:target", (req, res) => {
   if no more records to be sent
   ================================
 */
-app.get("/search/:query/:start", async (req, res) => {
-    if (isNaN(parseInt(req.params.start))) {
-        return res.status(400).send({ msg: "Invalid index" });
-    }
-
+app.get("/search/:query", async (req, res) => {
     const type = req.query.type;
     const category = req.query.category;
     const query = req.params.query;
-    const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
 
-    let nextIndex = -1;
     const responses = [];
 
     const dbQuery = genDbQuery({ category: category, query: query });
@@ -593,15 +587,14 @@ app.get("/search/:query/:start", async (req, res) => {
         const collection = await db.collection(type).find(dbQuery).toArray();
 
         let upperLimit = 0;
-        if (collection.length > startingIndex + 10) {
-            upperLimit = startingIndex + 10;
-            nextIndex = startingIndex + 10;
+        if (collection.length > LOAD_INCREMENT) {
+            upperLimit = LOAD_INCREMENT;
         } else {
             upperLimit = collection.length;
         }
 
-        for (let i = startingIndex; i < upperLimit; i++) {
-            responses.push(`<a href="#card_${collection[i]._id}" class="list-group-item list-group-item-action">${type} - ${collection[i].title} - ${CATEGORIES[collection[i].category - 1]}</a>`);
+        for (let i = 0; i < upperLimit; i++) {
+            responses.push({ id: collection[i]._id, type: type, title: collection[i].title, category: CATEGORIES[collection[i].category - 1] });
         }
     } else {
         const listings = await db.collection("listings").find(dbQuery).toArray();
@@ -609,28 +602,26 @@ app.get("/search/:query/:start", async (req, res) => {
 
         let numListings = 0;
         let numRequests = 0;
-        if (listings.length > startingIndex + 5) {
-            numListings = startingIndex + 5;
-            nextIndex = startingIndex + 5;
+        if (listings.length > (LOAD_INCREMENT / 2)) {
+            numListings = (LOAD_INCREMENT / 2);
         } else {
             numListings = listings.length;
         }
-        if (requests.length > startingIndex + 5) {
-            numRequests = startingIndex + 5;
-            nextIndex = startingIndex + 5;
+        if (requests.length > (LOAD_INCREMENT / 2)) {
+            numRequests = (LOAD_INCREMENT / 2);
         } else {
             numRequests = requests.length;
         }
 
-        for (let i = startingIndex; i < numListings; i++) {
-            responses.push(`<a href="#card_${listings[i]._id}" class="list-group-item list-group-item-action">listings - ${listings[i].title} - ${CATEGORIES[listings[i].category - 1]}</a>`);
+        for (let i = 0; i < numListings; i++) {
+            responses.push({ id: listings[i]._id, type: "listings", title: listings[i].title, category: CATEGORIES[listings[i].category - 1] });
         }
-        for (let i = startingIndex; i < numRequests; i++) {
-            responses.push(`<a href="#card_${requests[i]._id}" class="list-group-item list-group-item-action">requests - ${requests[i].title} - ${CATEGORIES[requests[i].category - 1]}</a>`);
+        for (let i = 0; i < numRequests; i++) {
+            responses.push({ id: requests[i]._id, type: "requests", title: requests[i].title, category: CATEGORIES[requests[i].category - 1] });
         }
     }
 
-    res.status(200).send({ responses: responses, nextIndex: nextIndex });
+    res.status(200).send({ responses: responses });
 });
 
 /*
@@ -663,22 +654,16 @@ app.get("/search/:query/:start", async (req, res) => {
   if no more records to be sent
   ================================
 */
-app.get("/search_user/:idToken/:query/:start", (req, res) => {
+app.get("/search_user/:idToken/:query", (req, res) => {
     const auth = getAuth();
 
     auth.verifyIdToken(req.params.idToken)
     .then(async (decodedToken) => {
-        if (isNaN(parseInt(req.params.start))) {
-            return res.status(400).send({ msg: "Invalid index" });
-        }
-    
         const uid = decodedToken.uid;
         const type = req.query.type;
         const category = req.query.category;
         const query = req.params.query;
-        const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
 
-        let nextIndex = -1;
         let responses = [];
 
         const dbQuery = genDbQuery({ uid: uid, category: category, query: query });
@@ -687,15 +672,14 @@ app.get("/search_user/:idToken/:query/:start", (req, res) => {
             const collection = await db.collection(type).find(dbQuery).toArray();
 
             let upperLimit = 0;
-            if (collection.length > startingIndex + 10) {
-                upperLimit = startingIndex + 10;
-                nextIndex = startingIndex + 10;
+            if (collection.length > LOAD_INCREMENT) {
+                upperLimit = LOAD_INCREMENT;
             } else {
                 upperLimit = collection.length;
             }
 
-            for (let i = startingIndex; i < upperLimit; i++) {
-                responses.push(`<a href="#card_${collection[i]._id}" class="list-group-item list-group-item-action">${type} - ${collection[i].title} - ${CATEGORIES[collection[i].category - 1]}</a>`);
+            for (let i = 0; i < upperLimit; i++) {
+                responses.push({ id: collection[i]._id, type: type, title: collection[i].title, category: CATEGORIES[collection[i].category - 1] });
             }
         } else {
             const listings = await db.collection("listings").find(dbQuery).toArray();
@@ -703,28 +687,26 @@ app.get("/search_user/:idToken/:query/:start", (req, res) => {
 
             let numListings = 0;
             let numRequests = 0;
-            if (listings.length > startingIndex + 5) {
-                numListings = startingIndex + 5;
-                nextIndex = startingIndex + 5;
+            if (listings.length > (LOAD_INCREMENT / 2)) {
+                numListings = (LOAD_INCREMENT / 2);
             } else {
                 numListings = listings.length;
             }
-            if (requests.length > startingIndex + 5) {
-                numRequests = startingIndex + 5;
-                nextIndex = startingIndex + 5;
+            if (requests.length > (LOAD_INCREMENT / 2)) {
+                numRequests = (LOAD_INCREMENT / 2);
             } else {
                 numRequests = requests.length;
             }
 
-            for (let i = startingIndex; i < numListings; i++) {
-                responses.push(`<a href="#card_${listings[i]._id}" class="list-group-item list-group-item-action">listings - ${listings[i].title} - ${CATEGORIES[listings[i].category - 1]}</a>`);
+            for (let i = 0; i < numListings; i++) {
+                responses.push({ id: listings[i]._id, type: "listings", title: listings[i].title, category: CATEGORIES[listings[i].category - 1] });
             }
-            for (let i = startingIndex; i < numRequests; i++) {
-                responses.push(`<a href="#card_${requests[i]._id}" class="list-group-item list-group-item-action">requests - ${requests[i].title} - ${CATEGORIES[requests[i].category - 1]}</a>`);
+            for (let i = 0; i < numRequests; i++) {
+                responses.push({ id: requests[i]._id, type: "requests", title: requests[i].title, category: CATEGORIES[requests[i].category - 1] });
             }
         }
 
-        res.status(200).send({ responses: responses, nextIndex: nextIndex });
+        res.status(200).send({ responses: responses });
     })
     .catch((err) => {
         if (err) {
@@ -744,6 +726,7 @@ app.get("/search_user/:idToken/:query/:start", (req, res) => {
    - Start (integer, required): index to start at in master list
 
   QUERIES:
+   - idToken (String, optional): Autnentication token of current user
    - category (String, optional): category to search through
 
   RETURNS:
@@ -765,6 +748,7 @@ app.get("/listings/:start", async (req, res) => {
     }
 
     const category = req.query.category;
+    const idToken = req.query.idToken;
     const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
 
     let listings = [];
@@ -785,20 +769,49 @@ app.get("/listings/:start", async (req, res) => {
     }
     listings.sort(compFunc);
 
-    for (let i = startingIndex; i < upperLimit; i++) {
-        ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listings[i], editable: false, CATEGORIES: CATEGORIES }, (err, str) => {
-            if (err) {
-                err = err.message;
+    if (idToken){
+        const auth = getAuth();
+        auth.verifyIdToken(idToken)
+        .then((decodedToken) => {
+            uid = decodedToken.uid;
+
+            let editable = false;
+            for (let i = startingIndex; i < upperLimit; i++) {
+                editable = listings[i].user === uid;
+                ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listings[i], editable: editable, CATEGORIES: CATEGORIES }, (e, str) => {
+                    if (e) {
+                        err = e.message;
+                    }
+
+                    responses.push({ id: listings[i]._id, title: listings[i].title, category: CATEGORIES[listings[i].category - 1], html: str });
+                });
             }
 
-            responses.push({ id: listings[i]._id, title: listings[i].title, category: CATEGORIES[listings[i].category - 1], html: str });
+            if (err !== "") {
+                res.status(400).json({ msg: err });
+            } else {
+                res.status(200).send({ listings: responses, nextIndex: nextIndex });
+            }
+        })
+        .catch((err) => {
+            res.status(400).send({ msg: err.message});
         });
-    }
+    } else {
+        for (let i = startingIndex; i < upperLimit; i++) {
+            ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listings[i], editable: false, CATEGORIES: CATEGORIES }, (e, str) => {
+                if (e) {
+                    err = e.message;
+                }
 
-    if (err !== "") {
-        res.status(400).json({ msg: err });
-    }  else {
-        res.status(200).send({ listings: responses, nextIndex: nextIndex });
+                responses.push({ id: listings[i]._id, title: listings[i].title, category: CATEGORIES[listings[i].category - 1], html: str });
+            });
+        }
+
+        if (err !== "") {
+            res.status(400).json({ msg: err });
+        } else {
+            res.status(200).send({ listings: responses, nextIndex: nextIndex });
+        }
     }
 });
 
@@ -877,6 +890,63 @@ app.get("/user_listings/:idToken/:start", (req, res) => {
 });
 
 /*
+  ========== GET /listing ==========
+  DESC: returns a single listing from the given id
+
+  PARAMETERS:
+   - id (String, required): id of desired listing
+
+  QUERIES:
+   - idToken (String, optional): Autnentication token of current user
+
+   RETURNS:
+    status:
+    - 200: success
+    - 400: failure
+
+    msg: Status message
+
+    listing: found listing object
+*/
+app.get("/listing/:id", async (req, res) => {
+    const idToken = req.query.idToken;
+
+    const listing = await db.collection("listings").findOne({ _id: new mongo.ObjectId(req.params.id) });
+
+    if (listing) {
+        if (idToken) {
+            const auth = getAuth();
+            auth.verifyIdToken(idToken)
+            .then((decodedToken) => {
+                const uid = decodedToken.uid;
+
+                const editable = listing.user === uid;
+                ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listing, editable: editable, CATEGORIES: CATEGORIES }, (e, str) => {
+                    if (e) {
+                        return res.status(400).send({ message: e.message });
+                    }
+
+                    return res.status(200).send({ listing: { id: listing._id, title: listing.title, category: CATEGORIES[listing.category - 1], html: str } });
+                });
+            })
+            .catch((err) => {
+                return res.status(400).send({ msg: err.message });
+            });
+        } else {
+            ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listing, editable: false, CATEGORIES: CATEGORIES }, (e, str) => {
+                if (e) {
+                    return res.status(400).send({ message: e.message });
+                }
+
+                return res.status(200).send({ listing: { id: listing._id, title: listing.title, category: CATEGORIES[listing.category - 1], html: str } });
+            });
+        }
+    } else {
+        res.status(400).send({ msg: "Invalid id"});
+    }
+});
+
+/*
   ========== GET /requests ==========
   DESC: Returns a list of 0 - 10 requests starting at a certain position
   in the master request list
@@ -885,6 +955,7 @@ app.get("/user_listings/:idToken/:start", (req, res) => {
    - Start (integer, required): index to start at in master list
 
   QUERIES:
+   - idToken (String, optional): Autnentication token of current user
    - category (String, optional): category to search through
 
   RETURNS:
@@ -900,11 +971,13 @@ app.get("/user_listings/:idToken/:start", (req, res) => {
   if no more records to be sent
 */
 app.get("/requests/:start", async (req, res) => {
+    let err = "";
     if (isNaN(parseInt(req.params.start))) {
         return res.status(400).send({ msg: "Invalid index" });
     }
 
     const category = req.query.category;
+    const idToken = req.query.idToken;
     const startingIndex = parseInt(req.params.start) < 0 ? 0 : parseInt(req.params.start);
 
     let requests = [];
@@ -925,17 +998,49 @@ app.get("/requests/:start", async (req, res) => {
         upperLimit = requests.length;
     }
 
-    for (let i = startingIndex; i < upperLimit; i++) {
-        ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: requests[i], editable: false, CATEGORIES: CATEGORIES }, (err, str) => {
-            if (err) {
-                err = err.message;
+    if (idToken) {
+        const auth = getAuth();
+        auth.verifyIdToken(idToken)
+        .then((decodedToken) => {
+            uid = decodedToken.uid;
+            let editable = false;
+
+            for (let i = startingIndex; i < upperLimit; i++) {
+                editable = requests[i].user === uid;
+                ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: requests[i], editable: editable, CATEGORIES: CATEGORIES }, (e, str) => {
+                    if (e) {
+                        err = e.message; 
+                    }
+
+                    responses.push({ id: requests[i]._id, title: requests[i].title, category: CATEGORIES[requests[i].category - 1], html: str });
+                });
             }
-
-            responses.push({ id: requests[i]._id, title: requests[i].title, category: CATEGORIES[requests[i].category - 1], html: str });
+            if (err !== "") {
+                res.status(400).json({ msg: err });
+            } else {
+                res.status(200).send({ requests: responses, nextIndex: nextIndex });
+            }
+        })
+        .catch((err) => {
+            res.status(400).json({ msg: err });
         });
-    }
+    } else {
+        for (let i = startingIndex; i < upperLimit; i++) {
+            ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: requests[i], editable: false, CATEGORIES: CATEGORIES }, (e, str) => {
+                if (e) {
+                    err = e.message;
+                }
 
-    res.status(200).send({ requests: responses, nextIndex: nextIndex });
+                responses.push({ id: requests[i]._id, title: requests[i].title, category: CATEGORIES[requests[i].category - 1], html: str });
+            });
+        }
+
+        if (err !== "") {
+            res.status(400).json({ msg: err });
+        } else {
+            res.status(200).send({ requests: responses, nextIndex: nextIndex });
+        }
+    }
 });
 
 /*
@@ -1010,6 +1115,63 @@ app.get("/user_requests/:idToken/:start", (req, res) => {
             res.status(400).send({ msg: err.message });
         }
     });
+});
+
+/*
+  ========== GET /request ==========
+  DESC: returns a single request from the given id
+
+  PARAMETERS:
+   - id (String, required): id of desired request
+
+  QUERIES:
+   - idToken (String, optional): Autnentication token of current user
+
+   RETURNS:
+    status:
+    - 200: success
+    - 400: failure
+
+    msg: Status message
+
+    request: found request object
+*/
+app.get("/request/:id", async (req, res) => {
+    const idToken = req.query.idToken;
+
+    const request = await db.collection("requests").findOne({ _id: new mongo.ObjectId(req.params.id) });
+
+    if (request) {
+        if (idToken) {
+            const auth = getAuth();
+            auth.verifyIdToken(idToken)
+                .then((decodedToken) => {
+                    const uid = decodedToken.uid;
+
+                    const editable = request.user === uid;
+                    ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: request, editable: editable, CATEGORIES: CATEGORIES }, (e, str) => {
+                        if (e) {
+                            return res.status(400).send({ msg: e.message });
+                        }
+
+                        return res.status(200).send({ request: { id: request._id, title: request.title, category: CATEGORIES[request.category - 1], html: str } });
+                    });
+                })
+                .catch((err) => {
+                    return res.status(400).send({ msg: err.message });
+                });
+        } else {
+            ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: request, editable: false, CATEGORIES: CATEGORIES }, (e, str) => {
+                if (e) {
+                    return res.status(400).send({ msg: e.message });
+                }
+
+                return res.status(200).send({ request: { id: request._id, title: request.title, category: CATEGORIES[request.category - 1], html: str } });
+            });
+        }
+    } else {
+        res.status(400).send({ msg: "Invalid id"});
+    }
 });
 
 // ========================== REPORTING ==========================
@@ -1170,13 +1332,7 @@ app.get("/home/my_postings/:idToken", (req, res) => {
 app.get("/home/category/:category", async (req, res) => {
     const category = req.params.category;
     if (CATEGORIES.includes(category)) {
-        const listings = await db.collection("listings").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
-        const requests = await db.collection("requests").find({ category: CATEGORIES.indexOf(category) + 1 }).toArray();
-
-        listings.sort(compFunc);
-        requests.sort(compFunc);
-
-        res.render("pages/category", { category: category.replace(/_+/g, " "), listings: listings, requests: requests, CATEGORIES: CATEGORIES });
+        res.render("pages/category", { category: category.replace(/_+/g, " "), listings: [], requests: [], CATEGORIES: CATEGORIES });
     } else {
         res.redirect(`${DOMAIN}/404`);
     }

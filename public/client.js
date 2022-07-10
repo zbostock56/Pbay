@@ -13,7 +13,7 @@ const firebaseConfig = {
 
 const fb = initializeApp(firebaseConfig);
 
-//let connected = false;
+// let connected = false;
 
 let socket = undefined;
 const messages = [];
@@ -21,7 +21,6 @@ const messages = [];
 const DOMAIN = "https://www.pbayshop.com";
 // const DOMAIN = "http://localhost:3000";
 
-let nextSearchIndex = 0;
 let nextListingIndex = 0;
 let nextRequestIndex = 0;
 
@@ -457,6 +456,35 @@ const populateMessages = () => {
     });
 }
 
+const clearSearchAndPreviews = () => {
+    while (document.getElementById("preview_listing").childElementCount > 0) {
+        document.getElementById("preview_listing").removeChild(document.getElementById("preview_listing").firstChild);
+    }
+    while (document.getElementById("preview_request").childElementCount > 0) {
+        document.getElementById("preview_request").removeChild(document.getElementById("preview_request").firstChild);
+    }
+    document.getElementById("search-bar").value = "";
+}
+
+const populateUserCard = (user, id, type) => {
+    if (user) {
+        if (document.getElementById(`delete_${id}`)) {
+            document.getElementById(`delete_${id}`).addEventListener("click", () => {
+                if (type === "listings") {
+                    deleteListing(id);
+                } else {
+                    deleteRequest(id);
+                }
+            });
+        }
+
+        if (document.getElementById(`message_button_${id}`) &&
+            document.getElementById(`message_button_${id}`).classList.contains(`message_${user.uid}`)) {
+            document.getElementById(`message_button_${id}`).style.display = "none";
+        }
+    }
+}
+
 if (document.getElementById("view-messages")) {
     document.getElementById("view-messages").addEventListener("click", viewMessagesRedirect);
 }
@@ -560,36 +588,121 @@ if (document.getElementById("filter_menu")) {
             if (query !== prev) {
                 const list = document.getElementById("search-list");
                 if (query !== "") {
-                    while (list.lastChild) {
-                        list.removeChild(list.lastChild);
+                    while (list.childElementCount > 0) {
+                        list.removeChild(list.firstChild);
                     }
 
-                    let listingCount = 0;
-                    for (let i = 0; i < listingBuffer.length; i++) {
-                        if (listingBuffer[i].title.toLowerCase().includes(query)) {
-                            list.innerHTML += `<a href="#card_${listingBuffer[i].id}" class="search-result list-group-item list-group-item-action">Listings - ${listingBuffer[i].title} - ${listingBuffer[i].category}</a>`;
-                            listingCount++;
+                    const auth = getAuth(fb);
+                    // if (!connected) {
+                    //     connectAuthEmulator(auth, "http://localhost:9099");
+                    //     connected = true;
+                    // }
+                    auth.onAuthStateChanged(async (user) => {
+                        const idToken = user ? await user.getIdToken() : undefined;
+                        let route = "";
+                        if (document.getElementById("user_page")) {
+                            if (user) {
+                                route = `search_user/${idToken}/${query}`;
+                            } else {
+                                window.location = "/login";
+                            }
+                        } else {
+                            route = `search/${query}`;
                         }
 
-                        if (listingCount === 5) {
-                            break;
+                        let queryStr = "?";
+                        if (document.getElementById("category_page")) {
+                            queryStr += `category=${document.getElementById("listing_display").classList[0]}`;
                         }
-                    }
+                        if (!document.getElementById("both").classList.contains("active")) {
+                            if (queryStr !== "?") {
+                                queryStr += "&";
+                            }
+                            if (document.getElementById("listing_only").classList.contains("active")) {
+                                queryStr += "type=listings";
+                            } else {
+                                queryStr += "type=requests";
+                            }
+                        }
+                        
+                        axios({
+                            method: "get",
+                            url: `${DOMAIN}/${route}${queryStr}`
+                        })
+                        .then((res) => {
+                            const responses = res.data.responses;
 
-                    let requestCount = 0;
-                    for (let i = 0; i < requestBuffer.length; i++) {
-                        if (requestBuffer[i].title.toLowerCase().includes(query)) {
-                            list.innerHTML += `<a href="#card_${requestBuffer[i].id}" class="search-result list-group-item list-group-item-action">Requests - ${requestBuffer[i].title} - ${requestBuffer[i].category}</a>`;
-                            requestCount++;
-                        }
+                            responses.forEach((response) => {
+                                const id = response.id;
+                                const type = response.type;
+                                const title = response.title;
+                                const category = response.category;
 
-                        if (requestCount === 5) {
-                            break;
-                        }
-                    }
+                                let exists = false;
+                                let buffer = type === "listings" ? listingBuffer : requestBuffer;
+                                for (let i = 0; i < buffer.length; i++) {
+                                    if (buffer[i].id === id) {
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+
+                                let searchSelection;
+                                if (!exists) {
+                                    searchSelection = document.createElement("button");
+                                    searchSelection.type = "button";
+                                    searchSelection.addEventListener("click", () => {
+                                        const preview = type === "listings" ? document.getElementById("preview_listing") : document.getElementById("preview_request");
+                                        if (preview.childElementCount > 0) {
+                                            preview.removeChild(preview.firstChild);
+                                        }
+
+                                        const previewRoute = type === "listings" ? "listing" : "request";
+
+                                        let previewQueryStr = ""; 
+                                        if (user) {
+                                            previewQueryStr += `?idToken=${idToken}`;
+                                        }
+
+                                        axios({
+                                            method: "get",
+                                            url: `${DOMAIN}/${previewRoute}/${id}${previewQueryStr}`
+                                        })
+                                        .then((res) => {
+                                            preview.innerHTML = type === "listings" ? res.data.listing.html : res.data.request.html;
+
+                                            populateUserCard(user, id, type);
+
+                                            document.getElementById(`card_${id}`).scrollIntoView();
+                                        })
+                                        .catch((err) => {
+                                            console.log(err);
+                                            if (document.getElementById("err-msg")) {
+                                                document.getElementById("err-msg").innerHTML = err.msg;
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    searchSelection = document.createElement("a");
+                                    searchSelection.href = `#card_${id}`;
+                                }
+
+                                searchSelection.id = `search_${id}`;
+                                searchSelection.classList.add("search-result", "list-group-item", "list-group-item-action");
+                                searchSelection.innerText = `${type} - ${title} - ${category}`;
+
+                                list.appendChild(searchSelection);
+                            });
+                        })
+                        .catch((err) => {
+                            if (document.getElementById("err-msg")) {
+                                document.getElementById("err-msg").innerHTML = err.msg;
+                            }
+                        });
+                    });
                 } else {
-                    while (list.lastChild) {
-                        list.removeChild(list.lastChild);
+                    while (list.childElementCount > 0) {
+                        list.removeChild(list.firstChild);
                     }
                 }
             }
@@ -602,9 +715,15 @@ if (document.getElementById("filter_menu")) {
 
 if (document.getElementById("home_page") || document.getElementById("category_page") || document.getElementById("user_page")) {
     const auth = getAuth(fb);
+    // if (!connected) {
+    //     connectAuthEmulator(auth, "http://localhost:9099");
+    //     connected = true;
+    // }
 
     await auth.onAuthStateChanged(async (user) => {
         let routes = [];
+        let queryStr = "?";
+
         if (document.getElementById("user_page")) {
             if (user) {
                 const idToken = await user.getIdToken();
@@ -616,10 +735,17 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
         } else {
             routes[0] = "listings";
             routes[1] = "requests";
+
+            if (user) {
+                const idToken = await user.getIdToken();
+                queryStr += `idToken=${idToken}`;
+            }
         }
 
-        let queryStr = "?";
         if (document.getElementById("category_page")) {
+            if (queryStr !== "?") {
+                queryStr += "&";
+            }
             queryStr += `category=${document.getElementById("listing_display").classList[0]}`;
         }
 
@@ -640,18 +766,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
 
                 listingList.appendChild(wrapper);
 
-                if (user) {
-                    if (document.getElementById(`delete_${listing.id}`)) {
-                        document.getElementById(`delete_${listing.id}`).addEventListener("click", () => {
-                            deleteListing(listing.id);
-                        });
-                    }
-
-                    if (document.getElementById(`message_button_${listing.id}`) &&
-                        document.getElementById(`message_button_${listing.id}`).classList.contains(`message_${user.uid}`)) {
-                        document.getElementById(`message_button_${listing.id}`).style.display = "none";
-                    }
-                }
+                populateUserCard(user, listing.id, "listings");
 
                 listingBuffer.push({ id: listing.id, title: listing.title, category: listing.category });
             });
@@ -693,18 +808,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
 
                 requestList.appendChild(wrapper);
 
-                if (user) {
-                    if (document.getElementById(`delete_${request.id}`)) {
-                        document.getElementById(`delete_${request.id}`).addEventListener("click", () => {
-                            deleteRequest(request.id);
-                        });
-                    }
-
-                    if (document.getElementById(`message_button_${request.id}`) && 
-                        document.getElementById(`message_button_${request.id}`).classList.contains(`message_${user.uid}`)) {
-                        document.getElementById(`message_button_${request.id}`).style.display = "none";
-                    }
-                }
+                populateUserCard(user, request.id, "requests");
 
                 requestBuffer.push({ id: request.id, title: request.title, category: request.category });
             });
@@ -731,6 +835,8 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
 
         document.getElementById("load_more_listings").addEventListener("click", () => {
             if (nextListingIndex !== -1) {
+                clearSearchAndPreviews();
+
                 const listingList = document.getElementById("cards");
                 axios({
                     method: "get",
@@ -748,18 +854,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
 
                         listingList.appendChild(wrapper);
 
-                        if (user) {
-                            if (document.getElementById(`delete_${listing.id}`)) {
-                                document.getElementById(`delete_${listing.id}`).addEventListener("click", () => {
-                                    deleteListing(listing.id);
-                                });
-                            }
-
-                            if (document.getElementById(`message_button_${listing.id}`) &&
-                                document.getElementById(`message_button_${listing.id}`).classList.contains(`message_${user.uid}`)) {
-                                document.getElementById(`message_button_${listing.id}`).style.display = "none";
-                            }
-                        }
+                        populateUserCard(user, listing.id, "listings");
 
                         listingBuffer.push({ id: listing.id, title: listing.title, category: listing.category });
                     });
@@ -784,6 +879,8 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
 
         document.getElementById("load_more_requests").addEventListener("click", () => {
             if (nextRequestIndex !== -1) {
+                clearSearchAndPreviews();
+
                 const requestList = document.getElementById("request_cards");
                 axios({
                     method: "get",
@@ -801,18 +898,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
 
                         requestList.appendChild(wrapper);
 
-                        if (user) {
-                            if (document.getElementById(`delete_${request.id}`)) {
-                                document.getElementById(`delete_${request.id}`).addEventListener("click", () => {
-                                    deleteRequest(request.id);
-                                });
-                            }
-
-                            if (document.getElementById(`message_button_${request.id}`) && 
-                                document.getElementById(`message_button_${request.id}`).classList.contains(`message_${user.uid}`)) {
-                                document.getElementById(`message_button_${request.id}`).style.display = "none";
-                            }
-                        }
+                        populateUserCard(user, request.id, "requests")
 
                         requestBuffer.push({ id: request.id, title: request.title, category: request.category });
                     });
