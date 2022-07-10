@@ -551,138 +551,53 @@ if (document.getElementById("filter_menu")) {
 
     let prev = "";
     setInterval(async () => {
-        if (document.getElementById("search-list").classList.contains("invisible")) {
-            document.getElementById("search-list").classList.remove("invisible");
-        }
-
-        const query = document.getElementById("search-bar").value.toLowerCase();
-        if (query !== prev) {
-            const list = document.getElementById("search-list");
-            if (query !== "") {
-                while (list.lastChild) {
-                    list.removeChild(list.lastChild);
-                }
-
-                let listingCount = 0;
-                for (let i = 0; i < listingBuffer.length; i++) {
-                    if (listingBuffer[i].title.toLowerCase().includes(query)) {
-                        list.innerHTML += `<a href="#card_${listingBuffer[i].id}" class="list-group-item list-group-item-action">Listings - ${listingBuffer[i].title} - ${listingBuffer[i].category}</a>`;
-                        listingCount++;
-                    }
-
-                    if (listingCount === 5) {
-                        break;
-                    }
-                }
-
-                let requestCount = 0;
-                for (let i = 0; i < requestBuffer.length; i++) {
-                    if (requestBuffer[i].title.toLowerCase().includes(query)) {
-                        list.innerHTML += `<a href="#card_${requestBuffer[i].id}" class="list-group-item list-group-item-action">Requests - ${requestBuffer[i].title} - ${requestBuffer[i].category}</a>`;
-                        requestCount++;
-                    }
-
-                    if (requestCount === 5) {
-                        break;
-                    }
-                }
-            } else {
-                while (list.lastChild) {
-                    list.removeChild(list.lastChild);
-                }
+        if (document.getElementById("search-bar") === document.activeElement || document.activeElement.classList.contains("search-result")) {
+            if (document.getElementById("search-list").classList.contains("invisible")) {
+                document.getElementById("search-list").classList.remove("invisible");
             }
-        }
-        prev = query;
-    }, 100);
 
-    document.getElementById("load-more").addEventListener("click", async () => {
-        console.log("hit");
-        if (nextSearchIndex !== -1) {
             const query = document.getElementById("search-bar").value.toLowerCase();
-            const list = document.getElementById("search-list");
-            
-            let queryStr = "?";
-            if (document.getElementById("listing_only").classList.contains("active")) {
-                queryStr += "type=listings";
-            } else if (document.getElementById("request_only").classList.contains("active")) {
-                queryStr += "type=requests";
-            }
-            
-            if (document.getElementById("category_page")) {
-                if (queryStr === "?") {
-                    queryStr += `category=${document.getElementById("listing_display").classList[0]}`;
-                } else {
-                    queryStr += `&category=${document.getElementById("listing_display").classList[0]}`;
-                }
-            }
-
-            if (document.getElementById("user_page")) {
-                const auth = getAuth(fb);
-
-                await auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        const idToken = await user.getIdToken();
-
-                        axios({
-                            method: "get",
-                            url: `${DOMAIN}/search_user/${idToken}/${query}/${nextSearchIndex}${queryStr}`
-                        })
-                        .then((res) => {
-                            const nextIndex = res.data.nextIndex;
-                            const records = res.data.responses;
-
-                            records.forEach((record) => {
-                                list.innerHTML = record + list.innerHTML;
-                            });
-
-                            if (nextIndex != -1) {
-                                document.getElementById("load-more").style.display = "block";
-                                nextSearchIndex = nextIndex;
-                            } else {
-                                document.getElementById("load-more").style.display = "none";
-                            }
-                        })
-                        .catch((err) => {
-                            console.log(err);
-                            if (err) {
-                                if (document.getElementById("err-msg")) {
-                                    document.getElementById("err-msg").innerHTML = err.msg;
-                                }
-                            }
-                        });
+            if (query !== prev) {
+                const list = document.getElementById("search-list");
+                if (query !== "") {
+                    while (list.lastChild) {
+                        list.removeChild(list.lastChild);
                     }
-                });
-            } else {
-                axios({
-                    method: "get",
-                    url: `${DOMAIN}/search/${query}/${nextSearchIndex}${queryStr}`
-                })
-                .then((res) => {
-                    const nextIndex = res.data.nextIndex;
-                    const records = res.data.responses;
 
-                    records.forEach((record) => {
-                        list.innerHTML = record + list.innerHTML;
-                    });
+                    let listingCount = 0;
+                    for (let i = 0; i < listingBuffer.length; i++) {
+                        if (listingBuffer[i].title.toLowerCase().includes(query)) {
+                            list.innerHTML += `<a href="#card_${listingBuffer[i].id}" class="search-result list-group-item list-group-item-action">Listings - ${listingBuffer[i].title} - ${listingBuffer[i].category}</a>`;
+                            listingCount++;
+                        }
 
-                    if (nextIndex != -1) {
-                        document.getElementById("load-more").style.display = "block";
-                        nextSearchIndex = nextIndex;
-                    } else {
-                        document.getElementById("load-more").style.display = "none";
-                    }
-                })
-                .catch((err) => {
-                    console.log(err);
-                    if (err) {
-                        if (document.getElementById("err-msg")) {
-                            document.getElementById("err-msg").innerHTML = err.msg;
+                        if (listingCount === 5) {
+                            break;
                         }
                     }
-                });
+
+                    let requestCount = 0;
+                    for (let i = 0; i < requestBuffer.length; i++) {
+                        if (requestBuffer[i].title.toLowerCase().includes(query)) {
+                            list.innerHTML += `<a href="#card_${requestBuffer[i].id}" class="search-result list-group-item list-group-item-action">Requests - ${requestBuffer[i].title} - ${requestBuffer[i].category}</a>`;
+                            requestCount++;
+                        }
+
+                        if (requestCount === 5) {
+                            break;
+                        }
+                    }
+                } else {
+                    while (list.lastChild) {
+                        list.removeChild(list.lastChild);
+                    }
+                }
             }
+            prev = query;
+        } else {
+            document.getElementById("search-list").classList.add("invisible");
         }
-    });
+    }, 100);
 }
 
 if (document.getElementById("home_page") || document.getElementById("category_page") || document.getElementById("user_page")) {
