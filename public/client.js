@@ -236,10 +236,10 @@ const createRequest = () => {
                         } else {
                             res = await JSON.parse(err.response.request.response);
                         }
-                        document.getElementById("err-txt").innerHTML = res.msg;
+                        document.getElementById("err-txt").innerText = res.msg;
                     });
             } else {
-                document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+                document.getElementById("err-txt").innerText = "You must accept the terms and conditions before creating posts";
             }
         } else {
             window.location = "/login";
@@ -293,10 +293,10 @@ const editRequest = () => {
                     } else {
                         res = await JSON.parse(err.response.request.response);
                     }
-                    document.getElementById("err-txt").innerHTML = res.msg;
+                    document.getElementById("err-txt").innerText = res.msg;
                 });
             } else {
-                document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+                document.getElementById("err-txt").innerText = "You must accept the terms and conditions before creating posts";
             }
         } else {
             window.location = "/login";
@@ -394,14 +394,14 @@ const connectSocket = (target) => {
                 console.log(err);
                 if (err) {
                     if (document.getElementById("err-msg")) {
-                        document.getElementById("err-msg").innerHTML = err.msg;
+                        document.getElementById("err-msg").innerText = err.msg;
                     }
                 }
             });
 
             socket.on("message", (message) => {
                 if (document.getElementById("err-msg")) {
-                    document.getElementById("err-msg").innerHTML = "";
+                    document.getElementById("err-msg").innerText = "";
                 }
 
                 if (message.target == auth.currentUser.uid) {
@@ -412,7 +412,7 @@ const connectSocket = (target) => {
 
             socket.on("ping", (message) => {
                 if (document.getElementById("err-msg")) {
-                    document.getElementById("err-msg").innerHTML = "";
+                    document.getElementById("err-msg").innerText = "";
                 }
 
                 if (message.from === auth.currentUser.uid) {
@@ -423,7 +423,7 @@ const connectSocket = (target) => {
 
             socket.on("error", (err) => {
                 if (document.getElementById("err-msg")) {
-                    document.getElementById("err-msg").innerHTML = err.msg;
+                    document.getElementById("err-msg").innerText = err.msg;
                 }
             });
         } else {
@@ -443,10 +443,10 @@ const populateMessages = () => {
 
             const from = document.createElement("h6");
             from.classList.add("mb-0");
-            from.innerHTML = message.from_name;
+            from.innerText = message.from_name;
 
             const text = document.createElement("p");
-            text.innerHTML = message.msg;
+            text.innerText = message.msg;
 
             msg.appendChild(from);
             msg.appendChild(text);
@@ -502,7 +502,7 @@ if (document.getElementById("loginLogout")) {
 
     await auth.onAuthStateChanged((user) => {
         if (user) {
-            document.getElementById("loginLogout").innerHTML = "Logout";
+            document.getElementById("loginLogout").innerText = "Logout";
             document.getElementById("loginLogout").addEventListener("click", () => {
                 signOut(auth).then(() => {
                     window.location = "/home";
@@ -512,7 +512,7 @@ if (document.getElementById("loginLogout")) {
                 });
             });
         } else {
-            document.getElementById("loginLogout").innerHTML = "Login";
+            document.getElementById("loginLogout").innerText = "Login";
             document.getElementById("loginLogout").addEventListener("click", () => {
                 window.location = "/login";
             });
@@ -678,7 +678,7 @@ if (document.getElementById("filter_menu")) {
                                         .catch((err) => {
                                             console.log(err);
                                             if (document.getElementById("err-msg")) {
-                                                document.getElementById("err-msg").innerHTML = err.msg;
+                                                document.getElementById("err-msg").innerText = err.msg;
                                             }
                                         });
                                     });
@@ -696,7 +696,7 @@ if (document.getElementById("filter_menu")) {
                         })
                         .catch((err) => {
                             if (document.getElementById("err-msg")) {
-                                document.getElementById("err-msg").innerHTML = err.msg;
+                                document.getElementById("err-msg").innerText = err.msg;
                             }
                         });
                     });
@@ -786,7 +786,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
             console.log(err);
             if (err) {
                 if (document.getElementById("err-msg")) {
-                    document.getElementById("err-msg").innerHTML = err.msg;
+                    document.getElementById("err-msg").innerText = err.msg;
                 }
             }
         });
@@ -828,7 +828,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
             console.log(err);
             if (err) {
                 if (document.getElementById("err-msg")) {
-                    document.getElementById("err-msg").innerHTML = err.msg;
+                    document.getElementById("err-msg").innerText = err.msg;
                 }
             }
         });
@@ -870,7 +870,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
                     console.log(err);
                     if (err) {
                         if (document.getElementById("err-msg")) {
-                            document.getElementById("err-msg").innerHTML = err.msg;
+                            document.getElementById("err-msg").innerText = err.msg;
                         }
                     }
                 });
@@ -914,7 +914,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
                     console.log(err);
                     if (err) {
                         if (document.getElementById("err-msg")) {
-                            document.getElementById("err-msg").innerHTML = err.msg;
+                            document.getElementById("err-msg").innerText = err.msg;
                         }
                     }
                 });
