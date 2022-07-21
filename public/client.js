@@ -85,10 +85,10 @@ const createListing = () => {
                         } else {
                             res = await JSON.parse(err.response.request.response);
                         }
-                        document.getElementById("err-txt").innerHTML = res.msg;
+                        document.getElementById("err-txt").innerText = res.msg;
                     });
             } else {
-                document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+                document.getElementById("err-txt").innerText = "You must accept the terms and conditions before creating posts";
             }
         } else {
             window.location = "/login";
@@ -160,10 +160,10 @@ const editListing = () => {
                     } else {
                         res = await JSON.parse(err.response.request.response);
                     }
-                    document.getElementById("err-txt").innerHTML = res.msg;
+                    document.getElementById("err-txt").innerText = res.msg;
                 });
             } else {
-                document.getElementById("err-txt").innerHTML = "You must accept the terms and conditions before creating posts";
+                document.getElementById("err-txt").innerText = "You must accept the terms and conditions before creating posts";
             }
         } else {
             window.location = "/login";
