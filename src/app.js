@@ -783,7 +783,6 @@ app.get("/listings/:start", async (req, res) => {
                         err = e.message;
                     }
 
-                    str = str.replaceAll("\n", "<br>");
                     responses.push({ id: listings[i]._id, title: listings[i].title, category: CATEGORIES[listings[i].category - 1], html: str });
                 });
             }
@@ -804,7 +803,6 @@ app.get("/listings/:start", async (req, res) => {
                     err = e.message;
                 }
 
-                str = str.replaceAll("\n", "<br>");
                 responses.push({ id: listings[i]._id, title: listings[i].title, category: CATEGORIES[listings[i].category - 1], html: str });
             });
         }
@@ -878,7 +876,6 @@ app.get("/user_listings/:idToken/:start", (req, res) => {
                     err = err.message;
                 }
 
-                str = str.replaceAll("\n", "<br>");
                 responses.push({ id: listings[i]._id, title: listings[i].title, category: CATEGORIES[listings[i].category - 1], html: str });
             });
         }
@@ -929,7 +926,6 @@ app.get("/listing/:id", async (req, res) => {
                         return res.status(400).send({ message: e.message });
                     }
 
-                    str = str.replaceAll("\n", "<br>");
                     return res.status(200).send({ listing: { id: listing._id, title: listing.title, category: CATEGORIES[listing.category - 1], html: str } });
                 });
             })
@@ -942,7 +938,6 @@ app.get("/listing/:id", async (req, res) => {
                     return res.status(400).send({ message: e.message });
                 }
 
-                str = str.replaceAll("\n", "<br>");
                 return res.status(200).send({ listing: { id: listing._id, title: listing.title, category: CATEGORIES[listing.category - 1], html: str } });
             });
         }
@@ -1017,7 +1012,6 @@ app.get("/requests/:start", async (req, res) => {
                         err = e.message; 
                     }
 
-                    str = str.replaceAll("\n", "<br>");
                     responses.push({ id: requests[i]._id, title: requests[i].title, category: CATEGORIES[requests[i].category - 1], html: str });
                 });
             }
@@ -1037,7 +1031,6 @@ app.get("/requests/:start", async (req, res) => {
                     err = e.message;
                 }
 
-                str = str.replaceAll("\n", "<br>");
                 responses.push({ id: requests[i]._id, title: requests[i].title, category: CATEGORIES[requests[i].category - 1], html: str });
             });
         }
@@ -1111,7 +1104,6 @@ app.get("/user_requests/:idToken/:start", (req, res) => {
                     err = err.message;
                 }
 
-                str = str.replaceAll("\n", "<br>");
                 responses.push({ id: requests[i]._id, title: requests[i].title, category: CATEGORIES[requests[i].category - 1], html: str });
             });
         }
@@ -1161,7 +1153,6 @@ app.get("/request/:id", async (req, res) => {
                         if (e) {
                             return res.status(400).send({ msg: e.message });
                         }
-                        str = str.replaceAll("\n", "<br>");
                         return res.status(200).send({ request: { id: request._id, title: request.title, category: CATEGORIES[request.category - 1], html: str } });
                     });
                 })
@@ -1174,7 +1165,6 @@ app.get("/request/:id", async (req, res) => {
                     return res.status(400).send({ msg: e.message });
                 }
 
-                str = str.replaceAll("\n", "<br>");
                 return res.status(200).send({ request: { id: request._id, title: request.title, category: CATEGORIES[request.category - 1], html: str } });
             });
         }

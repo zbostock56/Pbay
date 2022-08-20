@@ -99,10 +99,11 @@
           <%= CATEGORIES[request.category - 1].replace(/_+/g, " ") %> 
           <% } %>
         </div>
-        <% if(request.desc === "") { %> No description was listed 
-        <% } else { %>
-        <%= request.desc %> 
-        <% } %>
+        <div id="desc_<%= request._id %>"
+          <% if(request.desc === "") { %> No description was listed 
+          <% } else { %>
+          <%= request.desc %> 
+          <% } %>
       </div>
     </div>
     <!-- ================================================= -->

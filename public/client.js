@@ -763,6 +763,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
                 wrapper.classList.add("col");
                 wrapper.style.paddingBottom = "3vh";
                 wrapper.innerHTML = listing.html;
+                document.getElementById(`desc_${listing.id}`).innerHTML = document.getElementById(`desc_${listing.id}`).innerHTML.replaceAll("\n", "<br>");
 
                 listingList.appendChild(wrapper);
 
@@ -805,6 +806,7 @@ if (document.getElementById("home_page") || document.getElementById("category_pa
                 wrapper.classList.add("col");
                 wrapper.style.paddingBottom = "3vh";
                 wrapper.innerHTML = request.html;
+                document.getElementById(`desc_${request.id}`).innerHTML = document.getElementById(`desc_${request.id}`).innerHTML.replaceAll("\n", "<br>");
 
                 requestList.appendChild(wrapper);
 
