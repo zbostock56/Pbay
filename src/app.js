@@ -778,7 +778,7 @@ app.get("/listings/:start", async (req, res) => {
             let editable = false;
             for (let i = startingIndex; i < upperLimit; i++) {
                 editable = listings[i].user === uid;
-                listings[i].desc.replace("\n", "<br>");
+                listings[i].desc = listings[i].desc.replace("\n", "<br>");
                 ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listings[i], editable: editable, CATEGORIES: CATEGORIES }, (e, str) => {
                     if (e) {
                         err = e.message;
@@ -799,7 +799,7 @@ app.get("/listings/:start", async (req, res) => {
         });
     } else {
         for (let i = startingIndex; i < upperLimit; i++) {
-            listings[i].desc.replace("\n", "<br>");
+            listings[i].desc = listings[i].desc.replace("\n", "<br>");
             ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listings[i], editable: false, CATEGORIES: CATEGORIES }, (e, str) => {
                 if (e) {
                     err = e.message;
@@ -873,7 +873,7 @@ app.get("/user_listings/:idToken/:start", (req, res) => {
         }
 
         for (let i = startingIndex; i < upperLimit; i++) {
-            listings[i].desc.replace("\n", "<br>");
+            listings[i].desc = listings[i].desc.replace("\n", "<br>");
             ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listings[i], editable: true, CATEGORIES: CATEGORIES }, (err, str) => {
                 if (err) {
                     err = err.message;
@@ -924,7 +924,7 @@ app.get("/listing/:id", async (req, res) => {
                 const uid = decodedToken.uid;
 
                 const editable = listing.user === uid;
-                listing.desc.replace("\n", "<br>");
+                listing.desc = listing.desc.replace("\n", "<br>");
                 ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listing, editable: editable, CATEGORIES: CATEGORIES }, (e, str) => {
                     if (e) {
                         return res.status(400).send({ message: e.message });
@@ -937,7 +937,7 @@ app.get("/listing/:id", async (req, res) => {
                 return res.status(400).send({ msg: err.message });
             });
         } else {
-            listing.desc.replace("\n", "<br>");
+            listing.desc = listing.desc.replace("\n", "<br>");
             ejs.renderFile(`${__dirname}/../views/partials/card.ejs`, { listing: listing, editable: false, CATEGORIES: CATEGORIES }, (e, str) => {
                 if (e) {
                     return res.status(400).send({ message: e.message });
@@ -1012,7 +1012,7 @@ app.get("/requests/:start", async (req, res) => {
 
             for (let i = startingIndex; i < upperLimit; i++) {
                 editable = requests[i].user === uid;
-                requests[i].desc.replace("\n", "<br>");
+                requests[i].desc = requests[i].desc.replace("\n", "<br>");
                 ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: requests[i], editable: editable, CATEGORIES: CATEGORIES }, (e, str) => {
                     if (e) {
                         err = e.message; 
@@ -1032,7 +1032,7 @@ app.get("/requests/:start", async (req, res) => {
         });
     } else {
         for (let i = startingIndex; i < upperLimit; i++) {
-            requests[i].desc.replace("\n", "<br>");
+            requests[i].desc = requests[i].desc.replace("\n", "<br>");
             ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: requests[i], editable: false, CATEGORIES: CATEGORIES }, (e, str) => {
                 if (e) {
                     err = e.message;
@@ -1106,7 +1106,7 @@ app.get("/user_requests/:idToken/:start", (req, res) => {
         }
 
         for (let i = startingIndex; i < upperLimit; i++) {
-            requests[i].desc.replace("\n", "<br>");
+            requests[i].desc = requests[i].desc.replace("\n", "<br>");
             ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: requests[i], editable: true, CATEGORIES: CATEGORIES }, (err, str) => {
                 if (err) {
                     err = err.message;
@@ -1157,7 +1157,7 @@ app.get("/request/:id", async (req, res) => {
                     const uid = decodedToken.uid;
 
                     const editable = request.user === uid;
-                    request.desc.replace("\n", "<br>");
+                    request.desc = request.desc.replace("\n", "<br>");
                     ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: request, editable: editable, CATEGORIES: CATEGORIES }, (e, str) => {
                         if (e) {
                             return res.status(400).send({ msg: e.message });
@@ -1170,7 +1170,7 @@ app.get("/request/:id", async (req, res) => {
                     return res.status(400).send({ msg: err.message });
                 });
         } else {
-            request.desc.replace("\n", "<br>");
+            request.desc = request.desc.replace("\n", "<br>");
             ejs.renderFile(`${__dirname}/../views/partials/request_card.ejs`, { request: request, editable: false, CATEGORIES: CATEGORIES }, (e, str) => {
                 if (e) {
                     return res.status(400).send({ msg: e.message });
