@@ -136,7 +136,7 @@
           <%= CATEGORIES[listing.category - 1].replace(/_+/g, " ") %> 
           <% } %>
         </div>
-        <div id="desc_<%=listing._id>">
+        <div id="desc_<%= listing._id %>">
           <% if(listing.desc === "") { %> No description was listed 
           <% } else { %>
           <%= listing.desc %> 
