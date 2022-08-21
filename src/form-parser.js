@@ -41,10 +41,10 @@ const formParser = (req, res, next) => {
 
                 file.pipe(writeStream);
 
-                const promise = new Promise((resolve, reject) => {
+                const promise = await new Promise((resolve, reject) => {
                     file.on("limit", () => {
                         writeStream.end();
-                        throw { message: "Uploaded files cannot total more than 6MB" };
+                        reject({ message: "Uploaded files cannot total more than 6MB" });
                     });
 
                     file.on("end", () => {
@@ -53,7 +53,6 @@ const formParser = (req, res, next) => {
                     writeStream.on("finish", resolve);
                     writeStream.on("error", reject);
                 });
-
                 writes.push(promise);
             } else {
                 file.resume();
@@ -74,13 +73,8 @@ const formParser = (req, res, next) => {
                 const filename = uploads[file];
 
                 const uncompressed = fs.readFileSync(filename);
-                await sharp(uncompressed).resize({ width: 500 }).toBuffer()
-                .then((data) => {
-                    req.body.imgs.push(data);
-                })
-                .catch((err) => {
-                    throw err;
-                });
+                const data = await sharp(uncompressed).resize({ width: 500 }).toBuffer()
+                req.body.imgs.push(data);
 
                 fs.unlinkSync(filename);
             }
